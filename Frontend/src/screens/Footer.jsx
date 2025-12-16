@@ -29,7 +29,7 @@ export default function ScrollRevealText() {
   return (
     <section
       ref={ref}
-      className="relative w-full min-h-[65vh] flex justify-center mt-6"
+      className="relative w-full min-h-[65vh] flex justify-center mt-24"
     >
       <motion.div
         style={{ y, opacity }}

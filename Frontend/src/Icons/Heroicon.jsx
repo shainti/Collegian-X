@@ -8,16 +8,18 @@ import {
   MessageCircle,
   AlertTriangle,
   NotebookPen,
+  Plane,
 } from "lucide-react";
 
 const iconList = [
   { icon: CalendarCheck, label: "Timetable" },
   { icon: FileText, label: "Assignments" },
+  { icon: Plane, label: "Leave" },
   { icon: Megaphone, label: "Notice Board" },
   { icon: Library, label: "Library" },
   { icon: AlertTriangle, label: "Complaint Desk" },
   { icon: MessageCircle, label: "Chat" },
-   { icon: NotebookPen, label: "Attendence" },
+  { icon: NotebookPen, label: "Attendence" },
 ];
 
 const HeroIcons = () => {

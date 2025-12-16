@@ -1,89 +1,202 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { UserCircle2, School } from "lucide-react";
 
+/* ================= ANIMATION VARIANTS ================= */
+
+const containerVariants = {
+  hidden: {
+    opacity: 0,
+    y: 60,
+    scale: 0.92,
+    filter: "blur(12px)",
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: "blur(0px)",
+    transition: {
+      type: "spring",
+      stiffness: 90,
+      damping: 18,
+      mass: 0.8,
+      staggerChildren: 0.12,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -40,
+    scale: 0.95,
+    filter: "blur(10px)",
+    transition: { duration: 0.25 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 140 },
+  },
+};
+
+/* ================= COMPONENT ================= */
+
 const DualLogin = () => {
+  const [mode, setMode] = useState("student"); // student | faculty
+
   return (
     <div className="relative w-full min-h-screen bg-[#050B16] flex items-center justify-center overflow-hidden">
 
-      {/* Blue Glow Background */}
+      {/* BLUE GLOW BACKGROUND */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-[700px] h-[700px] bg-blue-600/30 blur-[200px] rounded-full"></div>
+        <div className="w-[700px] h-[700px] bg-blue-600/30 blur-[200px] rounded-full" />
       </div>
 
-      {/* CONTAINER */}
-      <div className="relative z-10 w-[70%] max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* MAIN CONTAINER */}
+      <div className="relative z-10 w-[380px] md:w-[420px]">
 
-        {/* FACULTY LOGIN */}
-        <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="
-            bg-[#0a1122]/50 backdrop-blur-xl border border-blue-400/30
-            rounded-2xl p-8 flex flex-col items-center text-white
-            hover:border-blue-400/60 hover:shadow-[0_0_35px_rgba(56,189,248,0.3)]
-            transition-all duration-300
-          "
-        >
-          <School size={60} className="text-blue-300 mb-4" />
-          <h2 className="text-2xl font-bold mb-6 text-blue-200">Faculty Login</h2>
-
-          <input
-            type="text"
-            placeholder="Faculty ID"
-            className="w-full p-3 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white mb-4"
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full p-3 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white mb-6"
-          />
-
-          <button className="
-            w-40 py-3 rounded-lg bg-blue-600/70 text-white font-semibold
-            hover:bg-blue-600/90 transition shadow-lg shadow-blue-500/20
-          ">
-            Login as Faculty
+        {/* TOGGLE */}
+        <div className="flex mt-6 mb-3 bg-[#0a1122]/70 rounded-xl p-1 border border-blue-400/30">
+          <button
+            onClick={() => setMode("student")}
+            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all
+              ${
+                mode === "student"
+                  ? "bg-[linear-gradient(to_right,#3b82f6,#14b8a6)] text-white shadow-md"
+                  : "text-white/60 hover:text-white"
+              }`}
+          >
+            Student
           </button>
-        </motion.div>
 
-        {/* STUDENT LOGIN */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="
-            bg-[#0a1122]/50 backdrop-blur-xl border border-blue-400/30
-            rounded-2xl p-8 flex flex-col items-center text-white
-            hover:border-blue-400/60 hover:shadow-[0_0_35px_rgba(56,189,248,0.3)]
-            transition-all duration-300
-          "
-        >
-          <UserCircle2 size={60} className="text-blue-300 mb-4" />
-          <h2 className="text-2xl font-bold mb-6 text-blue-200">Student Login</h2>
-
-          <input
-            type="text"
-            placeholder="Enrollment No."
-            className="w-full p-3 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white mb-4"
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full p-3 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white mb-6"
-          />
-
-          <button className="
-            w-40 py-3 rounded-lg bg-blue-600/70 text-white font-semibold
-            hover:bg-blue-600/90 transition shadow-lg shadow-blue-500/20
-          ">
-            Login as Student
+          <button
+            onClick={() => setMode("faculty")}
+            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all
+              ${
+                mode === "faculty"
+                  ? "bg-[linear-gradient(to_right,#3b82f6,#14b8a6)] text-white shadow-md"
+                  : "text-white/60 hover:text-white"
+              }`}
+          >
+            Faculty
           </button>
-        </motion.div>
+        </div>
 
+        {/* FORMS */}
+        <AnimatePresence mode="wait">
+
+          {/* STUDENT LOGIN */}
+          {mode === "student" && (
+            <motion.div
+              key="student"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="
+                bg-[#0a1122]/60 backdrop-blur-xl
+                border border-blue-400/30
+                rounded-2xl p-8 text-white
+                shadow-[0_0_45px_rgba(56,189,248,0.2)]
+              "
+            >
+              <motion.div
+                variants={itemVariants}
+                className="flex flex-col items-center"
+              >
+                <UserCircle2 size={62} className="text-cyan-300 mb-4" />
+                <h2 className="text-2xl font-bold text-cyan-200 mb-6">
+                  Student Login
+                </h2>
+              </motion.div>
+
+              <motion.input
+                variants={itemVariants}
+                type="text"
+                placeholder="Enrollment Number"
+                className="w-full p-3 mb-4 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white outline-none focus:border-cyan-400"
+              />
+
+              <motion.input
+                variants={itemVariants}
+                type="password"
+                placeholder="Password"
+                className="w-full p-3 mb-6 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white outline-none focus:border-cyan-400"
+              />
+
+              <motion.button
+                variants={itemVariants}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="
+                  w-full py-3 rounded-lg
+                  bg-[linear-gradient(to_right,#3b82f6,#14b8a6)]
+                  text-white font-semibold shadow-lg
+                "
+              >
+                Login as Student
+              </motion.button>
+            </motion.div>
+          )}
+
+          {/* FACULTY LOGIN */}
+          {mode === "faculty" && (
+            <motion.div
+              key="faculty"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="
+                bg-[#0a1122]/60 backdrop-blur-xl
+                border border-blue-400/30
+                rounded-2xl p-8 text-white
+                shadow-[0_0_45px_rgba(56,189,248,0.2)]
+              "
+            >
+              <motion.div
+                variants={itemVariants}
+                className="flex flex-col items-center"
+              >
+                <School size={62} className="text-cyan-300 mb-4" />
+                <h2 className="text-2xl font-bold text-cyan-200 mb-6">
+                  Faculty Login
+                </h2>
+              </motion.div>
+
+              <motion.input
+                variants={itemVariants}
+                type="text"
+                placeholder="Faculty ID"
+                className="w-full p-3 mb-4 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white outline-none focus:border-cyan-400"
+              />
+
+              <motion.input
+                variants={itemVariants}
+                type="password"
+                placeholder="Password"
+                className="w-full p-3 mb-6 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white outline-none focus:border-cyan-400"
+              />
+
+              <motion.button
+                variants={itemVariants}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="
+                  w-full py-3 rounded-lg
+                  bg-[linear-gradient(to_right,#3b82f6,#14b8a6)]
+                  text-white font-semibold shadow-lg
+                "
+              >
+                Login as Faculty
+              </motion.button>
+            </motion.div>
+          )}
+
+        </AnimatePresence>
       </div>
     </div>
   );
