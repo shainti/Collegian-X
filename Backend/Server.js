@@ -1,12 +1,11 @@
-const express = require("express");
-const app = express();
+const app = require('./src/app')
+const connectdb = require("./src/db/db")
 
-
-app.get('/',(req, res) => {
-res.send("hello this is backend yoo");
+connectdb();
+const PORT = 3000;
+const HOST = 'localhost'
+app.listen(PORT, HOST, ()=>{
+    console.log(`server start at http://${HOST}:${PORT}`);
 })
 
-const PORT = 3000; 
-app.listen(PORT, ()=>{
-    console.log(`server stat at: http://localhost:${PORT}`)
-})
+exports.app = app;
