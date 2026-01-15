@@ -57,7 +57,7 @@ export default function Header() {
 
           {/* LOGIN (solid color button) */}
           <Link
-            to="/Sign_in"
+            to="/Student/login"
             className=" text-base group flex items-center gap-2 bg-[linear-gradient(to_right,#3b82f6,#14b8a6)]  text-white px-6 py-2 rounded-lg shadow transition duration-300 hover:-translate-y-1 hover:shadow-lg"
           >
             <LogIn size={18} className=" transition group-hover:translate-x-1" />
@@ -127,7 +127,7 @@ export default function Header() {
           </Link>
           
           <Link
-            to="/Sign_in"
+            to="/Student/login"
             onClick={() => setOpen(false)}
             className="group flex items-center gap-3 bg-[linear-gradient(to_right,#3b82f6,#14b8a6)]  text-white px-6 py-2 rounded-lg shadow transition duration-300 hover:-translate-y-1"
           >

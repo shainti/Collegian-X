@@ -34,15 +34,15 @@ export default function Home() {
 "
         >
           One dashboard for all your timetables, assignments, notices, books,
-          chats, and reminders {" "}
+          chats, and reminders{" "}
           <span className="text-white slide-left-text">
             designed to reduce confusion and save your time.
           </span>
         </p>
         <div className="mt-6 md:mt-10">
           <HeroIcons />
-        </div> 
-       <div className="flex justify-center mt-6">
+        </div>
+        <div className="flex justify-center mt-6">
           <a
             href="#explore"
             className="
@@ -55,7 +55,7 @@ export default function Home() {
             Explore Features
           </a>
         </div>
-        <Footer/>
+        <Footer />
       </div>
     </div>
   );

@@ -58,6 +58,7 @@ exports.loginstudents = async (req, res, next) => {
       Message: "invalid email or password",
     });
   }
+  console.log("student ho gya");
   const token = jwt.sign({
     id: Student._id,
   },process.env.JWT_SECRET)
