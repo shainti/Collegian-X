@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const Facultyschema = new mongoose.Schema(
     {
     FacultyId: {
-        type: Number,
+        type: String,
         required: true
     },
     password: {
-        type: Number,
+        type: String,
         required: true
     }
 },
