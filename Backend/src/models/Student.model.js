@@ -11,6 +11,14 @@ const StudentSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    Department:{
+      type: String,
+      requied: true
+    },
+    Semester:{
+      type: String,
+      requied: true
+    },
     CollegeRollNo: {
       type: Number,
       required: true,

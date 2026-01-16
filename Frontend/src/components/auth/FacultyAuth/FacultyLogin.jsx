@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { School } from "lucide-react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const FacultyLogin = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,8 @@ const FacultyLogin = () => {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    await axios.post('http://localhost:3000/')
     console.log("Faculty login:", formData);
   };
 

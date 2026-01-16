@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.registerstudents = async (req, res, next) => {
-  const { FullName, email, CollegeRollNo, password } = req.body;
+  const { FullName, email, Department, Semester, CollegeRollNo, password } = req.body;
 
   const IsstudentExist = await StudentModel.findOne({
     CollegeRollNo,
@@ -18,6 +18,8 @@ exports.registerstudents = async (req, res, next) => {
   const Student = await StudentModel.create({
     FullName,
     email,
+    Department,
+    Semester,
     CollegeRollNo,
     password: hashpassword,
   });
@@ -35,17 +37,19 @@ exports.registerstudents = async (req, res, next) => {
       _id: Student._id,
       FullName: Student.FullName,
       email: Student.email,
+      Department: Student.Department,
+      Semester: Student.Semester,
       CollegeRollNo: Student.CollegeRollNo,
     },
   });
 };
 
 exports.loginstudents = async (req, res, next) => {
-  const { email, CollegeRollNo, password } = req.body;
+  const { email, CollegeRollNo, Department, password } = req.body;
 
   const Student = await StudentModel.findOne({
     email,
-    CollegeRollNo
+    CollegeRollNo,
   });
   if (!Student) {
     res.status(400).json({
@@ -69,7 +73,8 @@ exports.loginstudents = async (req, res, next) => {
     Student:{
         id: Student._id,
         FullName: Student.FullName,
-        CollegeRollNo: Student.CollegeRollNo
+        CollegeRollNo: Student.CollegeRollNo,
+        Department: Student.Department
     }
   })
 };
