@@ -1,6 +1,8 @@
 const StudentModel = require("../models/Student.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { default: mongoose } = require("mongoose");
+const Facultymodel = require("../models/Faculty.model");
 
 exports.registerstudents = async (req, res, next) => {
   const { FullName, email, Department, Semester, CollegeRollNo, password } = req.body;
@@ -85,3 +87,36 @@ exports.logoutstudent = (req, res, next) => {
             Message: "Student Logout Successfully"
         });
 };
+
+exports.Facultylogin = async (req, res, next) => {
+
+  const {FacultyId, password} = req.body
+
+  const faculty = await Facultymodel.findOne({
+    FacultyId
+  })
+  if(!faculty){
+    res.status(400).json({
+      message: "Faculty not found"
+    })
+  }
+
+  const ispasswordvaild = await bcrypt.compare(password, faculty.password);
+  if(!ispasswordvaild){
+    res.status(400).json({
+      message: "Invaild id or password"
+    })
+  }
+    const token = jwt.sign({
+    id: faculty._id,
+  },process.env.JWT_SECRET)
+
+  res.cookie("token", token);
+  res.status(200).json({
+    Message: "Faculty Login Sucsessfully",
+    Student:{
+        id: faculty._id,
+        Faculty: faculty.FacultyId
+    }
+  })
+}
