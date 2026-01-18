@@ -30,15 +30,26 @@ const StudentLogin = () => {
       withCredentials: true
     });
     console.log("Student login:", formData);
-    Navigate("/Student/login/Success");
+    Navigate("/StudentDashboard");
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-[#050B16] flex items-center justify-center overflow-hidden p-4">
-      {/* BLUE GLOW BACKGROUND */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="w-[700px] h-[700px] bg-blue-600/30 blur-[200px] rounded-full" />
+    <div className="relative w-full min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center overflow-hidden p-4">
+      {/* Floating background emojis */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <div className="absolute top-20 left-10 text-5xl animate-float">📚</div>
+        <div className="absolute top-40 right-20 text-6xl animate-float-delayed">🎓</div>
+        <div className="absolute bottom-32 left-20 text-5xl animate-float-delayed-2">📖</div>
+        <div className="absolute top-1/2 right-10 text-4xl animate-float">✏️</div>
+        <div className="absolute bottom-20 right-1/3 text-5xl animate-float-delayed">🌟</div>
+        <div className="absolute top-1/3 left-1/4 text-4xl animate-spin-slow">⚡</div>
+        <div className="absolute bottom-1/3 right-1/4 text-4xl animate-pulse">💡</div>
       </div>
+
+      {/* Animated gradient orbs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse-delayed" />
+      <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse-delayed-2" />
 
       {/* MAIN CONTAINER */}
       <div className="relative z-10 w-full max-w-[380px] my-auto">
@@ -137,6 +148,46 @@ const StudentLogin = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-25px) rotate(8deg);
+          }
+        }
+
+        .animate-float {
+          animation: float 4s ease-in-out infinite;
+        }
+
+        .animate-float-delayed {
+          animation: float 4s ease-in-out infinite 1s;
+        }
+
+        .animate-float-delayed-2 {
+          animation: float 4s ease-in-out infinite 2s;
+        }
+
+        .animate-pulse-delayed {
+          animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite 1s;
+        }
+
+        .animate-pulse-delayed-2 {
+          animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite 2s;
+        }
+
+        .animate-spin-slow {
+          animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
