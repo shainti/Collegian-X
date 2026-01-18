@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Home, Sparkles, Info, LogIn } from "lucide-react";
+import { Home, Sparkles, LogIn, UserCheck } from "lucide-react";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -16,10 +16,9 @@ export default function Header() {
 
         {/* DESKTOP MENU */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-          {/* HOME */}
           <Link
             to="/Home"
-            className=" text-lg group relative flex items-center gap-2 text-white/70 hover:text-white transition duration-300"
+            className="text-lg group relative flex items-center gap-2 text-white/70 hover:text-white transition duration-300"
           >
             <Home
               size={18}
@@ -29,10 +28,9 @@ export default function Header() {
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full" />
           </Link>
 
-          {/* FEATURES */}
           <Link
             to="/features"
-            className=" text-lg group relative flex items-center gap-2 text-white/70 hover:text-white transition duration-300"
+            className="text-lg group relative flex items-center gap-2 text-white/70 hover:text-white transition duration-300"
           >
             <Sparkles
               size={18}
@@ -42,26 +40,22 @@ export default function Header() {
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full" />
           </Link>
 
-          {/* ABOUT */}
-          <Link
-            to="/about"
-            className=" text-lg group relative flex items-center gap-2 text-white/70 hover:text-white transition duration-300"
-          >
-            <Info
-              size={18}
-              className="transition group-hover:translate-x-1 group-hover:text-cyan-300"
-            />
-            About
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full" />
-          </Link>
-
-          {/* LOGIN (solid color button) */}
+          {/* STUDENT LOGIN */}
           <Link
             to="/Student/login"
-            className=" text-base group flex items-center gap-2 bg-[linear-gradient(to_right,#3b82f6,#14b8a6)]  text-white px-6 py-2 rounded-lg shadow transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+            className="text-base group flex items-center gap-2 bg-[linear-gradient(to_right,#3b82f6,#14b8a6)] text-white px-6 py-2 rounded-lg shadow transition duration-300 hover:-translate-y-1 hover:shadow-lg"
           >
-            <LogIn size={18} className=" transition group-hover:translate-x-1" />
-            Log In
+            <LogIn size={18} className="transition group-hover:translate-x-1" />
+            Student
+          </Link>
+
+          {/* FACULTY LOGIN */}
+          <Link
+            to="/Faculty/login"
+            className="text-base group flex items-center gap-2 bg-[linear-gradient(to_right,#6366f1,#22d3ee)] text-white px-6 py-2 rounded-lg shadow transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+          >
+            <UserCheck size={18} className="transition group-hover:translate-x-1" />
+            Faculty
           </Link>
         </nav>
 
@@ -92,7 +86,7 @@ export default function Header() {
       {/* MOBILE MENU */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-500 ${
-          open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          open ? "max-h-[360px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="bg-blue-950/40 backdrop-blur border-t border-white/10 py-6 flex flex-col items-center gap-6 text-lg">
@@ -110,29 +104,26 @@ export default function Header() {
             onClick={() => setOpen(false)}
             className="group flex items-center gap-3 text-white transition hover:translate-x-2"
           >
-            <Sparkles
-              size={20}
-              className="group-hover:text-cyan-300 transition"
-            />
+            <Sparkles size={20} className="group-hover:text-cyan-300 transition" />
             Features
           </Link>
 
           <Link
-            to="/about"
-            onClick={() => setOpen(false)}
-            className="group flex items-center gap-3 text-white transition hover:translate-x-2"
-          >
-            <Info size={20} className="group-hover:text-cyan-300 transition" />
-            About
-          </Link>
-          
-          <Link
             to="/Student/login"
             onClick={() => setOpen(false)}
-            className="group flex items-center gap-3 bg-[linear-gradient(to_right,#3b82f6,#14b8a6)]  text-white px-6 py-2 rounded-lg shadow transition duration-300 hover:-translate-y-1"
+            className="group flex items-center gap-3 bg-[linear-gradient(to_right,#3b82f6,#14b8a6)] text-white px-6 py-2 rounded-lg shadow transition duration-300 hover:-translate-y-1"
           >
             <LogIn size={20} className="transition group-hover:translate-x-1" />
-            Log In
+            Student Login
+          </Link>
+
+          <Link
+            to="/Faculty/login"
+            onClick={() => setOpen(false)}
+            className="group flex items-center gap-3 bg-[linear-gradient(to_right,#6366f1,#22d3ee)] text-white px-6 py-2 rounded-lg shadow transition duration-300 hover:-translate-y-1"
+          >
+            <UserCheck size={20} className="transition group-hover:translate-x-1" />
+            Faculty Login
           </Link>
         </div>
       </div>

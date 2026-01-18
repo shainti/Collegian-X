@@ -130,21 +130,6 @@ const StudentLogin = () => {
                 New Student? Register Here
               </Link>
             </div>
-
-            <div className="flex items-center my-2">
-              <div className="flex-1 h-px bg-blue-400/20"></div>
-              <span className="px-3 text-xs text-white/40">OR</span>
-              <div className="flex-1 h-px bg-blue-400/20"></div>
-            </div>
-
-            <div className="text-center">
-              <Link
-                to="/Faculty/login"
-                className="text-white/60 hover:text-cyan-400 text-xs sm:text-sm font-medium transition-colors duration-200"
-              >
-                Faculty Login →
-              </Link>
-            </div>
           </div>
         </div>
       </div>

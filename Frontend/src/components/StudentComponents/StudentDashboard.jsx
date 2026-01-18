@@ -31,20 +31,15 @@ const PortalCard = ({
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center w-full">
-        {/* ICON */}
+        {/* PNG ICON */}
         <div
-          className={`relative mb-4 ${iconColor} w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg
-          group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-300`}
+          className={`relative mb-4 ${iconColor} w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300`}
         >
-          {/* pulse glow */}
-          <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 animate-icon-pulse" />
-
           <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl" />
-
           <img
             src={image}
             alt={title}
-            className="w-10 h-10 object-contain relative z-10 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110"
+            className="w-10 h-10 object-contain relative z-10"
           />
         </div>
 
@@ -97,7 +92,7 @@ export default function StudentPortal() {
     },
     {
       id: 4,
-      image: "/icons/attendance1.png",
+      image: "/icons/attendance.png",
       title: "Attendance",
       buttonText: "View All",
       bgColor:
@@ -117,7 +112,7 @@ export default function StudentPortal() {
     },
     {
       id: 6,
-      image: "/icons/message.png",
+      image: "public/icons/message.png",
       title: "Complaints",
       buttonText: "View All",
       bgColor:
@@ -129,7 +124,21 @@ export default function StudentPortal() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden flex items-center justify-center">
-      {/* background animations unchanged */}
+      {/* FLOATING EMOJIS */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <div className="absolute top-20 left-10 text-5xl animate-float">📚</div>
+        <div className="absolute top-40 right-20 text-6xl animate-float-delayed">🎓</div>
+        <div className="absolute bottom-32 left-20 text-5xl animate-float-delayed-2">📖</div>
+        <div className="absolute top-1/2 right-10 text-4xl animate-float">✏️</div>
+        <div className="absolute bottom-20 right-1/3 text-5xl animate-float-delayed">🌟</div>
+        <div className="absolute top-1/3 left-1/4 text-4xl animate-spin-slow">⚡</div>
+        <div className="absolute bottom-1/3 right-1/4 text-4xl animate-pulse">💡</div>
+      </div>
+
+      {/* GRADIENT ORBS */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse-delayed" />
+      <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse-delayed-2" />
 
       <div className="max-w-5xl mx-auto relative z-10 w-full">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
@@ -150,24 +159,31 @@ export default function StudentPortal() {
             transform: translateY(0);
           }
         }
-
-        @keyframes iconPulse {
-          0% {
-            transform: scale(1);
-            opacity: 0.4;
-          }
-          50% {
-            transform: scale(1.15);
-            opacity: 0.15;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 0.4;
-          }
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0); }
+          50% { transform: translateY(-25px) rotate(8deg); }
         }
-
-        .animate-icon-pulse {
-          animation: iconPulse 1.6s ease-in-out infinite;
+        .animate-float {
+          animation: float 4s ease-in-out infinite;
+        }
+        .animate-float-delayed {
+          animation: float 4s ease-in-out infinite 1s;
+        }
+        .animate-float-delayed-2 {
+          animation: float 4s ease-in-out infinite 2s;
+        }
+        .animate-pulse-delayed {
+          animation: pulse 3s infinite 1s;
+        }
+        .animate-pulse-delayed-2 {
+          animation: pulse 3s infinite 2s;
+        }
+        .animate-spin-slow {
+          animation: spin 10s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
