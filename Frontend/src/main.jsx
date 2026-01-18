@@ -3,11 +3,13 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import StudentLogin from "./components/auth/StudentAuth/StudentLogin.jsx";
+import StudentLogin from "./auth/StudentAuth/StudentLogin.jsx";
 import Home from "./screens/Home.jsx";
-import FacultyLogin from "./components/auth/FacultyAuth/FacultyLogin.jsx";
-import SuccessLogin from './components/auth/StudentAuth/SuccessLogin.jsx';
-import StudentRegister from './components/auth/StudentAuth/StudentRegister.jsx'
+import SuccessLogin from './auth/StudentAuth/SuccessLogin.jsx';
+import StudentRegister from './auth/StudentAuth/StudentRegister.jsx'
+import StudentDashboard from "./components/StudentComponents/StudentDashboard.jsx";
+import FacultyLogin from "./auth/FacultyAuth/FacultyLogin.jsx";
+import FacultyDashboard from "./components/FacultyComponents/FacultyDashboard.jsx";
 
 const router = createBrowserRouter([
   {
@@ -19,7 +21,9 @@ const router = createBrowserRouter([
       { path: "/Student/login", element: <StudentLogin />},
       { path: "/Student/register", element: <StudentRegister />},
       { path: "Student/login/Success", element: <SuccessLogin />},
+      { path: "/StudentDashboard", element: <StudentDashboard />},
       { path: "Faculty/login", element: <FacultyLogin />},
+      { path: "/FacultyDashboard", element: <FacultyDashboard />},
     ],
   },
 ]);

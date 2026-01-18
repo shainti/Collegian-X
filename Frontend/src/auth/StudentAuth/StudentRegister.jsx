@@ -41,7 +41,7 @@ const StudentRegister = () => {
         withCredentials: true
       });
       console.log("Student registration:", formData);
-      Navigate("/Student/login/Success");
+      Navigate("/StudentDashboard");
     } catch (error) {
       console.error("Registration error:", error);
       alert("Registration failed. Please try again.");
