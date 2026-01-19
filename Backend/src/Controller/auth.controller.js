@@ -7,15 +7,16 @@ const Facultymodel = require("../models/Faculty.model");
 exports.registerstudents = async (req, res, next) => {
   const { FullName, email, Department, Semester, CollegeRollNo, password } = req.body;
 
-  const IsstudentExist = await StudentModel.findOne({
-    CollegeRollNo,
-  });
-
-  if (IsstudentExist) {
+  const existingStudent = await StudentModel.findOne({
+  $or: [{ email }, { CollegeRollNo }],
+});
+  if (existingStudent) {
     return res.status(400).json({
-      message: "Student Already Exist",
+      errors: ["Student Already Exist"],
     });
   }
+  
+
   const hashpassword = await bcrypt.hash(password, 10);
   const Student = await StudentModel.create({
     FullName,
@@ -49,7 +50,6 @@ exports.registerstudents = async (req, res, next) => {
 exports.loginstudents = async (req, res, next) => {
 
   const { email, CollegeRollNo, Department, password } = req.body;
-console.log(CollegeRollNo)
   const Student = await StudentModel.findOne({
     email,
   });
@@ -63,7 +63,6 @@ console.log(CollegeRollNo)
       errors: ["Invalid College Roll NO"],
     });
   }
-  console.log(Student.CollegeRollNo)
   const ispasswordvaild = await bcrypt.compare(password, Student.password);
   if (!ispasswordvaild) {  
      return res.status(400).json({  

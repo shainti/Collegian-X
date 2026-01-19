@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const StudentRegister = () => {
   const Navigate = useNavigate();
+  const [errors, setErrors] = useState("");
   const [formData, setFormData] = useState({
     FullName: "",
     email: "",
@@ -30,21 +31,24 @@ const StudentRegister = () => {
     }
 
     try {
-      await axios.post("http://localhost:3000/api/auth/Student/register", {
-        FullName: formData.FullName,
-        email: formData.email,
-        Department: formData.Department,
-        Semester: formData.Semester,
-        CollegeRollNo: formData.CollegeRollNo,
-        password: formData.password,
-      }, {
-        withCredentials: true
-      });
+      await axios.post(
+        "http://localhost:3000/api/auth/Student/register",
+        {
+          FullName: formData.FullName,
+          email: formData.email,
+          Department: formData.Department,
+          Semester: formData.Semester,
+          CollegeRollNo: formData.CollegeRollNo,
+          password: formData.password,
+        },
+        {
+          withCredentials: true,
+        },
+      );
       console.log("Student registration:", formData);
       Navigate("/StudentDashboard");
-    } catch (error) {
-      console.error("Registration error:", error);
-      alert("Registration failed. Please try again.");
+    } catch (data) {
+      setErrors(data.response?.data?.errors);
     }
   };
 
@@ -59,22 +63,50 @@ const StudentRegister = () => {
       {/* FLOATING ICONS */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <div className="absolute top-20 left-10 text-4xl animate-float">📚</div>
-        <div className="absolute top-32 right-20 text-5xl animate-float-delayed">🎓</div>
-        <div className="absolute bottom-40 left-16 text-4xl animate-float-delayed-2">📖</div>
-        <div className="absolute top-1/2 right-12 text-3xl animate-float">✏️</div>
-        <div className="absolute bottom-24 right-1/3 text-4xl animate-float-delayed">🌟</div>
-        <div className="absolute top-1/3 left-1/4 text-3xl animate-spin-slow">⚡</div>
-        <div className="absolute bottom-1/3 right-1/4 text-3xl animate-pulse">💡</div>
-        <div className="absolute top-1/4 right-1/3 text-4xl animate-float-delayed-2">📝</div>
-        <div className="absolute bottom-1/2 left-1/3 text-3xl animate-float">🎯</div>
+        <div className="absolute top-32 right-20 text-5xl animate-float-delayed">
+          🎓
+        </div>
+        <div className="absolute bottom-40 left-16 text-4xl animate-float-delayed-2">
+          📖
+        </div>
+        <div className="absolute top-1/2 right-12 text-3xl animate-float">
+          ✏️
+        </div>
+        <div className="absolute bottom-24 right-1/3 text-4xl animate-float-delayed">
+          🌟
+        </div>
+        <div className="absolute top-1/3 left-1/4 text-3xl animate-spin-slow">
+          ⚡
+        </div>
+        <div className="absolute bottom-1/3 right-1/4 text-3xl animate-pulse">
+          💡
+        </div>
+        <div className="absolute top-1/4 right-1/3 text-4xl animate-float-delayed-2">
+          📝
+        </div>
+        <div className="absolute bottom-1/2 left-1/3 text-3xl animate-float">
+          🎯
+        </div>
       </div>
 
       {/* MAIN CONTAINER */}
       <div className="relative z-10 w-full max-w-[550px]">
+          {errors && (
+          <div className="mb-4 rounded-xl border border-blue-400/40 bg-white-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_25px_rgba(248,113,113,0.25)] backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⚠️</span>
+              <span className="font-medium">
+                {Array.isArray(errors) ? errors[0] : errors}
+              </span>
+            </div>
+          </div>
+        )}
         <div className="bg-[#0a1122]/60 backdrop-blur-xl border border-blue-400/30 rounded-2xl p-6 text-white shadow-[0_0_45px_rgba(56,189,248,0.2)] w-full">
           <div className="flex flex-col items-center mb-4">
             <UserPlus size={40} className="text-cyan-300 mb-2" />
-            <h2 className="text-xl font-bold text-cyan-200">Student Register</h2>
+            <h2 className="text-xl font-bold text-cyan-200">
+              Student Register
+            </h2>
           </div>
 
           <div className="space-y-3">
@@ -116,22 +148,40 @@ const StudentRegister = () => {
                   value={formData.Department}
                   onChange={handleChange}
                   className={`w-full p-3 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
-                    formData.Department ? 'text-white' : 'text-white/40'
+                    formData.Department ? "text-white" : "text-white/40"
                   }`}
                 >
-                  <option value="" className="bg-[#050B16] text-white/40">Department</option>
-                  <option value="BCA" className="bg-[#050B16] text-white/90">BCA</option>
-                  <option value="MCA" className="bg-[#050B16] text-white/90">MCA</option>
-                  <option value="BBA" className="bg-[#050B16] text-white/90">BBA</option>
-                  <option value="BVOC" className="bg-[#050B16] text-white/90">BVOC</option>
-                  <option value="BCOM" className="bg-[#050B16] text-white/90">BCOM</option>
-                  <option value="MCOM" className="bg-[#050B16] text-white/90">MCOM</option>
-                  <option value="BSC" className="bg-[#050B16] text-white/90">BSC</option>
-                  <option value="MSC" className="bg-[#050B16] text-white/90">MSC</option>
+                  <option value="" className="bg-[#050B16] text-white/40">
+                    Department
+                  </option>
+                  <option value="BCA" className="bg-[#050B16] text-white/90">
+                    BCA
+                  </option>
+                  <option value="MCA" className="bg-[#050B16] text-white/90">
+                    MCA
+                  </option>
+                  <option value="BBA" className="bg-[#050B16] text-white/90">
+                    BBA
+                  </option>
+                  <option value="BVOC" className="bg-[#050B16] text-white/90">
+                    BVOC
+                  </option>
+                  <option value="BCOM" className="bg-[#050B16] text-white/90">
+                    BCOM
+                  </option>
+                  <option value="MCOM" className="bg-[#050B16] text-white/90">
+                    MCOM
+                  </option>
+                  <option value="BSC" className="bg-[#050B16] text-white/90">
+                    BSC
+                  </option>
+                  <option value="MSC" className="bg-[#050B16] text-white/90">
+                    MSC
+                  </option>
                 </select>
-                <ChevronDown 
-                  size={16} 
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400/70 pointer-events-none" 
+                <ChevronDown
+                  size={16}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400/70 pointer-events-none"
                 />
               </div>
 
@@ -141,22 +191,40 @@ const StudentRegister = () => {
                   value={formData.Semester}
                   onChange={handleChange}
                   className={`w-full p-3 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
-                    formData.Semester ? 'text-white' : 'text-white/40'
+                    formData.Semester ? "text-white" : "text-white/40"
                   }`}
                 >
-                  <option value="" className="bg-[#050B16] text-white/40">Semester</option>
-                  <option value="1" className="bg-[#050B16] text-white/90">1st</option>
-                  <option value="2" className="bg-[#050B16] text-white/90">2nd</option>
-                  <option value="3" className="bg-[#050B16] text-white/90">3rd</option>
-                  <option value="4" className="bg-[#050B16] text-white/90">4th</option>
-                  <option value="5" className="bg-[#050B16] text-white/90">5th</option>
-                  <option value="6" className="bg-[#050B16] text-white/90">6th</option>
-                  <option value="7" className="bg-[#050B16] text-white/90">7th</option>
-                  <option value="8" className="bg-[#050B16] text-white/90">8th</option>
+                  <option value="" className="bg-[#050B16] text-white/40">
+                    Semester
+                  </option>
+                  <option value="1" className="bg-[#050B16] text-white/90">
+                    1st
+                  </option>
+                  <option value="2" className="bg-[#050B16] text-white/90">
+                    2nd
+                  </option>
+                  <option value="3" className="bg-[#050B16] text-white/90">
+                    3rd
+                  </option>
+                  <option value="4" className="bg-[#050B16] text-white/90">
+                    4th
+                  </option>
+                  <option value="5" className="bg-[#050B16] text-white/90">
+                    5th
+                  </option>
+                  <option value="6" className="bg-[#050B16] text-white/90">
+                    6th
+                  </option>
+                  <option value="7" className="bg-[#050B16] text-white/90">
+                    7th
+                  </option>
+                  <option value="8" className="bg-[#050B16] text-white/90">
+                    8th
+                  </option>
                 </select>
-                <ChevronDown 
-                  size={16} 
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400/70 pointer-events-none" 
+                <ChevronDown
+                  size={16}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400/70 pointer-events-none"
                 />
               </div>
             </div>
@@ -205,8 +273,13 @@ const StudentRegister = () => {
 
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0); }
-          50% { transform: translateY(-20px) rotate(5deg); }
+          0%,
+          100% {
+            transform: translateY(0) rotate(0);
+          }
+          50% {
+            transform: translateY(-20px) rotate(5deg);
+          }
         }
         .animate-float {
           animation: float 4s ease-in-out infinite;
@@ -221,8 +294,12 @@ const StudentRegister = () => {
           animation: spin 8s linear infinite;
         }
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
     </div>
