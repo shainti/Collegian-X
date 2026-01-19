@@ -20,7 +20,7 @@ const StudentSchema = new mongoose.Schema(
       requied: true
     },
     CollegeRollNo: {
-      type: Number,
+      type: String,
       required: true,
     },
     password: {

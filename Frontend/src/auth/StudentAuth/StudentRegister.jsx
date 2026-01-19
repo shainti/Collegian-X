@@ -49,40 +49,54 @@ const StudentRegister = () => {
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-[#050B16] flex items-center justify-center overflow-y-auto p-3 sm:p-4">
+    <div className="relative w-full min-h-screen bg-[#050B16] flex items-center justify-center p-4">
       {/* BLUE GLOW BACKGROUND */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="w-[700px] h-[700px] bg-blue-600/30 blur-[200px] rounded-full" />
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-blue-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-purple-500/20 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* FLOATING ICONS */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+        <div className="absolute top-20 left-10 text-4xl animate-float">📚</div>
+        <div className="absolute top-32 right-20 text-5xl animate-float-delayed">🎓</div>
+        <div className="absolute bottom-40 left-16 text-4xl animate-float-delayed-2">📖</div>
+        <div className="absolute top-1/2 right-12 text-3xl animate-float">✏️</div>
+        <div className="absolute bottom-24 right-1/3 text-4xl animate-float-delayed">🌟</div>
+        <div className="absolute top-1/3 left-1/4 text-3xl animate-spin-slow">⚡</div>
+        <div className="absolute bottom-1/3 right-1/4 text-3xl animate-pulse">💡</div>
+        <div className="absolute top-1/4 right-1/3 text-4xl animate-float-delayed-2">📝</div>
+        <div className="absolute bottom-1/2 left-1/3 text-3xl animate-float">🎯</div>
       </div>
 
       {/* MAIN CONTAINER */}
-      <div className="relative mt-8 z-10 w-full max-w-[500px] my-4 sm:my-auto">
-        <div className="bg-[#0a1122]/60 backdrop-blur-xl border border-blue-400/30 rounded-2xl p-4 sm:p-5 text-white shadow-[0_0_45px_rgba(56,189,248,0.2)] overflow-hidden">
-          <div className="flex flex-col items-center mb-3">
-            <UserPlus size={36} className="text-cyan-300 mb-1.5" />
-            <h2 className="text-base sm:text-lg font-bold text-cyan-200">Student Register</h2>
+      <div className="relative z-10 w-full max-w-[550px]">
+        <div className="bg-[#0a1122]/60 backdrop-blur-xl border border-blue-400/30 rounded-2xl p-6 text-white shadow-[0_0_45px_rgba(56,189,248,0.2)] w-full">
+          <div className="flex flex-col items-center mb-4">
+            <UserPlus size={40} className="text-cyan-300 mb-2" />
+            <h2 className="text-xl font-bold text-cyan-200">Student Register</h2>
           </div>
 
-          <div className="space-y-2">
-            {/* Full Name - Full Width */}
+          <div className="space-y-3">
+            {/* Full Name */}
             <input
               type="text"
               name="FullName"
               placeholder="Full Name"
               value={formData.FullName}
               onChange={handleChange}
-              className="w-full p-2 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+              className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
             />
 
-            {/* Email and Roll No - Side by Side */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Email and Roll No */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
                 type="email"
                 name="email"
                 placeholder="Email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full p-2 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
               />
               <input
                 type="text"
@@ -90,18 +104,18 @@ const StudentRegister = () => {
                 placeholder="Roll No"
                 value={formData.CollegeRollNo}
                 onChange={handleChange}
-                className="w-full p-2 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
               />
             </div>
 
-            {/* Department and Semester - Side by Side */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Department and Semester */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="relative">
                 <select
                   name="Department"
                   value={formData.Department}
                   onChange={handleChange}
-                  className={`w-full p-2 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
+                  className={`w-full p-3 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
                     formData.Department ? 'text-white' : 'text-white/40'
                   }`}
                 >
@@ -116,7 +130,7 @@ const StudentRegister = () => {
                   <option value="MSC" className="bg-[#050B16] text-white/90">MSC</option>
                 </select>
                 <ChevronDown 
-                  size={14} 
+                  size={16} 
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400/70 pointer-events-none" 
                 />
               </div>
@@ -126,7 +140,7 @@ const StudentRegister = () => {
                   name="Semester"
                   value={formData.Semester}
                   onChange={handleChange}
-                  className={`w-full p-2 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
+                  className={`w-full p-3 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
                     formData.Semester ? 'text-white' : 'text-white/40'
                   }`}
                 >
@@ -141,21 +155,21 @@ const StudentRegister = () => {
                   <option value="8" className="bg-[#050B16] text-white/90">8th</option>
                 </select>
                 <ChevronDown 
-                  size={14} 
+                  size={16} 
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400/70 pointer-events-none" 
                 />
               </div>
             </div>
 
-            {/* Password and Confirm Password - Side by Side */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Password and Confirm Password */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
                 type="password"
                 name="password"
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full p-2 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
               />
               <input
                 type="password"
@@ -163,49 +177,56 @@ const StudentRegister = () => {
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full p-2 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
               />
             </div>
 
             <button
               onClick={handleSubmit}
-              className="w-full py-2 mt-0.5 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-semibold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200"
+              className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-semibold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200"
             >
               Register as Student
             </button>
           </div>
 
           {/* Bottom Links */}
-          <div className="mt-3 space-y-1.5">
+          <div className="mt-4 space-y-2">
             <div className="text-center">
               <Link
                 to="/Student/login"
-                className="text-cyan-400 hover:text-cyan-300 text-xs sm:text-sm font-medium transition-colors duration-200"
+                className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors duration-200"
               >
                 Already have an account? Login Here
-              </Link>
-            </div>
-
-            <div className="flex items-center my-1.5">
-              <div className="flex-1 h-px bg-blue-400/20"></div>
-              <span className="px-2 text-xs text-white/40">OR</span>
-              <div className="flex-1 h-px bg-blue-400/20"></div>
-            </div>
-
-            <div className="text-center">
-              <Link
-                to="/Faculty/login"
-                className="text-white/60 hover:text-cyan-400 text-xs font-medium transition-colors duration-200"
-              >
-                Faculty Login →
               </Link>
             </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0); }
+          50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        .animate-float {
+          animation: float 4s ease-in-out infinite;
+        }
+        .animate-float-delayed {
+          animation: float 4s ease-in-out infinite 1s;
+        }
+        .animate-float-delayed-2 {
+          animation: float 4s ease-in-out infinite 2s;
+        }
+        .animate-spin-slow {
+          animation: spin 8s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
 
 export default StudentRegister;
-

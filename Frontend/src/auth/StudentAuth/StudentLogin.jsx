@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { UserCircle2, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+
 const StudentLogin = () => {
   const Navigate = useNavigate();
+ const [errors, setErrors] = useState("");
   const [formData, setFormData] = useState({
     email: "",
-    rollNo: "",
+    CollegeRollNo: "",
     password: "",
-    department: "",
+    Department: "",
   });
 
   const handleChange = (e) => {
@@ -21,20 +23,25 @@ const StudentLogin = () => {
   };
 
   const handleSubmit = async () => {
+   
     await axios.post("http://localhost:3000/api/auth/Student/login", {
       email: formData.email,
-      CollegeRollNo: formData.rollNo,
+      CollegeRollNo: formData.CollegeRollNo,
       password: formData.password,
-      department: formData.department,
+      Department: formData.Department,
     }, {
       withCredentials: true
-    });
-    console.log("Student login:", formData);
-    Navigate("/StudentDashboard");
+    }).then(()=>{
+      console.log("Student login:", formData);
+      Navigate("/StudentDashboard");
+    }).catch(data =>
+       setErrors(data.response?.data?.errors))
   };
 
   return (
+     
     <div className="relative w-full min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center overflow-hidden p-4">
+  
       {/* Floating background emojis */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute top-20 left-10 text-5xl animate-float">📚</div>
@@ -47,12 +54,23 @@ const StudentLogin = () => {
       </div>
 
       {/* Animated gradient orbs */}
+      
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse-delayed" />
       <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse-delayed-2" />
-
+     
       {/* MAIN CONTAINER */}
       <div className="relative z-10 w-full max-w-[380px] my-auto">
+            {errors && (
+  <div className="mb-4 rounded-xl border border-blue-400/40 bg-white-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_25px_rgba(248,113,113,0.25)] backdrop-blur-md">
+    <div className="flex items-center gap-2">
+      <span className="text-lg">⚠️</span>
+      <span className="font-medium">
+        {Array.isArray(errors) ? errors[0] : errors}
+      </span>
+    </div>
+  </div>
+)}
         <div className="bg-[#0a1122]/60 backdrop-blur-xl border border-blue-400/30 rounded-2xl p-5 sm:p-6 text-white shadow-[0_0_45px_rgba(56,189,248,0.2)] overflow-hidden">
           <div className="flex flex-col items-center mb-4">
             <UserCircle2 size={40} className="text-cyan-300 mb-2" />
@@ -71,20 +89,20 @@ const StudentLogin = () => {
 
             <input
               type="text"
-              name="rollNo"
+              name="CollegeRollNo"
               placeholder="College Roll No"
-              value={formData.rollNo}
+              value={formData.CollegeRollNo}
               onChange={handleChange}
               className="w-full p-2.5 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
             />
 
             <div className="relative">
               <select
-                name="department"
-                value={formData.department}
+                name="Department"
+                value={formData.Department}
                 onChange={handleChange}
                 className={`w-full p-2.5 pr-10 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
-                  formData.department ? 'text-white' : 'text-white/40'
+                  formData.Department ? 'text-white' : 'text-white/40'
                 }`}
               >
                 <option value="" className="bg-[#050B16] text-white/40">Select Department</option>

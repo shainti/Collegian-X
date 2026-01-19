@@ -47,23 +47,34 @@ exports.registerstudents = async (req, res, next) => {
 };
 
 exports.loginstudents = async (req, res, next) => {
-  const { email, CollegeRollNo, Department, password } = req.body;
 
+  const { email, CollegeRollNo, Department, password } = req.body;
+console.log(CollegeRollNo)
   const Student = await StudentModel.findOne({
     email,
-    CollegeRollNo,
   });
   if (!Student) {
-    res.status(400).json({
-      Message: "invalid email or password",
+   return res.status(400).json({
+      errors: ["invalid Email or password"],
     });
   }
+  if (Student.CollegeRollNo !== CollegeRollNo) {
+    return res.status(400).json({
+      errors: ["Invalid College Roll NO"],
+    });
+  }
+  console.log(Student.CollegeRollNo)
   const ispasswordvaild = await bcrypt.compare(password, Student.password);
   if (!ispasswordvaild) {  
-    res.status(400).json({  
-      Message: "invalid email or password",
+     return res.status(400).json({  
+      errors: ["invalid Email or password"],
     });
   }
+if (Student.Department !== Department) {
+  return res.status(400).json({
+    errors: ["Invalid department"],
+  });
+}
   console.log("student ho gya");
   const token = jwt.sign({
     id: Student._id,

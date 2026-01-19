@@ -9,31 +9,49 @@ const FacultyCard = ({
   onClick,
   index,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+
+  const handleTouchStart = () => {
+    setIsActive(true);
+  };
+
+  const handleTouchEnd = () => {
+    setTimeout(() => setIsActive(false), 300);
+  };
 
   return (
     <div
-      className={`group relative ${bgColor} rounded-3xl p-5 flex flex-col items-center justify-between min-h-[240px] cursor-pointer border border-white/10 hover:border-white/20 transition-all duration-500 ease-out hover:scale-105 hover:-translate-y-2`}
+      className={`group relative ${bgColor} rounded-3xl p-5 flex flex-col items-center justify-between min-h-[240px] cursor-pointer border border-white/10 transition-all duration-500 ease-out ${
+        isActive ? 'scale-105 -translate-y-2 border-white/20' : 'hover:scale-105 hover:-translate-y-2 hover:border-white/20'
+      }`}
       style={{
         animation: `fadeInUp 0.6s ease-out ${index * 0.1}s backwards`,
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => setIsActive(true)}
+      onMouseLeave={() => setIsActive(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       onClick={onClick}
     >
       {/* Background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className={`absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-3xl transition-opacity duration-500 ${
+        isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+      }`} />
 
       {/* Animated glow */}
       <div
-        className={`absolute -inset-1 bg-gradient-to-r ${bgColor} rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`}
+        className={`absolute -inset-1 bg-gradient-to-r ${bgColor} rounded-3xl blur-xl transition-opacity duration-500 ${
+          isActive ? 'opacity-30' : 'opacity-0 group-hover:opacity-30'
+        }`}
       />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center w-full">
         {/* IMAGE ICON */}
         <div
-          className={`relative mb-4 ${iconColor} w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300`}
+          className={`relative mb-4 ${iconColor} w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
+            isActive ? 'shadow-xl scale-110 -translate-y-1' : 'group-hover:shadow-xl group-hover:scale-110 group-hover:-translate-y-1'
+          }`}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl" />
           <img
@@ -43,13 +61,19 @@ const FacultyCard = ({
           />
         </div>
 
-        <h3 className="text-white text-lg font-bold mb-6 text-center group-hover:scale-105 transition-transform duration-300">
+        <h3 className={`text-white text-lg font-bold mb-6 text-center transition-transform duration-300 ${
+          isActive ? 'scale-105' : 'group-hover:scale-105'
+        }`}>
           {title}
         </h3>
 
-        <button className="mt-auto bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-6 py-2 rounded-full font-semibold text-sm flex items-center gap-2 border border-white/20 hover:border-white/40 transition-all duration-300 group-hover:scale-110 shadow-lg hover:shadow-xl">
+        <button className={`mt-auto bg-white/10 backdrop-blur-md text-white px-6 py-2 rounded-full font-semibold text-sm flex items-center gap-2 border border-white/20 transition-all duration-300 shadow-lg ${
+          isActive ? 'bg-white/20 border-white/40 scale-110 shadow-xl' : 'hover:bg-white/20 hover:border-white/40 group-hover:scale-110 hover:shadow-xl'
+        }`}>
           <span>{buttonText}</span>
-          <span className="group-hover:translate-x-1 transition-transform duration-300">
+          <span className={`transition-transform duration-300 ${
+            isActive ? 'translate-x-1' : 'group-hover:translate-x-1'
+          }`}>
             →
           </span>
         </button>
