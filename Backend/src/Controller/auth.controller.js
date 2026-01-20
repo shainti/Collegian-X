@@ -5,6 +5,7 @@ const { default: mongoose } = require("mongoose");
 const Facultymodel = require("../models/Faculty.model");
 
 exports.registerstudents = async (req, res, next) => {
+ 
   const { FullName, email, Department, Semester, CollegeRollNo, password } = req.body;
 
   const existingStudent = await StudentModel.findOne({
@@ -16,18 +17,17 @@ exports.registerstudents = async (req, res, next) => {
     });
   }
   
-
   const hashpassword = await bcrypt.hash(password, 10);
-  const Student = await StudentModel.create({
+  
+    const Student = await StudentModel.create({
     FullName,
     email,
     Department,
     Semester,
     CollegeRollNo,
     password: hashpassword,
-  });
-
-  const token = jwt.sign(
+  })
+    const token = jwt.sign(
     {
       id: Student._id,
     },
@@ -82,11 +82,12 @@ if (Student.Department !== Department) {
   res.cookie("token", token);
   res.status(200).json({
     Message: "Studetnt Login Sucsessfully",
+    token,
     Student:{
         id: Student._id,
         FullName: Student.FullName,
         CollegeRollNo: Student.CollegeRollNo,
-        Department: Student.Department
+        Department: Student.Department,
     }
   })
 };

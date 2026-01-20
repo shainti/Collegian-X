@@ -35,7 +35,9 @@ const StudentLogin = () => {
           withCredentials: true,
         },
       )
-      .then(() => {
+      .then((res) => {
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('Student',JSON.stringify(res.data.Student))
         console.log("Student login:", formData);
         Navigate("/StudentDashboard");
       })

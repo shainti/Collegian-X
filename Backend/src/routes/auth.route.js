@@ -7,4 +7,6 @@ router.post('/Student/login',authController.loginstudents)
 router.get('/Student/logout',authController.logoutstudent);
 router.post('/Faculty/login',authController.Facultylogin);
 
+
+
 module.exports = router; 

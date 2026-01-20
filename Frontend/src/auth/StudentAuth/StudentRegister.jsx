@@ -91,7 +91,7 @@ const StudentRegister = () => {
 
       {/* MAIN CONTAINER */}
       <div className="relative z-10 w-full max-w-[550px]">
-          {errors && (
+        {errors && (
           <div className="mb-4 rounded-xl border border-blue-400/40 bg-white-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_25px_rgba(248,113,113,0.25)] backdrop-blur-md">
             <div className="flex items-center gap-2">
               <span className="text-lg">⚠️</span>
@@ -166,18 +166,6 @@ const StudentRegister = () => {
                   <option value="BVOC" className="bg-[#050B16] text-white/90">
                     BVOC
                   </option>
-                  <option value="BCOM" className="bg-[#050B16] text-white/90">
-                    BCOM
-                  </option>
-                  <option value="MCOM" className="bg-[#050B16] text-white/90">
-                    MCOM
-                  </option>
-                  <option value="BSC" className="bg-[#050B16] text-white/90">
-                    BSC
-                  </option>
-                  <option value="MSC" className="bg-[#050B16] text-white/90">
-                    MSC
-                  </option>
                 </select>
                 <ChevronDown
                   size={16}
@@ -214,12 +202,6 @@ const StudentRegister = () => {
                   </option>
                   <option value="6" className="bg-[#050B16] text-white/90">
                     6th
-                  </option>
-                  <option value="7" className="bg-[#050B16] text-white/90">
-                    7th
-                  </option>
-                  <option value="8" className="bg-[#050B16] text-white/90">
-                    8th
                   </option>
                 </select>
                 <ChevronDown
