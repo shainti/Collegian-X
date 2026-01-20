@@ -3,22 +3,40 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { default: mongoose } = require("mongoose");
 const Facultymodel = require("../models/Faculty.model");
+const { check } = require("express-validator");
 
 exports.registerstudents = async (req, res, next) => {
   const { FullName, email, Department, Semester, CollegeRollNo, password } =
     req.body;
 
-  const existingStudent = await StudentModel.findOne({
-    $or: [{ email }, { CollegeRollNo }],
-  });
-  if (existingStudent) {
+  const Email = await StudentModel.findOne({ email });
+  if (Email) {
     return res.status(400).json({
       errors: ["Student Already Exist"],
     });
   }
 
-  const hashpassword = await bcrypt.hash(password, 10);
+ const collegerollno = await StudentModel.findOne({ CollegeRollNo });
+  if (collegerollno.CollegeRollNo === CollegeRollNo ) {;
+    check("CollegeRollNo")
+    .isLength({min: 4})
+    return res.status(400).json({
+      errors: ["Enter 4 digit Vaild Roll No"],
+    });
+  }
 
+  const Password = await StudentModel.findOne({ Password});
+  const ispasswordvaild = await bcrypt.compare(password, Password);
+  console.log(ispasswordvaild);
+  if (ispasswordvaild.length !== 8) {
+    check("password")
+    .isLength({min: 8})
+    return res.status(400).json({
+      errors: ["Enter 8 Digit Vaild password"],
+     });
+}
+
+const hashpassword = await bcrypt.hash(password, 10);
   const Student = await StudentModel.create({
     FullName,
     email,
@@ -27,14 +45,7 @@ exports.registerstudents = async (req, res, next) => {
     CollegeRollNo,
     password: hashpassword,
   });
-  const token = jwt.sign(
-    {
-      id: Student._id,
-    },
-    process.env.JWT_SECRET,
-  );
 
-  res.cookie("token", token);
   res.status(201).json({
     message: "Student Register Successfully",
     Student: {
@@ -53,6 +64,7 @@ exports.loginstudents = async (req, res, next) => {
   const Student = await StudentModel.findOne({
     email,
   });
+  console.log(email);
   if (!Student) {
     return res.status(400).json({
       errors: ["invalid Email or password"],
@@ -64,7 +76,6 @@ exports.loginstudents = async (req, res, next) => {
     });
   }
   const ispasswordvaild = await bcrypt.compare(password, Student.password);
-  console.log(ispasswordvaild)
   if (!ispasswordvaild) {
     return res.status(400).json({
       errors: ["invalid Email or password"],
@@ -108,20 +119,20 @@ exports.Facultylogin = async (req, res, next) => {
   const { FacultyId, password } = req.body;
 
   const Faculty = await Facultymodel.findOne({
-    FacultyId
+    FacultyId,
   });
   console.log(Faculty);
   if (!Faculty) {
-     return res.status(400).json({
-      errors: ["Faculty not Found"]
+    return res.status(400).json({
+      errors: ["Faculty not Found"],
     });
   }
 
   const ispasswordvaild = await bcrypt.compare(password, Faculty.password);
-  console.log(ispasswordvaild)
+  console.log(ispasswordvaild);
   if (!ispasswordvaild) {
-     return res.status(400).json({
-      errors: ["FacultyId or Password not Found"]
+    return res.status(400).json({
+      errors: ["FacultyId or Password not Found"],
     });
   }
   const token = jwt.sign(

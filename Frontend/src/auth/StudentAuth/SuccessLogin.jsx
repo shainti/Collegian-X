@@ -40,17 +40,17 @@ const LoginSuccess = () => {
           {/* SUCCESS MESSAGE */}
           <div className="text-center space-y-3 sm:space-y-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-cyan-200">
-              Login Successful!
+              Account Create Successfully
             </h1>
             
             <p className="text-white/70 text-sm sm:text-base px-2">
-              Welcome back! You have successfully logged in.
+              Welcome back! You have successfully Create Account
             </p>
 
             {/* REDIRECT MESSAGE */}
             <div className="pt-4 sm:pt-6">
               <p className="text-white/50 text-xs sm:text-sm">
-                Redirecting to home page...
+                Redirecting to Login page...
               </p>
             </div>
 
@@ -60,7 +60,7 @@ const LoginSuccess = () => {
                 onClick={handleRedirect}
                 className="text-cyan-400 hover:text-cyan-300 text-xs sm:text-sm font-medium transition-colors duration-200 underline underline-offset-4"
               >
-                Go to Home Now
+                Go to Login Now
               </button>
             </div>
           </div>
