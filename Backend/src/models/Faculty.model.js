@@ -15,5 +15,5 @@ const Facultyschema = new mongoose.Schema(
     Timestamp: true,
   })
 
-  const Facultymodel = mongoose.model('Faculty', Facultyschema)
+  const Facultymodel = mongoose.model('Faculty', Facultyschema,'faculty')
   module.exports = Facultymodel; 

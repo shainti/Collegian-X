@@ -46,7 +46,7 @@ const StudentRegister = () => {
         },
       );
       console.log("Student registration:", formData);
-      Navigate("/StudentDashboard");
+      Navigate("/Student/login/Success");
     } catch (data) {
       setErrors(data.response?.data?.errors);
     }

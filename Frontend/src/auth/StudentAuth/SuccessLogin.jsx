@@ -5,14 +5,14 @@ const LoginSuccess = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      window.location.href = "/StudentDashboard";
+      window.location.href = "/Student/login";
     }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
 
   const handleRedirect = () => {
-    window.location.href = "/StudentDashboard";
+    window.location.href = "/Student/login";
   };
 
   return (

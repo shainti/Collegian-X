@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 import { UserCircle2, ChevronDown } from "lucide-react";
-import {  Link } from "react-router-dom";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const StudentLogin = () => {
-  const Navigate = useNavigate();
   const [errors, setErrors] = useState("");
   const [formData, setFormData] = useState({
     email: "",
@@ -22,26 +18,41 @@ const StudentLogin = () => {
   };
 
   const handleSubmit = async () => {
-    await axios
-      .post(
-        "http://localhost:3000/api/auth/Student/login",
-        {
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/Student/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
           email: formData.email,
           CollegeRollNo: formData.CollegeRollNo,
           password: formData.password,
           Department: formData.Department,
-        },
-        {
-          withCredentials: true,
-        },
-      )
-      .then((res) => {
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('Student',JSON.stringify(res.data.Student))
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('Student', JSON.stringify(data.Student));
+        
+        // CRITICAL: Dispatch custom event to notify Header component
+        window.dispatchEvent(new Event('authChange'));
+        
         console.log("Student login:", formData);
-        Navigate("/StudentDashboard");
-      })
-      .catch((data) => setErrors(data.response?.data?.errors));
+        
+        // Simulate navigation (replace with your actual router)
+        window.location.href = "/StudentDashboard";
+      } else {
+        setErrors(data.errors);
+      }
+    } catch (error) {
+      setErrors("Login failed. Please try again.");
+      console.error("Login error:", error);
+    }
   };
 
   return (
@@ -70,7 +81,6 @@ const StudentLogin = () => {
       </div>
 
       {/* Animated gradient orbs */}
-
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse-delayed" />
       <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full mix-blend-screen filter blur-3xl animate-pulse-delayed-2" />
@@ -165,12 +175,12 @@ const StudentLogin = () => {
           {/* Bottom Links */}
           <div className="mt-4 space-y-2">
             <div className="text-center">
-              <Link
-                to="/Student/register"
+              <a
+                href="/Student/register"
                 className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors duration-200"
               >
                 New Student? Register Here
-              </Link>
+              </a>
             </div>
           </div>
         </div>
