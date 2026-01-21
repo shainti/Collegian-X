@@ -21,7 +21,7 @@ const PortalCard = ({
 
   return (
     <div
-      className={`group relative ${bgColor} rounded-3xl  p-5 flex flex-col items-center justify-between min-h-[240px] cursor-pointer border border-white/10 transition-all duration-500 ease-out ${
+      className={`group relative ${bgColor} rounded-3xl p-5 flex flex-col items-center justify-between min-h-[240px] cursor-pointer border border-white/10 transition-all duration-500 ease-out ${
         isActive ? 'scale-105 -translate-y-2 border-white/20' : 'hover:scale-105 hover:-translate-y-2 hover:border-white/20'
       }`}
       style={{
@@ -126,6 +126,16 @@ export default function StudentPortal() {
     },
     {
       id: 5,
+      image: "/icons/leave.png",
+      title: "Leaves",
+      buttonText: "View All",
+      bgColor:
+        "bg-gradient-to-br from-yellow-600/20 via-blue-700/20 to-blue-800/20",
+      iconColor: "bg-gradient-to-br from-blue-500 to-yellow-600",
+      onClick: () => console.log("VIew Assignments clicked"),
+    },
+    {
+      id: 6,
       image: "/icons/notice.png",
       title: "Notices",
       buttonText: "View All",
@@ -135,7 +145,7 @@ export default function StudentPortal() {
       onClick: () => console.log("Notices clicked"),
     },
     {
-      id: 6,
+      id: 7,
       image: "/icons/message.png",
       title: "Complaints",
       buttonText: "View All",
@@ -147,11 +157,11 @@ export default function StudentPortal() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* FLOATING EMOJIS */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute top-20 left-10 text-5xl animate-float">📚</div>
-        <div className="absolute top-40 right-20 text-6xl animate-float-delayed">🎓</div>
+        <div className="absolute top-32 left-10 text-5xl animate-float">📚</div>
+        <div className="absolute top-52 right-20 text-6xl animate-float-delayed">🎓</div>
         <div className="absolute bottom-32 left-20 text-5xl animate-float-delayed-2">📖</div>
         <div className="absolute top-1/2 right-10 text-4xl animate-float">✏️</div>
         <div className="absolute bottom-20 right-1/3 text-5xl animate-float-delayed">🌟</div>
@@ -164,7 +174,7 @@ export default function StudentPortal() {
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse-delayed" />
       <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse-delayed-2" />
 
-      <div className="max-w-5xl mx-auto relative z-10 w-full">
+      <div className="max-w-6xl mx-auto relative z-10 w-full">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {cards.map((card, index) => (
             <PortalCard key={card.id} {...card} index={index} />

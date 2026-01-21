@@ -4,9 +4,7 @@ const authController = require('../Controller/auth.controller')
 
 router.post('/Student/register', authController.registerstudents)
 router.post('/Student/login',authController.loginstudents)
-router.get('/Student/logout',authController.logoutstudent);
 router.post('/Faculty/login',authController.Facultylogin);
-
 
 
 module.exports = router; 

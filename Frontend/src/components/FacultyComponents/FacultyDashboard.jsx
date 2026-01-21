@@ -124,8 +124,18 @@ export default function FacultyDashboard() {
       iconColor: "bg-gradient-to-br from-teal-500 to-teal-600",
       onClick: () => console.log("Update Notices clicked"),
     },
-    {
+     {
       id: 5,
+      icon: "/icons/leave.png",
+      title: "Update Leaves",
+      buttonText: "Update",
+      bgColor:
+        "bg-gradient-to-br from-yellow-600/20 via-blue-700/20 to-blue-800/20",
+      iconColor: "bg-gradient-to-br from-blue-500 to-yellow-600",
+      onClick: () => console.log("Update Assignments clicked"),
+    },
+    {
+      id: 6,
       icon: "/icons/message.png",
       title: "Check Complaints",
       buttonText: "Check",

@@ -1,6 +1,16 @@
 [
   {
     "FacultyId": "213232",
-    "password": "$2b$10$gTE9TA7pkCv9UaJpvG9LGe1fyK1APF7klL4L1bQlzgaSk2uH0A2vO"
+    "password": "$2b$10$gTE9TA7pkCv9UaJpvG9LGe1fyK1APF7klL4L1bQlzgaSk2uH0A2vO",
+    "TeacherName":"Amena Talth",
+    "email": "amematalah@gmail.com",
+    "Department": "BCA"
+  },
+  {
+     "FacultyId": "213233",
+    "password": "$2b$10$gTE9TA7pkCv9UaJpvG9LGe1fyK1APF7klL4L1bQlzgaSk2uH0A2vO",
+    "TeacherName":"Reena",
+    "email": "Reena2132@gmail.com",
+    "Department": "BCA"
   }
 ]

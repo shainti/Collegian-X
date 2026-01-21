@@ -10,6 +10,7 @@ import StudentRegister from './auth/StudentAuth/StudentRegister.jsx'
 import StudentDashboard from "./components/StudentComponents/StudentDashboard.jsx";
 import FacultyLogin from "./auth/FacultyAuth/FacultyLogin.jsx";
 import FacultyDashboard from "./components/FacultyComponents/FacultyDashboard.jsx";
+import MyProfile from "./screens/MyProfile.jsx"
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: "/StudentDashboard", element: <StudentDashboard />},
       { path: "Faculty/login", element: <FacultyLogin />},
       { path: "/FacultyDashboard", element: <FacultyDashboard />},
+      { path: "/Myprofile", element: <MyProfile />},
     ],
   },
 ]);

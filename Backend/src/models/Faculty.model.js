@@ -9,7 +9,17 @@ const Facultyschema = new mongoose.Schema(
     password: {
         type: String,
         required: true
+    },
+    TeacherName:{
+        type: String,
+    },
+    email:{
+        type: String,
+    },
+    Department:{
+        type: String,
     }
+    
 },
  {
     Timestamp: true,

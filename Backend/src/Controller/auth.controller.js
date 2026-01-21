@@ -35,8 +35,6 @@ if (!password || password.length !== 8) {
     errors: ["Enter 8 digit valid Password"],
   });
 }
-
-
 const hashpassword = await bcrypt.hash(password, 10);
   const Student = await StudentModel.create({
     FullName,
@@ -65,7 +63,6 @@ exports.loginstudents = async (req, res, next) => {
   const Student = await StudentModel.findOne({
     email,
   });
-  console.log(email);
   if (!Student) {
     return res.status(400).json({
       errors: ["invalid Email or password"],
@@ -102,18 +99,14 @@ exports.loginstudents = async (req, res, next) => {
     Student: {
       id: Student._id,
       FullName: Student.FullName,
+      email: Student.email,
       CollegeRollNo: Student.CollegeRollNo,
       Department: Student.Department,
+      Semester: Student.Semester,
     },
   });
 };
 
-exports.logoutstudent = (req, res, next) => {
-  res.clearCookie("token");
-  res.status(200).json({
-    Message: "Student Logout Successfully",
-  });
-};
 
 exports.Facultylogin = async (req, res, next) => {
   console.log(req.body);
@@ -149,7 +142,10 @@ exports.Facultylogin = async (req, res, next) => {
     token,
     Faculty: {
       id: Faculty._id,
-      Faculty: Faculty.FacultyId,
+      FacultyId: Faculty.FacultyId,
+      TeacherName: Faculty.TeacherName,
+      email: Faculty.email,
+      Department: Faculty.Department,
     },
   });
 };
