@@ -22,7 +22,16 @@ if (!CollegeRollNo || CollegeRollNo.length !== 4) {
   });
 }
 
-// 2. Check duplicate
+const rollnoCollection = mongoose.connection.db.collection("rollno");
+const rollExists = await rollnoCollection.findOne({ CollegeRollNo });
+
+if (!rollExists) {
+  return res.status(400).json({
+    errors: ["Roll number not found"],
+  });
+}
+
+// then check duplicate student
 const existingStudent = await StudentModel.findOne({ CollegeRollNo });
 if (existingStudent) {
   return res.status(400).json({
@@ -68,11 +77,23 @@ exports.loginstudents = async (req, res, next) => {
       errors: ["invalid Email or password"],
     });
   }
+
+
   if (Student.CollegeRollNo !== CollegeRollNo) {
     return res.status(400).json({
       errors: ["Invalid College Roll NO"],
     });
   }
+  
+const rollnoCollection = mongoose.connection.db.collection("rollno");
+const rollExists = await rollnoCollection.findOne({ CollegeRollNo });
+if(!rollExists){
+    return res.status(400).json({
+      errors: ["Invalid College Roll NO"],
+    });
+}
+
+  
   const ispasswordvaild = await bcrypt.compare(password, Student.password);
   if (!ispasswordvaild) {
     return res.status(400).json({
@@ -103,6 +124,7 @@ exports.loginstudents = async (req, res, next) => {
       CollegeRollNo: Student.CollegeRollNo,
       Department: Student.Department,
       Semester: Student.Semester,
+      Url: rollExists.url,
     },
   });
 };

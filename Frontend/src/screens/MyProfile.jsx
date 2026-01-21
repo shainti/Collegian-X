@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   User,
   Mail,
   BookOpen,
   Hash,
   Calendar,
-  Camera,
 } from "lucide-react";
 
 const ProfileDashboard = () => {
-  const [profileImage, setProfileImage] = useState(null);
-
   const Student = localStorage.getItem("Student");
   const Faculty = localStorage.getItem("Faculty");
 
@@ -21,17 +18,6 @@ const ProfileDashboard = () => {
   if (Faculty) {
     formData = JSON.parse(Faculty);
   }
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfileImage(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -56,41 +42,26 @@ const ProfileDashboard = () => {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">My Profile</h1>
           <p className="text-blue-300">
-            You can update only your profile photo
+            Profile details are read only
           </p>
         </div>
 
         <div className="bg-gradient-to-br from-blue-600/20 via-blue-700/20 to-blue-800/20 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+          
           {/* PROFILE IMAGE */}
           <div className="flex flex-col items-center mb-8">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1 shadow-xl">
-                <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
-                  {profileImage ? (
-                    <img
-                      src={profileImage}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-16 h-16 text-blue-400" />
-                  )}
-                </div>
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1 shadow-xl">
+              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
+                {formData.Url ? (
+                  <img
+                    src={formData.Url}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-16 h-16 text-blue-400" />
+                )}
               </div>
-
-              <label
-                htmlFor="profile-upload"
-                className="absolute bottom-0 right-0 bg-gradient-to-r from-blue-500 to-cyan-500 p-2.5 rounded-full cursor-pointer shadow-lg hover:scale-110 transition-transform duration-300"
-              >
-                <Camera className="w-5 h-5 text-white" />
-                <input
-                  id="profile-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
             </div>
 
             <h2 className="text-2xl font-bold text-white mt-4">
@@ -125,7 +96,7 @@ const ProfileDashboard = () => {
 
           <div className="mt-8 p-4 bg-blue-500/10 rounded-xl border border-blue-400/20">
             <p className="text-sm text-blue-200 text-center">
-              💡 If any detail is incorrect, please contact the college admin
+              If any detail is incorrect, please contact the college admin
             </p>
           </div>
         </div>

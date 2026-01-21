@@ -3,6 +3,7 @@ const app = express();
 const cookieParser = require('cookie-parser')
 const authRoutes = require('./routes/auth.route')
 const cors = require('cors');
+const path = require('path')
 
 app.use(cookieParser())
 app.use(express.json())
@@ -10,6 +11,7 @@ app.use(cors({
   origin: "http://localhost:5173",
   credentials: true
 }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.get("/", (req, res, next) => {

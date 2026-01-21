@@ -12,6 +12,7 @@ import {
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const student = JSON.parse(localStorage.getItem("Student") || "null");
 
   const token = localStorage.getItem("token");
   const [IsloggedIn, setIsloggedIn] = useState(!!token);
@@ -91,9 +92,17 @@ export default function Header() {
                   e.stopPropagation();
                   setProfileOpen(!profileOpen);
                 }}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg hover:scale-110 transition"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg hover:scale-110 transition overflow-hidden"
               >
-                <User className="h-6 w-6 text-white" />
+                {student?.Url ? (
+                  <img 
+                    src={student.Url} 
+                    alt="Profile" 
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <User className="h-6 w-6 text-white" />
+                )}
               </button>
 
               {profileOpen && (
@@ -144,7 +153,7 @@ export default function Header() {
         </button>
       </div>
 
-      {/* MOBILE MENU – SAME STYLING AS YOUR OLD CODE */}
+      {/* MOBILE MENU */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-500 ${
           open ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
@@ -191,6 +200,19 @@ export default function Header() {
             </>
           ) : (
             <div className="flex flex-col items-center gap-3.5 mb-2">
+              {/* Profile Image for Mobile */}
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg overflow-hidden">
+                {student?.Url ? (
+                  <img 
+                    src={student.Url} 
+                    alt="Profile" 
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <User className="h-8 w-8 text-white" />
+                )}
+              </div>
+
               <Link
                 to="/MyProfile"
                 onClick={() => setOpen(false)}
@@ -201,7 +223,7 @@ export default function Header() {
               </Link>
 
               <Link
-              to="/"
+                to="/"
                 onClick={handleLogout}
                 className="group flex items-center gap-2.5 bg-[linear-gradient(to_right,#6366f1,#22d3ee)] text-white px-5 py-2 rounded-lg shadow hover:-translate-y-1 transition"
               >
