@@ -16,25 +16,26 @@ exports.registerstudents = async (req, res, next) => {
     });
   }
 
- const collegerollno = await StudentModel.findOne({ CollegeRollNo });
-  if (collegerollno.CollegeRollNo === CollegeRollNo ) {;
-    check("CollegeRollNo")
-    .isLength({min: 4})
-    return res.status(400).json({
-      errors: ["Enter 4 digit Vaild Roll No"],
-    });
-  }
-
-  const Password = await StudentModel.findOne({ Password});
-  const ispasswordvaild = await bcrypt.compare(password, Password);
-  console.log(ispasswordvaild);
-  if (ispasswordvaild.length !== 8) {
-    check("password")
-    .isLength({min: 8})
-    return res.status(400).json({
-      errors: ["Enter 8 Digit Vaild password"],
-     });
+if (!CollegeRollNo || CollegeRollNo.length !== 4) {
+  return res.status(400).json({
+    errors: ["Enter 4 digit valid Roll No"],
+  });
 }
+
+// 2. Check duplicate
+const existingStudent = await StudentModel.findOne({ CollegeRollNo });
+if (existingStudent) {
+  return res.status(400).json({
+    errors: ["Roll number already exists"],
+  });
+}
+
+if (!password || password.length !== 8) {
+  return res.status(400).json({
+    errors: ["Enter 8 digit valid Password"],
+  });
+}
+
 
 const hashpassword = await bcrypt.hash(password, 10);
   const Student = await StudentModel.create({
