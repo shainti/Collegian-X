@@ -8,6 +8,8 @@ import Home from "./screens/Home.jsx";
 import SuccessLogin from './auth/StudentAuth/SuccessLogin.jsx';
 import StudentRegister from './auth/StudentAuth/StudentRegister.jsx'
 import StudentDashboard from "./components/StudentComponents/StudentDashboard.jsx";
+import Assignments from './components/StudentComponents/Assignments.jsx';
+import UpdateAssignment from './components/FacultyComponents/UpdateAssignment.jsx'
 import FacultyLogin from "./auth/FacultyAuth/FacultyLogin.jsx";
 import FacultyDashboard from "./components/FacultyComponents/FacultyDashboard.jsx";
 import MyProfile from "./screens/MyProfile.jsx"
@@ -26,6 +28,12 @@ const router = createBrowserRouter([
       { path: "Faculty/login", element: <FacultyLogin />},
       { path: "/FacultyDashboard", element: <FacultyDashboard />},
       { path: "/Myprofile", element: <MyProfile />},
+      { path: "/Student/Assignments", element: <Assignments />},
+      { path: "/Faculty/UpdateAssignment", element: <UpdateAssignment />},
+      
+     
+
+
     ],
   },
 ]);

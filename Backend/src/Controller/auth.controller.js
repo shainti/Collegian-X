@@ -116,7 +116,6 @@ if(!rollExists){
   res.cookie("token", token);
   res.status(200).json({
     Message: "Studetnt Login Sucsessfully",
-    token,
     Student: {
       id: Student._id,
       FullName: Student.FullName,
@@ -137,7 +136,6 @@ exports.Facultylogin = async (req, res, next) => {
   const Faculty = await Facultymodel.findOne({
     FacultyId,
   });
-  console.log(Faculty);
   if (!Faculty) {
     return res.status(400).json({
       errors: ["Faculty not Found"],
@@ -145,7 +143,6 @@ exports.Facultylogin = async (req, res, next) => {
   }
 
   const ispasswordvaild = await bcrypt.compare(password, Faculty.password);
-  console.log(ispasswordvaild);
   if (!ispasswordvaild) {
     return res.status(400).json({
       errors: ["FacultyId or Password not Found"],
@@ -161,7 +158,6 @@ exports.Facultylogin = async (req, res, next) => {
   res.cookie("token", token);
   res.status(200).json({
     Message: "Faculty Login Sucsessfully",
-    token,
     Faculty: {
       id: Faculty._id,
       FacultyId: Faculty.FacultyId,
