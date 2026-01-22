@@ -4,26 +4,20 @@ const AssignmentModel = require("../models/Assignment.model");
 
 exports.Assignment = async (req, res) => {
   try {
-    const { topic, subject, assignedDate, dueDate, questions } = req.body;
+    const { topic, subject, teacherName, assignedDate, dueDate, questions } = req.body;
 
     const assignment = await AssignmentModel.create({
       topic,
       subject,
+      teacherName,
       assignedDate,
       dueDate,
       questions,
     });
 
     res.status(201).json({
+      assignment,
       message: "Assignment created",
-      assignment: {
-        _id: assignment._id,
-        topic: assignment.topic,
-        subject: assignment.subject,
-        assignedDate: assignment.assignedDate,
-        dueDate: assignment.dueDate,
-        questions: assignment.questions,
-      },
     });
   } catch (error) {
     res.status(500).json({

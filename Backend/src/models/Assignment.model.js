@@ -12,6 +12,11 @@ const Assignmentschema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    teacherName: {
+       type: String,
+      required: true,
+      trim: true,
+    },
     assignedDate: {
       type: Date,
       required: true,

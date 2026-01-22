@@ -21,6 +21,7 @@ export default function FacultyAssignmentManager() {
     fetchAssignments();
   }, []);
 
+
   // Calculate days left
   const calculateDaysLeft = (dueDate) => {
     const today = new Date();
@@ -53,7 +54,6 @@ export default function FacultyAssignmentManager() {
     console.log("Edit Assignment:", assignment);
     setShowForm(true);
   };
-
   const handleDelete = (id) => {
     console.log("Delete Assignment ID:", id);
   };
@@ -63,8 +63,8 @@ export default function FacultyAssignmentManager() {
     const formData = new FormData(e.target);
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/Faculty/Assignment",
+       await fetch(
+        "http://localhost:3000/api/Faculty/assignment",
         {
           method: "POST",
           headers: {
@@ -74,13 +74,15 @@ export default function FacultyAssignmentManager() {
           body: JSON.stringify({
             topic: formData.get("Topic"),
             subject: formData.get("Subject"),
+            teacherName: formData.get("TeacherName"),
             assignedDate: formData.get("AssignedDate"),
             dueDate: formData.get("DueDate"),
             questions: questions.filter((q) => q.trim() !== ""),
           }),
         },
       );
-    } catch (error) {}
+    } catch (error) {
+    }
     setShowForm(false);
   };
   const fetchAssignments = async () => {
@@ -95,7 +97,8 @@ export default function FacultyAssignmentManager() {
       },
     );
      const result = await getresponse.json();
-setAssignmentList((prev) => [...prev, ...result.assignment]);
+     console.log(result)
+setAssignmentList(result.assignment);
   };
 
   const handleCancel = () => {
@@ -207,6 +210,19 @@ setAssignmentList((prev) => [...prev, ...result.assignment]);
                       required
                     />
                   </div>
+                   <div>
+                    <label className="text-blue-200 text-sm mb-2 block">
+                      Teacher Name
+                    </label>
+                    <input
+                      type="text"
+                      name="TeacherName"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-blue-300/50 focus:outline-none focus:border-blue-400"
+                      placeholder="Enter subject name"
+                      required
+                    />
+                  </div>
+                  
                   <div>
                     <label className="text-blue-200 text-sm mb-2 block">
                       Assigned Date
@@ -315,7 +331,7 @@ setAssignmentList((prev) => [...prev, ...result.assignment]);
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-blue-100">
                       <BookOpen className="w-4 h-4 mr-2" />
-                      {assignment.faculty}
+                       {assignment.teacherName}
                     </div>
                     <div className="flex items-center text-sm text-blue-100">
                       <Calendar className="w-4 h-4 mr-2" />
