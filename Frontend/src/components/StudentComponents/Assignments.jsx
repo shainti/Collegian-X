@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Download, Calendar, BookOpen, FileText, ArrowLeft } from 'lucide-react';
 
 export default function AssignmentViewer() {
+
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
   // Sample assignments data
   const assignments = [
     {
@@ -45,8 +47,9 @@ export default function AssignmentViewer() {
       ]
     }
   ];
+  
 
-  const [selectedAssignment, setSelectedAssignment] = useState(null);
+
 
   // Download assignment as text file
   const handleDownload = (assignment) => {
@@ -129,7 +132,7 @@ ${assignment.questions.map((q, i) => `${i + 1}. ${q}`).join('\n\n')}`;
               
               return (
                 <div
-                  key={assignment.id}
+                  key={assignment._id}
                   onClick={() => setSelectedAssignment(assignment)}
                   className={`bg-gradient-to-br ${getCardColor(daysLeft)} rounded-3xl p-6 cursor-pointer border border-white/10 hover:scale-105 hover:border-white/20 transition-all duration-300`}
                 >

@@ -183,7 +183,7 @@ const StudentRegister = () => {
                   }`}
                 >
                   <option value="" className="bg-[#050B16] text-white/40">
-                    Semester
+                    Graduation Year
                   </option>
                   <option value="1" className="bg-[#050B16] text-white/90">
                     1st
@@ -193,15 +193,6 @@ const StudentRegister = () => {
                   </option>
                   <option value="3" className="bg-[#050B16] text-white/90">
                     3rd
-                  </option>
-                  <option value="4" className="bg-[#050B16] text-white/90">
-                    4th
-                  </option>
-                  <option value="5" className="bg-[#050B16] text-white/90">
-                    5th
-                  </option>
-                  <option value="6" className="bg-[#050B16] text-white/90">
-                    6th
                   </option>
                 </select>
                 <ChevronDown

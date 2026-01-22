@@ -21,7 +21,6 @@ export default function FacultyAssignmentManager() {
     fetchAssignments();
   }, []);
 
-
   // Calculate days left
   const calculateDaysLeft = (dueDate) => {
     const today = new Date();
@@ -63,26 +62,23 @@ export default function FacultyAssignmentManager() {
     const formData = new FormData(e.target);
 
     try {
-       await fetch(
-        "http://localhost:3000/api/Faculty/assignment",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            topic: formData.get("Topic"),
-            subject: formData.get("Subject"),
-            teacherName: formData.get("TeacherName"),
-            assignedDate: formData.get("AssignedDate"),
-            dueDate: formData.get("DueDate"),
-            questions: questions.filter((q) => q.trim() !== ""),
-          }),
+      await fetch("http://localhost:3000/api/Faculty/assignment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
-    } catch (error) {
-    }
+        credentials: "include",
+        body: JSON.stringify({
+          topic: formData.get("Topic"),
+          subject: formData.get("Subject"),
+          teacherName: formData.get("TeacherName"),
+          year: formData.get("Year"),
+          assignedDate: formData.get("AssignedDate"),
+          dueDate: formData.get("DueDate"),
+          questions: questions.filter((q) => q.trim() !== ""),
+        }),
+      });
+    } catch (error) {}
     setShowForm(false);
   };
   const fetchAssignments = async () => {
@@ -96,9 +92,9 @@ export default function FacultyAssignmentManager() {
         credentials: "include",
       },
     );
-     const result = await getresponse.json();
-     console.log(result)
-setAssignmentList(result.assignment);
+    const result = await getresponse.json();
+    console.log(result);
+    setAssignmentList(result.assignment);
   };
 
   const handleCancel = () => {
@@ -206,11 +202,11 @@ setAssignmentList(result.assignment);
                       type="text"
                       name="Subject"
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-blue-300/50 focus:outline-none focus:border-blue-400"
-                      placeholder="Enter subject name"
+                      placeholder="Enter Teacher name"
                       required
                     />
                   </div>
-                   <div>
+                  <div>
                     <label className="text-blue-200 text-sm mb-2 block">
                       Teacher Name
                     </label>
@@ -222,7 +218,24 @@ setAssignmentList(result.assignment);
                       required
                     />
                   </div>
-                  
+
+                  <div>
+                    <label className="text-blue-200 text-sm mb-2 block">
+                      Graduation year
+                    </label>
+                    <select
+                      name="Year"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-400"
+                      required
+                    >
+                      <option value="" disabled selected>
+                        Select year
+                      </option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                    </select>
+                  </div>
                   <div>
                     <label className="text-blue-200 text-sm mb-2 block">
                       Assigned Date
@@ -331,7 +344,7 @@ setAssignmentList(result.assignment);
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-blue-100">
                       <BookOpen className="w-4 h-4 mr-2" />
-                       {assignment.teacherName}
+                      {assignment.teacherName}
                     </div>
                     <div className="flex items-center text-sm text-blue-100">
                       <Calendar className="w-4 h-4 mr-2" />

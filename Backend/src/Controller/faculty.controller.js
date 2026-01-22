@@ -4,12 +4,13 @@ const AssignmentModel = require("../models/Assignment.model");
 
 exports.Assignment = async (req, res) => {
   try {
-    const { topic, subject, teacherName, assignedDate, dueDate, questions } = req.body;
+    const { topic, subject, teacherName,year, assignedDate, dueDate, questions } = req.body;
 
     const assignment = await AssignmentModel.create({
       topic,
       subject,
       teacherName,
+      year,
       assignedDate,
       dueDate,
       questions,

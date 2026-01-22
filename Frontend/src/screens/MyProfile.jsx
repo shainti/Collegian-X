@@ -80,7 +80,7 @@ const ProfileDashboard = () => {
               <InfoField icon={Mail} label="Email Address" value={formData.email} />
               <InfoField icon={BookOpen} label="Department" value={formData.Department} />
               <InfoField icon={Hash} label="College Roll No" value={formData.CollegeRollNo} />
-              <InfoField icon={Calendar} label="Semester" value={formData.Semester} />
+              <InfoField icon={Calendar} label="Graduation Year" value={formData.Semester} />
             </div>
           )}
 
