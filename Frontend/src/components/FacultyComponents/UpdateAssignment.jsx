@@ -60,7 +60,7 @@ export default function FacultyAssignmentManager() {
   const handleSave = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-
+//fetch for add assignment
     try {
       await fetch("http://localhost:3000/api/Faculty/assignment", {
         method: "POST",
@@ -81,6 +81,7 @@ export default function FacultyAssignmentManager() {
     } catch (error) {}
     setShowForm(false);
   };
+  //fetch for get assignment
   const fetchAssignments = async () => {
     const getresponse = await fetch(
       "http://localhost:3000/api/Faculty/assignment",
