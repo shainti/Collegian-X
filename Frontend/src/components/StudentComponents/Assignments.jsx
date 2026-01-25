@@ -14,7 +14,6 @@ export default function AssignmentViewer() {
   useEffect(() => {
     fetchAssignments();
   }, []);
-  const Student = localStorage.getItem('Student')
 
   const fetchAssignments = async () => {
     try {
@@ -26,8 +25,20 @@ export default function AssignmentViewer() {
           credentials: "include",
         }
       );
-      const result = await response.json();
-      setAssignments(result.assignment || []);
+const result = await response.json();
+
+const Student = JSON.parse(localStorage.getItem("Student"));
+const studentSemester = Student?.Semester;
+
+if (!studentSemester) {
+  setAssignments([]);
+  return;
+}
+const filteredAssignments = result.assignment.filter(
+  (item) => item.year === studentSemester
+);
+console.log(filteredAssignments)
+setAssignments(filteredAssignments);
     } catch (error) {
       console.error(error);
     }
