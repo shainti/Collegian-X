@@ -14,11 +14,12 @@ export default function AssignmentViewer() {
   useEffect(() => {
     fetchAssignments();
   }, []);
+  const Student = localStorage.getItem('Student')
 
   const fetchAssignments = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/Faculty/assignment",
+        "http://localhost:3000/api/Student/assignment",
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
