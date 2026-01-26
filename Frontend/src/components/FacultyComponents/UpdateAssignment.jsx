@@ -93,9 +93,22 @@ export default function FacultyAssignmentManager() {
         credentials: "include",
       },
     );
+    // const result = await getresponse.json();
+    // console.log(result);
+    // setAssignmentList(result.assignment);
     const result = await getresponse.json();
-    console.log(result);
-    setAssignmentList(result.assignment);
+
+const Faculty = JSON.parse(localStorage.getItem("Faculty"));
+const Teachername = Faculty?.TeacherName;
+if (!Teachername) {
+  setAssignmentList([]);
+  return;
+}
+const filteredAssignments = result.assignment.filter(
+  (item) => item.teacherName === Teachername
+);
+console.log(filteredAssignments)
+setAssignmentList(filteredAssignments);
   };
 
   const handleCancel = () => {
@@ -203,7 +216,7 @@ export default function FacultyAssignmentManager() {
                       type="text"
                       name="Subject"
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-blue-300/50 focus:outline-none focus:border-blue-400"
-                      placeholder="Enter Teacher name"
+                      placeholder="Enter Subject name"
                       required
                     />
                   </div>
@@ -215,7 +228,7 @@ export default function FacultyAssignmentManager() {
                       type="text"
                       name="TeacherName"
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-blue-300/50 focus:outline-none focus:border-blue-400"
-                      placeholder="Enter subject name"
+                      placeholder="Enter Teacher name"
                       required
                     />
                   </div>
