@@ -10,12 +10,14 @@ import {
 export default function AssignmentViewer() {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAssignments();
   }, []);
 
   const fetchAssignments = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         "http://localhost:3000/api/Student/assignment",
@@ -25,22 +27,25 @@ export default function AssignmentViewer() {
           credentials: "include",
         }
       );
-const result = await response.json();
+      const result = await response.json();
 
-const Student = JSON.parse(localStorage.getItem("Student"));
-const studentSemester = Student?.Semester;
+      const Student = JSON.parse(localStorage.getItem("Student"));
+      const studentSemester = Student?.Semester;
 
-if (!studentSemester) {
-  setAssignments([]);
-  return;
-}
-const filteredAssignments = result.assignment.filter(
-  (item) => item.year === studentSemester
-);
-console.log(filteredAssignments)
-setAssignments(filteredAssignments);
+      if (!studentSemester) {
+        setAssignments([]);
+        setLoading(false);
+        return;
+      }
+      const filteredAssignments = result.assignment.filter(
+        (item) => item.year === studentSemester
+      );
+      console.log(filteredAssignments);
+      setAssignments(filteredAssignments);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -115,60 +120,87 @@ ${assignment.questions.map((q, i) => `${i + 1}. ${q}`).join("\n\n")}`;
 
         {!selectedAssignment ? (
           /* GRID VIEW */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {assignments.map((assignment) => {
-              const daysLeft = getDaysLeft(assignment.dueDate);
-
-              return (
+          loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
-                  key={assignment._id}
-                  onClick={() => setSelectedAssignment(assignment)}
-                  className={`bg-gradient-to-br ${getCardColor(daysLeft)} rounded-3xl p-6 cursor-pointer border border-white/10 hover:scale-105 hover:border-white/20 transition`}
+                  key={i}
+                  className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 rounded-3xl p-6 border border-white/10 animate-pulse"
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-white text-lg font-bold mb-1">
-                        {assignment.topic}
-                      </h3>
-                      <p className="text-blue-200 text-sm">
-                        {assignment.subject}
-                      </p>
+                    <div className="flex-1">
+                      <div className="h-6 bg-white/10 rounded-lg w-3/4 mb-2" />
+                      <div className="h-4 bg-white/10 rounded-lg w-1/2" />
                     </div>
-                    <span
-                      className={`text-xs px-3 py-1.5 rounded-full border ${getBadgeColor(
-                        daysLeft
-                      )}`}
-                    >
-                      {daysLeft < 0 ? "Overdue" : `${daysLeft}d left`}
-                    </span>
+                    <div className="h-6 bg-white/10 rounded-full w-16" />
                   </div>
 
-                  <div className="space-y-2 text-sm text-blue-100">
-                    <div className="flex items-center gap-2">
-                      <BookOpen size={16} />
-                      {assignment.teacherName}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar size={16} />
-                      Assigned:{" "}
-                      {new Date(
-                        assignment.assignedDate
-                      ).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar size={16} />
-                      Due:{" "}
-                      {new Date(assignment.dueDate).toLocaleDateString()}
-                    </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-white/10 rounded-lg w-2/3" />
+                    <div className="h-4 bg-white/10 rounded-lg w-3/4" />
+                    <div className="h-4 bg-white/10 rounded-lg w-2/3" />
                   </div>
 
-                  <button className="w-full mt-4 bg-white/10 text-white px-6 py-2.5 rounded-full border border-white/20 hover:bg-white/20 transition">
-                    View Details →
-                  </button>
+                  <div className="h-10 bg-white/10 rounded-full w-full mt-4" />
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {assignments.map((assignment) => {
+                const daysLeft = getDaysLeft(assignment.dueDate);
+
+                return (
+                  <div
+                    key={assignment._id}
+                    onClick={() => setSelectedAssignment(assignment)}
+                    className={`bg-gradient-to-br ${getCardColor(daysLeft)} rounded-3xl p-6 cursor-pointer border border-white/10 hover:scale-105 hover:border-white/20 transition`}
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-white text-lg font-bold mb-1">
+                          {assignment.topic}
+                        </h3>
+                        <p className="text-blue-200 text-sm">
+                          {assignment.subject}
+                        </p>
+                      </div>
+                      <span
+                        className={`text-xs px-3 py-1.5 rounded-full border ${getBadgeColor(
+                          daysLeft
+                        )}`}
+                      >
+                        {daysLeft < 0 ? "Overdue" : `${daysLeft}d left`}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-sm text-blue-100">
+                      <div className="flex items-center gap-2">
+                        <BookOpen size={16} />
+                        {assignment.teacherName}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar size={16} />
+                        Assigned:{" "}
+                        {new Date(
+                          assignment.assignedDate
+                        ).toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar size={16} />
+                        Due:{" "}
+                        {new Date(assignment.dueDate).toLocaleDateString()}
+                      </div>
+                    </div>
+
+                    <button className="w-full mt-4 bg-white/10 text-white px-6 py-2.5 rounded-full border border-white/20 hover:bg-white/20 transition">
+                      View Details →
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )
         ) : (
           /* DETAILS VIEW */
           <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 rounded-3xl p-8 border border-white/10">

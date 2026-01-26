@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
-
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Edit,
@@ -10,12 +8,14 @@ import {
   FileText,
   Calendar,
   BookOpen,
+  Loader2,
 } from "lucide-react";
 
 export default function FacultyAssignmentManager() {
   const [showForm, setShowForm] = useState(false);
   const [questions, setQuestions] = useState(["", ""]);
   const [assignmentList, setAssignmentList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchAssignments();
@@ -53,6 +53,7 @@ export default function FacultyAssignmentManager() {
     console.log("Edit Assignment:", assignment);
     setShowForm(true);
   };
+
   const handleDelete = (id) => {
     console.log("Delete Assignment ID:", id);
   };
@@ -60,8 +61,9 @@ export default function FacultyAssignmentManager() {
   const handleSave = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-//fetch for add assignment
+
     try {
+      setLoading(true);
       await fetch("http://localhost:3000/api/Faculty/assignment", {
         method: "POST",
         headers: {
@@ -78,37 +80,50 @@ export default function FacultyAssignmentManager() {
           questions: questions.filter((q) => q.trim() !== ""),
         }),
       });
-    } catch (error) {}
-    setShowForm(false);
+      setShowForm(false);
+      await fetchAssignments(); // Refresh the list
+    } catch (error) {
+      console.error("Error saving assignment:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-  //fetch for get assignment
-  const fetchAssignments = async () => {
-    const getresponse = await fetch(
-      "http://localhost:3000/api/Faculty/assignment",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      },
-    );
-    // const result = await getresponse.json();
-    // console.log(result);
-    // setAssignmentList(result.assignment);
-    const result = await getresponse.json();
 
-const Faculty = JSON.parse(localStorage.getItem("Faculty"));
-const Teachername = Faculty?.TeacherName;
-if (!Teachername) {
-  setAssignmentList([]);
-  return;
-}
-const filteredAssignments = result.assignment.filter(
-  (item) => item.teacherName === Teachername
-);
-console.log(filteredAssignments)
-setAssignmentList(filteredAssignments);
+  const fetchAssignments = async () => {
+    try {
+      setLoading(true);
+
+      const getresponse = await fetch(
+        "http://localhost:3000/api/Faculty/assignment",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const result = await getresponse.json();
+
+      const Faculty = JSON.parse(localStorage.getItem("Faculty"));
+      const Teachername = Faculty?.TeacherName;
+
+      if (!Teachername) {
+        setAssignmentList([]);
+        return;
+      }
+
+      const filteredAssignments = result.assignment.filter(
+        (item) => item.teacherName === Teachername
+      );
+
+      setAssignmentList(filteredAssignments);
+    } catch (error) {
+      console.error("Error fetching assignments", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -170,7 +185,8 @@ setAssignmentList(filteredAssignments);
             </div>
             <button
               onClick={handleAddNew}
-              className="flex items-center gap-2 bg-white/10 text-white px-6 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all"
+              disabled={loading}
+              className="flex items-center gap-2 bg-white/10 text-white px-6 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="w-5 h-5" />
               Add New
@@ -313,15 +329,26 @@ setAssignmentList(filteredAssignments);
                 <div className="flex gap-4 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-br from-green-500 to-green-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all"
+                    disabled={loading}
+                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-br from-green-500 to-green-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Save className="w-5 h-5" />
-                    Create Assignment
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        Create Assignment
+                      </>
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="flex-1 bg-white/10 text-white px-6 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all"
+                    disabled={loading}
+                    className="flex-1 bg-white/10 text-white px-6 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
@@ -329,7 +356,42 @@ setAssignmentList(filteredAssignments);
               </div>
             </form>
           </div>
+        ) : loading ? (
+          // Loading State
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="relative">
+              <div className="w-20 h-20 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+              <Loader2 className="w-10 h-10 text-blue-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            </div>
+            <p className="text-white text-lg mt-6 font-semibold">
+              Loading assignments...
+            </p>
+            <p className="text-blue-300 text-sm mt-2">
+              Please wait while we fetch your data
+            </p>
+          </div>
+        ) : assignmentList.length === 0 ? (
+          // Empty State
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 rounded-full p-8 mb-6">
+              <FileText className="w-16 h-16 text-blue-400" />
+            </div>
+            <h3 className="text-white text-2xl font-bold mb-2">
+              No Assignments Yet
+            </h3>
+            <p className="text-blue-300 text-center mb-6">
+              Start creating assignments for your students
+            </p>
+            <button
+              onClick={handleAddNew}
+              className="flex items-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-blue-700 transition-all"
+            >
+              <Plus className="w-5 h-5" />
+              Create Your First Assignment
+            </button>
+          </div>
         ) : (
+          // Assignment List
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {assignmentList.map((assignment) => {
               const daysLeft = calculateDaysLeft(assignment.dueDate);
@@ -365,7 +427,7 @@ setAssignmentList(filteredAssignments);
                       Due: {new Date(assignment.dueDate).toLocaleDateString()}
                     </div>
                     <div className="text-sm text-blue-100">
-                      Questions: {assignment.questions}
+                      Questions: {assignment.questions.length}
                     </div>
                   </div>
 
@@ -378,7 +440,7 @@ setAssignmentList(filteredAssignments);
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(assignment.id)}
+                      onClick={() => handleDelete(assignment._id)}
                       className="flex items-center justify-center bg-red-500/20 text-red-300 px-4 py-2.5 rounded-full font-semibold text-sm border border-red-400/30 hover:bg-red-500/30 transition-all"
                     >
                       <Trash2 className="w-4 h-4" />
