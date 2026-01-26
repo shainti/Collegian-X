@@ -41,3 +41,56 @@ exports.GetAssignment = async (req, res) =>{
   }
 
 }
+exports.editViewassignment = async (req, res) =>{
+  const  Id  = req.params.Id
+  try {
+    const assignment = await AssignmentModel.findById(Id)
+    res.status(200).json({
+      assignment,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch assignments" });
+  }
+
+}
+
+exports.putassignment = async (req, res) => {
+  const { Id } = req.params;
+  const {
+    topic,
+    subject,
+    teacherName,
+    year,
+    assignedDate,
+    dueDate,
+    questions,
+  } = req.body;
+
+  try {
+    const updatedAssignment = await AssignmentModel.findByIdAndUpdate(
+      Id,
+      {
+        topic,
+        subject,
+        teacherName,
+        year,
+        assignedDate,
+        dueDate,
+        questions,
+      },
+      { new: true } // return updated document
+    );
+
+    if (!updatedAssignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    res.status(200).json({
+      assignment: updatedAssignment,
+      message: "Assignment updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update assignment" });
+  }
+};
+

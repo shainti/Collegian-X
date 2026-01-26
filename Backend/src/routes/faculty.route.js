@@ -4,6 +4,8 @@ const FacultyController = require('../Controller/faculty.controller')
 
 FacultyRouter.post('/assignment',FacultyController.Assignment)
 FacultyRouter.get("/assignment", FacultyController.GetAssignment);
+FacultyRouter.get('/editassignment/:Id', FacultyController.editViewassignment);
+FacultyRouter.put('/assignment/:Id', FacultyController.putassignment)
 
 
 
