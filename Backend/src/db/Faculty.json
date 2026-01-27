@@ -2,15 +2,36 @@
   {
     "FacultyId": "213232",
     "password": "$2b$10$gTE9TA7pkCv9UaJpvG9LGe1fyK1APF7klL4L1bQlzgaSk2uH0A2vO",
-    "TeacherName":"Amena Talth",
-    "email": "amematalah@gmail.com",
+    "TeacherName": "Amena Talath",
+    "email": "amenatalath213232@gmail.com",
     "Department": "BCA"
   },
   {
-     "FacultyId": "213233",
+    "FacultyId": "213233",
     "password": "$2b$10$gTE9TA7pkCv9UaJpvG9LGe1fyK1APF7klL4L1bQlzgaSk2uH0A2vO",
-    "TeacherName":"Reena",
-    "email": "Reena2132@gmail.com",
+    "TeacherName": "Reena",
+    "email": "reena213233@gmail.com",
+    "Department": "BCA"
+  },
+  {
+    "FacultyId": "213234",
+    "password": "$2b$10$gTE9TA7pkCv9UaJpvG9LGe1fyK1APF7klL4L1bQlzgaSk2uH0A2vO",
+    "TeacherName": "Neha Sood",
+    "email": "nehasood213234@gmail.com",
+    "Department": "BCA"
+  },
+  {
+    "FacultyId": "213235",
+    "password": "$2b$10$gTE9TA7pkCv9UaJpvG9LGe1fyK1APF7klL4L1bQlzgaSk2uH0A2vO",
+    "TeacherName": "Pankaj Mahajan",
+    "email": "pankajmahajan213235@gmail.com",
+    "Department": "BCA"
+  },
+  {
+    "FacultyId": "213236",
+    "password": "$2b$10$gTE9TA7pkCv9UaJpvG9LGe1fyK1APF7klL4L1bQlzgaSk2uH0A2vO",
+    "TeacherName": "Jyoti",
+    "email": "jyoti213236@gmail.com",
     "Department": "BCA"
   }
 ]

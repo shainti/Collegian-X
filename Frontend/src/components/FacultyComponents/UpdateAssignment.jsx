@@ -102,10 +102,10 @@ export default function FacultyAssignmentManager() {
       console.error("Edit fetch failed", error);
     }
   };
-  const handleDelete = async (_id) => {
+  const handleDelete = async (id) => {
     try {
-      const response = await fetch("http://localhost:3000/api/", {
-        method: "POST",
+      const response = await fetch(`http://localhost:3000/api/Faculty/Deleteassignment/${id}`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
@@ -114,9 +114,10 @@ export default function FacultyAssignmentManager() {
     console.log("Delete Assignment ID:", id);
   };
 
+
+
   const handleSave = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
 

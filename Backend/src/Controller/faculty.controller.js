@@ -94,3 +94,20 @@ exports.putassignment = async (req, res) => {
   }
 };
 
+
+exports.Deleteassignment = async (req, res) => {
+  const { Id } = req.params;
+  try {
+    const Deleteassignment = await AssignmentModel.findByIdAndDelete(Id);
+    if (!Deleteassignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    res.status(200).json({
+      assignment: Deleteassignment,
+      message: "Assignment Delete successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update assignment" });
+  }
+};
