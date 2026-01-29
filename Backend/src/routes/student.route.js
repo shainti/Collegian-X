@@ -3,5 +3,6 @@ const studentRoutes = express.Router();
 const StudentConroller = require('../Controller/student.controller')
 
 studentRoutes.get('/assignment', StudentConroller.GetStudentAssignment)
+studentRoutes.get('/viewtimetable',StudentConroller.viewtimetable);
 
 module.exports = studentRoutes; 

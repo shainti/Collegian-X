@@ -103,7 +103,7 @@ export default function StudentPortal() {
       bgColor:
         "bg-gradient-to-br from-cyan-600/20 via-cyan-700/20 to-cyan-800/20",
       iconColor: "bg-gradient-to-br from-cyan-500 to-cyan-600",
-      onClick: () => console.log("Timetable clicked"),
+      onClick: () => (window.location.href = "/Student/Timetable"),
     },
     {
       id: 3,

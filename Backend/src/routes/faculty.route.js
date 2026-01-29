@@ -7,7 +7,6 @@ FacultyRouter.get("/assignment", FacultyController.GetAssignment);
 FacultyRouter.get('/editassignment/:Id', FacultyController.editViewassignment);
 FacultyRouter.put('/assignment/:Id', FacultyController.putassignment);
 FacultyRouter.get('/Deleteassignment/:Id', FacultyController.Deleteassignment);
-FacultyRouter.get('/viewtimetable',FacultyController.viewtimetable);
 
 
 module.exports = FacultyRouter; 

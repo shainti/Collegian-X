@@ -12,3 +12,7 @@ exports.GetStudentAssignment = async (req, res) => {
   }
 
 }
+
+exports.viewtimetable = async (req, res) => {
+  
+};

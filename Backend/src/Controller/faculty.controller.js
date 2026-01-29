@@ -111,8 +111,3 @@ exports.Deleteassignment = async (req, res) => {
     res.status(500).json({ message: "Failed to update assignment" });
   }
 };
-
-
-exports.viewtimetable = async (req, res) => {
-  
-};
