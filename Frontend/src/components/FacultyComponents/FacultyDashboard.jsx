@@ -112,7 +112,7 @@ export default function FacultyDashboard() {
       bgColor:
         "bg-gradient-to-br from-emerald-600/20 via-emerald-700/20 to-emerald-800/20",
       iconColor: "bg-gradient-to-br from-emerald-500 to-emerald-600",
-      onClick: () => console.log("Update Attendance clicked"),
+      onClick: () => (window.location.href = "/Faculty/UpdateAttendance"),
     },
     {
       id: 4,
