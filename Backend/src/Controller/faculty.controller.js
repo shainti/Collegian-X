@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const AssignmentModel = require("../models/Assignment.model");
+const StudentModel = require('../models/Student.model')
 
 
 exports.Assignment = async (req, res) => {
@@ -112,19 +113,20 @@ exports.Deleteassignment = async (req, res) => {
   }
 };
 
-exports.UpdateAttendance = async (req, res) => {
-  const { Id } = req.params;
-  try {
-    const Deleteassignment = await AssignmentModel.findByIdAndDelete(Id);
-    if (!Deleteassignment) {
-      return res.status(404).json({ message: "Assignment not found" });
-    }
 
-    res.status(200).json({
-      assignment: Deleteassignment,
-      message: "Assignment Delete successfully",
+exports.GetStudent = async (req, res) => {
+try {
+  const findstudent = await StudentModel.find({ Semester })
+  if (!findstudent) {
+      return res.status(404).json({ message: "student not found" });
+    }
+        res.status(200).json({
+      student: findstudent,
+      message: "student find successfully",
     });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update assignment" });
-  }
+} catch (error) {
+  res.status(400).json({
+    message:"student not find"
+  })
+}
 };

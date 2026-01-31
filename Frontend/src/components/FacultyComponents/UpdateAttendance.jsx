@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Calendar, BookOpen, ArrowLeft, GraduationCap } from 'lucide-react';
 
+// Simple Student Row Component
 const StudentAttendanceRow = ({ student, onAttendanceUpdate, totalClasses }) => {
-  const [attendedClasses, setAttendedClasses] = useState(student.attendedClasses || '');
-
-  const handleAttendedChange = (value) => {
-    setAttendedClasses(value);
+  const handleChange = (value) => {
     onAttendanceUpdate(student.id, value);
   };
 
@@ -28,8 +26,8 @@ const StudentAttendanceRow = ({ student, onAttendanceUpdate, totalClasses }) => 
             type="number"
             min="0"
             max={totalClasses || undefined}
-            value={attendedClasses}
-            onChange={(e) => handleAttendedChange(e.target.value)}
+            value={student.attendedClasses}
+            onChange={(e) => handleChange(e.target.value)}
             placeholder="0"
             className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-2 text-white font-semibold text-center focus:outline-none focus:border-emerald-400 transition-all"
           />
@@ -40,50 +38,76 @@ const StudentAttendanceRow = ({ student, onAttendanceUpdate, totalClasses }) => 
 };
 
 export default function FacultyMonthlyAttendance() {
+  // UI State
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('2026-01');
   const [totalClasses, setTotalClasses] = useState('');
   const [teacherName, setTeacherName] = useState('');
-  
-  const [allStudents] = useState({
-    '1': [
-      { id: 1, rollNo: '01', name: 'Aarav Sharma', year: 1, attendedClasses: '' },
-      { id: 2, rollNo: '02', name: 'Diya Patel', year: 1, attendedClasses: '' },
-      { id: 3, rollNo: '03', name: 'Arjun Kumar', year: 1, attendedClasses: '' },
-      { id: 4, rollNo: '04', name: 'Ananya Singh', year: 1, attendedClasses: '' },
-    ],
-    '2': [
-      { id: 5, rollNo: '05', name: 'Vihaan Reddy', year: 2, attendedClasses: '' },
-      { id: 6, rollNo: '06', name: 'Isha Gupta', year: 2, attendedClasses: '' },
-      { id: 7, rollNo: '07', name: 'Reyansh Mehta', year: 2, attendedClasses: '' },
-      { id: 8, rollNo: '08', name: 'Saanvi Verma', year: 2, attendedClasses: '' },
-    ],
-    '3': [
-      { id: 9, rollNo: '09', name: 'Aditya Joshi', year: 3, attendedClasses: '' },
-      { id: 10, rollNo: '10', name: 'Kavya Nair', year: 3, attendedClasses: '' },
-      { id: 11, rollNo: '11', name: 'Rohan Iyer', year: 3, attendedClasses: '' },
-      { id: 12, rollNo: '12', name: 'Priya Das', year: 3, attendedClasses: '' },
-    ]
-  });
-
   const [students, setStudents] = useState([]);
 
-  // Teacher's subjects - Replace with actual teacher data from your backend
-  const teacherSubjects = ['Mathematics', 'Physics']; // Only subjects this teacher teaches
+  // Teacher's subjects (you can fetch this from backend)
+  const teacherSubjects = ['Mathematics', 'Physics'];
 
-  useEffect(() => {
-    // Fetch teacher info from localStorage or API
-    const facultyData = JSON.parse(localStorage.getItem('Faculty') || '{}');
-    setTeacherName(facultyData.TeacherName || 'Teacher');
-    // You can also set teacherSubjects from backend here
-  }, []);
-
-  const handleYearSelect = (year) => {
-    setSelectedYear(year);
-    setStudents(allStudents[year].map(s => ({ ...s, attendedClasses: '' })));
+  // Dummy student data for each year
+  const studentsByYear = {
+    '1': [
+      { id: 1, rollNo: '01', name: 'Aarav Sharma', attendedClasses: '' },
+      { id: 2, rollNo: '02', name: 'Diya Patel', attendedClasses: '' },
+      { id: 3, rollNo: '03', name: 'Arjun Kumar', attendedClasses: '' },
+      { id: 4, rollNo: '04', name: 'Ananya Singh', attendedClasses: '' },
+    ],
+    '2': [
+      { id: 5, rollNo: '05', name: 'Vihaan Reddy', attendedClasses: '' },
+      { id: 6, rollNo: '06', name: 'Isha Gupta', attendedClasses: '' },
+      { id: 7, rollNo: '07', name: 'Reyansh Mehta', attendedClasses: '' },
+      { id: 8, rollNo: '08', name: 'Saanvi Verma', attendedClasses: '' },
+    ],
+    '3': [
+      { id: 9, rollNo: '09', name: 'Aditya Joshi', attendedClasses: '' },
+      { id: 10, rollNo: '10', name: 'Kavya Nair', attendedClasses: '' },
+      { id: 11, rollNo: '11', name: 'Rohan Iyer', attendedClasses: '' },
+      { id: 12, rollNo: '12', name: 'Priya Das', attendedClasses: '' },
+    ]
   };
 
+  // Load teacher info on mount
+  useEffect(() => {
+    const facultyData = JSON.parse(localStorage.getItem('Faculty') || '{}');
+    setTeacherName(facultyData.TeacherName || 'Teacher');
+  }, []);
+
+  // Fetch students when component loads (optional - currently using dummy data)
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/Faculty/GetStudent", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Fetched students:', data);
+          // You can update studentsByYear with this data if needed
+        }
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
+  // Handle year selection
+  const handleYearSelect = (year) => {
+    setSelectedYear(year);
+    // Load students for selected year with empty attendance
+    setStudents(studentsByYear[year].map(s => ({ ...s, attendedClasses: '' })));
+  };
+
+  // Go back to year selection
   const handleBackToYearSelection = () => {
     setSelectedYear(null);
     setStudents([]);
@@ -91,39 +115,50 @@ export default function FacultyMonthlyAttendance() {
     setSelectedSubject('');
   };
 
+  // Update attendance for a specific student
   const handleAttendanceUpdate = (studentId, attendedClasses) => {
-    setStudents(students.map(student =>
-      student.id === studentId ? { ...student, attendedClasses } : student
-    ));
+    setStudents(prevStudents =>
+      prevStudents.map(student =>
+        student.id === studentId 
+          ? { ...student, attendedClasses } 
+          : student
+      )
+    );
   };
 
+  // Clear all attendance
   const handleClearAll = () => {
     if (confirm('Are you sure you want to clear all attendance data?')) {
-      setStudents(students.map(student => ({
-        ...student,
-        attendedClasses: ''
-      })));
+      setStudents(prevStudents =>
+        prevStudents.map(student => ({ ...student, attendedClasses: '' }))
+      );
     }
   };
 
+  // Validate and submit attendance
   const handleSubmit = () => {
+    // Validation 1: Check total classes
     if (!totalClasses || totalClasses === '0') {
       alert('Please enter total classes conducted!');
       return;
     }
 
+    // Validation 2: Check subject selection
     if (!selectedSubject) {
       alert('Please select a subject!');
       return;
     }
 
+    // Get students with attendance filled
     const filledStudents = students.filter(s => s.attendedClasses !== '');
-    
+
+    // Validation 3: Check if at least one student has attendance
     if (filledStudents.length === 0) {
       alert('Please fill attendance for at least one student!');
       return;
     }
 
+    // Validation 4: Check if any student's attendance exceeds total classes
     const invalidStudents = filledStudents.filter(s =>
       parseInt(s.attendedClasses) > parseInt(totalClasses)
     );
@@ -133,27 +168,47 @@ export default function FacultyMonthlyAttendance() {
       return;
     }
 
+    // Format month for display
     const monthName = new Date(selectedMonth + '-01').toLocaleDateString('en-IN', {
       month: 'long',
       year: 'numeric'
     });
 
-    alert(`Attendance Submitted Successfully!\n\nYear: ${selectedYear}${selectedYear === '1' ? 'st' : selectedYear === '2' ? 'nd' : 'rd'} Year\nSubject: ${selectedSubject}\nMonth: ${monthName}\nTotal Classes: ${totalClasses}\nStudents Updated: ${filledStudents.length}/${students.length}`);
+    // Success message
+    alert(
+      `Attendance Submitted Successfully!\n\n` +
+      `Year: ${selectedYear}${selectedYear === '1' ? 'st' : selectedYear === '2' ? 'nd' : 'rd'} Year\n` +
+      `Subject: ${selectedSubject}\n` +
+      `Month: ${monthName}\n` +
+      `Total Classes: ${totalClasses}\n` +
+      `Students Updated: ${filledStudents.length}/${students.length}`
+    );
 
-    // Send to backend here
-    console.log({
+    // Prepare data for backend
+    const attendanceData = {
       year: selectedYear,
       subject: selectedSubject,
       month: selectedMonth,
       totalClasses,
       teacherName,
       students: filledStudents
-    });
+    };
 
+    console.log('Submitting attendance:', attendanceData);
+
+    // TODO: Send to backend
+    // fetch('http://localhost:3000/api/Faculty/SubmitAttendance', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   credentials: 'include',
+    //   body: JSON.stringify(attendanceData)
+    // });
+
+    // Reset form
     handleBackToYearSelection();
   };
 
-  // Year Selection Screen
+  // SCREEN 1: Year Selection
   if (!selectedYear) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden flex items-center justify-center">
@@ -226,7 +281,7 @@ export default function FacultyMonthlyAttendance() {
     );
   }
 
-  // Attendance Form Screen
+  // SCREEN 2: Attendance Form
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background Effects */}
@@ -333,7 +388,7 @@ export default function FacultyMonthlyAttendance() {
           </div>
 
           <div className="space-y-3">
-            {students.map((student, index) => (
+            {students.map((student) => (
               <StudentAttendanceRow
                 key={student.id}
                 student={student}
