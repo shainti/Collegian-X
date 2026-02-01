@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Calendar, BookOpen, ArrowLeft, GraduationCap } from 'lucide-react';
 
-// Simple Student Row Component
+// Student Row Component
 const StudentAttendanceRow = ({ student, onAttendanceUpdate, totalClasses }) => {
-  const handleChange = (value) => {
-    onAttendanceUpdate(student.id, value);
-  };
-
   return (
     <div className="bg-gradient-to-br from-blue-600/10 to-blue-800/10 rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all">
       <div className="flex items-center justify-between gap-4">
@@ -15,19 +11,17 @@ const StudentAttendanceRow = ({ student, onAttendanceUpdate, totalClasses }) => 
           <div className="bg-gradient-to-br from-blue-500 to-cyan-500 w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
             {student.rollNo}
           </div>
-          <div>
-            <h3 className="text-white font-semibold">{student.name}</h3>
-          </div>
+          <h3 className="text-white font-semibold">{student.name}</h3>
         </div>
 
-        {/* Attended Classes Input */}
+        {/* Input */}
         <div className="w-32">
           <input
             type="number"
             min="0"
-            max={totalClasses || undefined}
+            max={totalClasses}
             value={student.attendedClasses}
-            onChange={(e) => handleChange(e.target.value)}
+            onChange={(e) => onAttendanceUpdate(student.id, e.target.value)}
             placeholder="0"
             className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-2 text-white font-semibold text-center focus:outline-none focus:border-emerald-400 transition-all"
           />
@@ -38,174 +32,102 @@ const StudentAttendanceRow = ({ student, onAttendanceUpdate, totalClasses }) => 
 };
 
 export default function FacultyMonthlyAttendance() {
-  // UI State
+  // States
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('2026-01');
   const [totalClasses, setTotalClasses] = useState('');
-  const [teacherName, setTeacherName] = useState('');
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Teacher's subjects (you can fetch this from backend)
   const teacherSubjects = ['Mathematics', 'Physics'];
 
-  // Dummy student data for each year
-  const studentsByYear = {
-    '1': [
-      { id: 1, rollNo: '01', name: 'Aarav Sharma', attendedClasses: '' },
-      { id: 2, rollNo: '02', name: 'Diya Patel', attendedClasses: '' },
-      { id: 3, rollNo: '03', name: 'Arjun Kumar', attendedClasses: '' },
-      { id: 4, rollNo: '04', name: 'Ananya Singh', attendedClasses: '' },
-    ],
-    '2': [
-      { id: 5, rollNo: '05', name: 'Vihaan Reddy', attendedClasses: '' },
-      { id: 6, rollNo: '06', name: 'Isha Gupta', attendedClasses: '' },
-      { id: 7, rollNo: '07', name: 'Reyansh Mehta', attendedClasses: '' },
-      { id: 8, rollNo: '08', name: 'Saanvi Verma', attendedClasses: '' },
-    ],
-    '3': [
-      { id: 9, rollNo: '09', name: 'Aditya Joshi', attendedClasses: '' },
-      { id: 10, rollNo: '10', name: 'Kavya Nair', attendedClasses: '' },
-      { id: 11, rollNo: '11', name: 'Rohan Iyer', attendedClasses: '' },
-      { id: 12, rollNo: '12', name: 'Priya Das', attendedClasses: '' },
-    ]
-  };
+  // Fetch students when year selected
+useEffect(() => {
+  if (!selectedYear) return;
 
-  // Load teacher info on mount
-  useEffect(() => {
-    const facultyData = JSON.parse(localStorage.getItem('Faculty') || '{}');
-    setTeacherName(facultyData.TeacherName || 'Teacher');
-  }, []);
-
-  // Fetch students when component loads (optional - currently using dummy data)
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/Faculty/GetStudent", {
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/faculty/GetStudent?year=${selectedYear}`,
+        {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Fetched students:', data);
-          // You can update studentsByYear with this data if needed
         }
-      } catch (error) {
-        console.error("Error fetching students:", error);
-      }
-    };
-
-    fetchStudents();
-  }, []);
-
-  // Handle year selection
-  const handleYearSelect = (year) => {
-    setSelectedYear(year);
-    // Load students for selected year with empty attendance
-    setStudents(studentsByYear[year].map(s => ({ ...s, attendedClasses: '' })));
-  };
-
-  // Go back to year selection
-  const handleBackToYearSelection = () => {
-    setSelectedYear(null);
-    setStudents([]);
-    setTotalClasses('');
-    setSelectedSubject('');
-  };
-
-  // Update attendance for a specific student
-  const handleAttendanceUpdate = (studentId, attendedClasses) => {
-    setStudents(prevStudents =>
-      prevStudents.map(student =>
-        student.id === studentId 
-          ? { ...student, attendedClasses } 
-          : student
-      )
-    );
-  };
-
-  // Clear all attendance
-  const handleClearAll = () => {
-    if (confirm('Are you sure you want to clear all attendance data?')) {
-      setStudents(prevStudents =>
-        prevStudents.map(student => ({ ...student, attendedClasses: '' }))
       );
+
+      if (response.ok) {
+        const data = await response.json();
+        setStudents(data.students.map(s => ({
+          id: s._id,
+          rollNo: s.CollegeRollNo || 'N/A',    // ← Match your model
+          name: s.FullName || 'Unknown',       // ← Match your model
+          attendedClasses: ''
+        })));
+      } else {
+        alert('Failed to load students');
+      }
+    } catch (error) {
+      alert('Error loading students');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Validate and submit attendance
-  const handleSubmit = () => {
-    // Validation 1: Check total classes
-    if (!totalClasses || totalClasses === '0') {
-      alert('Please enter total classes conducted!');
-      return;
+  fetchStudents();
+}, [selectedYear]);
+
+  // Update student attendance
+  const handleAttendanceUpdate = (studentId, value) => {
+    setStudents(students.map(s =>
+      s.id === studentId ? { ...s, attendedClasses: value } : s
+    ));
+  };
+
+  // Submit attendance
+  const handleSubmit = async () => {
+    // Validations
+    if (!totalClasses) return alert('Enter total classes!');
+    if (!selectedSubject) return alert('Select a subject!');
+    
+    const filled = students.filter(s => s.attendedClasses !== '');
+    if (filled.length === 0) return alert('Fill attendance for at least one student!');
+    
+    const invalid = filled.some(s => parseInt(s.attendedClasses) > parseInt(totalClasses));
+    if (invalid) return alert('Attendance cannot exceed total classes!');
+
+    // Submit
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:3000/api/faculty/SubmitAttendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          year: selectedYear,
+          subject: selectedSubject,
+          month: selectedMonth,
+          totalClasses,
+          students: filled
+        })
+      });
+
+      if (response.ok) {
+        alert('Attendance submitted successfully!');
+        setSelectedYear(null);
+        setStudents([]);
+        setTotalClasses('');
+        setSelectedSubject('');
+      } else {
+        alert('Failed to submit attendance');
+      }
+    } catch (error) {
+      alert('Error submitting attendance');
+    } finally {
+      setLoading(false);
     }
-
-    // Validation 2: Check subject selection
-    if (!selectedSubject) {
-      alert('Please select a subject!');
-      return;
-    }
-
-    // Get students with attendance filled
-    const filledStudents = students.filter(s => s.attendedClasses !== '');
-
-    // Validation 3: Check if at least one student has attendance
-    if (filledStudents.length === 0) {
-      alert('Please fill attendance for at least one student!');
-      return;
-    }
-
-    // Validation 4: Check if any student's attendance exceeds total classes
-    const invalidStudents = filledStudents.filter(s =>
-      parseInt(s.attendedClasses) > parseInt(totalClasses)
-    );
-
-    if (invalidStudents.length > 0) {
-      alert('Error: Attended classes cannot be greater than total classes for some students!');
-      return;
-    }
-
-    // Format month for display
-    const monthName = new Date(selectedMonth + '-01').toLocaleDateString('en-IN', {
-      month: 'long',
-      year: 'numeric'
-    });
-
-    // Success message
-    alert(
-      `Attendance Submitted Successfully!\n\n` +
-      `Year: ${selectedYear}${selectedYear === '1' ? 'st' : selectedYear === '2' ? 'nd' : 'rd'} Year\n` +
-      `Subject: ${selectedSubject}\n` +
-      `Month: ${monthName}\n` +
-      `Total Classes: ${totalClasses}\n` +
-      `Students Updated: ${filledStudents.length}/${students.length}`
-    );
-
-    // Prepare data for backend
-    const attendanceData = {
-      year: selectedYear,
-      subject: selectedSubject,
-      month: selectedMonth,
-      totalClasses,
-      teacherName,
-      students: filledStudents
-    };
-
-    console.log('Submitting attendance:', attendanceData);
-
-    // TODO: Send to backend
-    // fetch('http://localhost:3000/api/Faculty/SubmitAttendance', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   credentials: 'include',
-    //   body: JSON.stringify(attendanceData)
-    // });
-
-    // Reset form
-    handleBackToYearSelection();
   };
 
   // SCREEN 1: Year Selection
@@ -236,29 +158,50 @@ export default function FacultyMonthlyAttendance() {
 
           {/* Year Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { year: '1', label: '1st Year', color: 'from-blue-600/20 to-blue-800/20', iconColor: 'from-blue-500 to-blue-600', students: 4 },
-              { year: '2', label: '2nd Year', color: 'from-cyan-600/20 to-cyan-800/20', iconColor: 'from-cyan-500 to-cyan-600', students: 4 },
-              { year: '3', label: '3rd Year', color: 'from-purple-600/20 to-purple-800/20', iconColor: 'from-purple-500 to-purple-600', students: 4 }
-            ].map((item) => (
-              <div
-                key={item.year}
-                onClick={() => handleYearSelect(item.year)}
-                className={`bg-gradient-to-br ${item.color} rounded-3xl p-8 border border-white/10 cursor-pointer hover:scale-105 hover:border-white/30 transition-all duration-300 group`}
-              >
-                <div className={`bg-gradient-to-br ${item.iconColor} w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all`}>
-                  <Users className="w-8 h-8 text-white" />
-                </div>
-                
-                <h2 className="text-3xl font-bold text-white text-center mb-2">{item.label}</h2>
-                <p className="text-blue-200 text-center mb-6">{item.students} Students</p>
-                
-                <button className="w-full bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2">
-                  Select Year
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                </button>
+            <div
+              onClick={() => setSelectedYear('1')}
+              className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 rounded-3xl p-8 border border-white/10 cursor-pointer hover:scale-105 hover:border-white/30 transition-all duration-300 group"
+            >
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all">
+                <Users className="w-8 h-8 text-white" />
               </div>
-            ))}
+              <h2 className="text-3xl font-bold text-white text-center mb-2">1st Year</h2>
+              <p className="text-blue-200 text-center mb-6">Click to load students</p>
+              <button className="w-full bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                Select Year
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </button>
+            </div>
+
+            <div
+              onClick={() => setSelectedYear('2')}
+              className="bg-gradient-to-br from-cyan-600/20 to-cyan-800/20 rounded-3xl p-8 border border-white/10 cursor-pointer hover:scale-105 hover:border-white/30 transition-all duration-300 group"
+            >
+              <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all">
+                <Users className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white text-center mb-2">2nd Year</h2>
+              <p className="text-blue-200 text-center mb-6">Click to load students</p>
+              <button className="w-full bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                Select Year
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </button>
+            </div>
+
+            <div
+              onClick={() => setSelectedYear('3')}
+              className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 rounded-3xl p-8 border border-white/10 cursor-pointer hover:scale-105 hover:border-white/30 transition-all duration-300 group"
+            >
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all">
+                <Users className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white text-center mb-2">3rd Year</h2>
+              <p className="text-blue-200 text-center mb-6">Click to load students</p>
+              <button className="w-full bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                Select Year
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -284,6 +227,15 @@ export default function FacultyMonthlyAttendance() {
   // SCREEN 2: Attendance Form
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Loading */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-gradient-to-br from-blue-600/80 to-blue-800/80 rounded-3xl p-8 border border-white/20">
+            <div className="text-white text-xl font-semibold">Loading...</div>
+          </div>
+        </div>
+      )}
+
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute top-32 left-10 text-5xl animate-float">📅</div>
@@ -297,10 +249,10 @@ export default function FacultyMonthlyAttendance() {
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
 
       <div className="max-w-5xl mx-auto relative z-10">
-        {/* Header with Back Button */}
+        {/* Header */}
         <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 rounded-3xl p-6 mb-6 border border-white/10">
           <button
-            onClick={handleBackToYearSelection}
+            onClick={() => setSelectedYear(null)}
             className="flex items-center gap-2 text-blue-200 hover:text-white transition-colors mb-4"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -313,16 +265,15 @@ export default function FacultyMonthlyAttendance() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">
-                {selectedYear}{selectedYear === '1' ? 'st' : selectedYear === '2' ? 'nd' : 'rd'} Year - Attendance
+                {selectedYear === '1' ? '1st' : selectedYear === '2' ? '2nd' : '3rd'} Year - Monthly Attendance
               </h1>
               <p className="text-blue-200">Mark attendance for your students</p>
             </div>
           </div>
         </div>
 
-        {/* Controls Section */}
+        {/* Controls */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Subject Selection */}
           <div className="bg-gradient-to-br from-cyan-600/20 to-cyan-800/20 rounded-3xl p-6 border border-white/10">
             <label className="text-cyan-200 text-sm mb-3 block flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
@@ -342,7 +293,6 @@ export default function FacultyMonthlyAttendance() {
             </select>
           </div>
 
-          {/* Month Selection */}
           <div className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 rounded-3xl p-6 border border-white/10">
             <label className="text-purple-200 text-sm mb-3 block flex items-center gap-2">
               <Calendar className="w-4 h-4" />
@@ -356,7 +306,6 @@ export default function FacultyMonthlyAttendance() {
             />
           </div>
 
-          {/* Total Classes */}
           <div className="bg-gradient-to-br from-indigo-600/20 to-indigo-800/20 rounded-3xl p-6 border border-white/10">
             <label className="text-indigo-200 text-sm mb-3 block">Total Classes</label>
             <input
@@ -380,26 +329,32 @@ export default function FacultyMonthlyAttendance() {
               </p>
             </div>
             <button
-              onClick={handleClearAll}
+              onClick={() => setStudents(students.map(s => ({ ...s, attendedClasses: '' })))}
               className="bg-red-500/20 backdrop-blur-md border border-red-400/30 text-red-300 px-4 py-2 rounded-xl font-semibold hover:bg-red-500/30 transition-all text-sm"
             >
               Clear All
             </button>
           </div>
 
-          <div className="space-y-3">
-            {students.map((student) => (
-              <StudentAttendanceRow
-                key={student.id}
-                student={student}
-                onAttendanceUpdate={handleAttendanceUpdate}
-                totalClasses={totalClasses}
-              />
-            ))}
-          </div>
+          {students.length === 0 ? (
+            <div className="text-center py-12 text-blue-200">
+              <p className="text-lg">No students found</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {students.map((student) => (
+                <StudentAttendanceRow
+                  key={student.id}
+                  student={student}
+                  onAttendanceUpdate={handleAttendanceUpdate}
+                  totalClasses={totalClasses}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Info Card */}
+        {/* Info */}
         <div className="bg-gradient-to-br from-yellow-600/20 to-yellow-800/20 rounded-3xl p-6 mb-6 border border-yellow-400/20">
           <div className="flex gap-4">
             <div className="text-4xl">💡</div>
@@ -416,11 +371,12 @@ export default function FacultyMonthlyAttendance() {
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="text-center">
           <button
             onClick={handleSubmit}
-            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg hover:scale-105 inline-flex items-center gap-3"
+            disabled={loading || students.length === 0}
+            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg hover:scale-105 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             📤 Submit Attendance →
           </button>

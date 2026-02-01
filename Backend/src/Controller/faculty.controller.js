@@ -113,20 +113,35 @@ exports.Deleteassignment = async (req, res) => {
   }
 };
 
-
 exports.GetStudent = async (req, res) => {
-try {
-  const findstudent = await StudentModel.find({ Semester })
-  if (!findstudent) {
-      return res.status(404).json({ message: "student not found" });
+  try {
+    const { year } = req.query; // Get from query string (?year=1)
+    
+    if (!year) {
+      return res.status(400).json({ 
+        message: "Year parameter is required" 
+      });
     }
-        res.status(200).json({
-      student: findstudent,
-      message: "student find successfully",
+    
+    const students = await StudentModel.find({ Semester: year });
+    
+    if (students.length === 0) {
+      return res.status(404).json({ 
+        message: "No students found for this year" 
+      });
+    }
+    
+    res.status(200).json({
+      students: students,
+      count: students.length,
+      message: "Students found successfully"
     });
-} catch (error) {
-  res.status(400).json({
-    message:"student not find"
-  })
-}
+    
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    res.status(500).json({
+      message: "Error fetching students",
+      error: error.message
+    });
+  }
 };
