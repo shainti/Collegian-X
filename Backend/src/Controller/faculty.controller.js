@@ -1,7 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const AssignmentModel = require("../models/Assignment.model");
 const StudentModel = require('../models/Student.model')
-
+const StudentAttendance = require('../models/StudentAttendance.model')
 
 exports.Assignment = async (req, res) => {
   try {
@@ -145,3 +145,169 @@ exports.GetStudent = async (req, res) => {
     });
   }
 };
+
+exports.Submitattendance= async (req, res)=> {
+ try {
+    const { studentId, facultyId , year, subject, month, totalClasses, attendedClasses,} = req.body;
+    // const facultyId = req.user._id; // From authentication middleware
+
+    // Validation
+    if (!studentId || !year || !subject || !month || !totalClasses || attendedClasses === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+
+    // Check if attended exceeds total
+    if (parseInt(attendedClasses) > parseInt(totalClasses)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Attended classes cannot exceed total classes'
+      });
+    }
+
+    // Check if attendance already exists for this student-subject-month
+    const existingAttendance = await StudentAttendance.findOne({
+      studentId,
+      subject,
+      month
+    });
+
+    if (existingAttendance) {
+      // Update existing record
+      existingAttendance.facultyId = facultyId;
+      existingAttendance.year = year;
+      existingAttendance.totalClasses = parseInt(totalClasses);
+      existingAttendance.attendedClasses = parseInt(attendedClasses);
+      existingAttendance.submittedAt = Date.now();
+      
+      await existingAttendance.save();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Attendance updated successfully',
+        data: existingAttendance
+      });
+    }
+
+    // Create new attendance record
+    const newAttendance = new StudentAttendance({
+      studentId,
+      facultyId,
+      year,
+      subject,
+      month,
+      totalClasses: parseInt(totalClasses),
+      attendedClasses: parseInt(attendedClasses),
+    });
+
+    await newAttendance.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Attendance submitted successfully',
+      data: newAttendance
+    });
+
+  } catch (error) {
+    console.error('Submit attendance error:', error);
+    
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'Attendance already exists for this student and month'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to submit attendance'
+    });
+  }
+}
+// exports.Getattendance= async (req, res)=> {
+//  try {
+//     const { studentId } = req.params;
+//     const { year, subject, month } = req.query;
+
+//     const filters = {};
+//     if (year) filters.year = year;
+//     if (subject) filters.subject = subject;
+//     if (month) filters.month = month;
+
+//     const attendance = await StudentAttendance.getStudentAttendance(studentId, filters);
+
+//     res.status(200).json({
+//       success: true,
+//       count: attendance.length,
+//       data: attendance
+//     });
+
+//   } catch (error) {
+//     console.error('Get student attendance error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Failed to fetch student attendance'
+//     });
+//   }
+// }
+
+// exports.GetReport= async (req, res)=> {
+// try {
+//     const { year, subject, month } = req.query;
+
+//     if (!year || !subject || !month) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Year, subject, and month are required'
+//       });
+//     }
+
+//     const report = await StudentAttendance.getMonthlyReport(year, subject, month);
+
+//     res.status(200).json({
+//       success: true,
+//       count: report.length,
+//       data: report
+//     });
+
+//   } catch (error) {
+//     console.error('Get monthly report error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Failed to fetch monthly report'
+//     });
+//   }
+// }
+// exports.Getlowattendance = async (req, res) =>{
+// try {
+//     const { year, subject, month } = req.query;
+
+//     const query = {};
+//     if (year) query.year = year;
+//     if (subject) query.subject = subject;
+//     if (month) query.month = month;
+
+//     const allAttendance = await StudentAttendance.find(query)
+//       .populate('studentId', 'FullName CollegeRollNo')
+//       .exec();
+
+//     // Filter students with low attendance
+//     const lowAttendance = allAttendance.filter(record => record.hasLowAttendance());
+
+//     res.status(200).json({
+//       success: true,
+//       count: lowAttendance.length,
+//       data: lowAttendance
+//     });
+
+//   } catch (error) {
+//     console.error('Get low attendance error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Failed to fetch low attendance students'
+//     });
+//   }
+// }
+

@@ -39,45 +39,46 @@ export default function FacultyMonthlyAttendance() {
   const [totalClasses, setTotalClasses] = useState('');
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState({ current: 0, total: 0 });
 
   const teacherSubjects = ['Mathematics', 'Physics'];
 
   // Fetch students when year selected
-useEffect(() => {
-  if (!selectedYear) return;
+  useEffect(() => {
+    if (!selectedYear) return;
 
-  const fetchStudents = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/faculty/GetStudent?year=${selectedYear}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+    const fetchStudents = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/faculty/GetStudent?year=${selectedYear}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setStudents(data.students.map(s => ({
+            id: s._id,
+            rollNo: s.CollegeRollNo || 'N/A',    
+            name: s.FullName || 'Unknown',       
+            attendedClasses: ''
+          })));
+        } else {
+          alert('Failed to load students');
         }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data.students.map(s => ({
-          id: s._id,
-          rollNo: s.CollegeRollNo || 'N/A',    // ← Match your model
-          name: s.FullName || 'Unknown',       // ← Match your model
-          attendedClasses: ''
-        })));
-      } else {
-        alert('Failed to load students');
+      } catch (error) {
+        alert('Error loading students');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      alert('Error loading students');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchStudents();
-}, [selectedYear]);
+    fetchStudents();
+  }, [selectedYear]);
 
   // Update student attendance
   const handleAttendanceUpdate = (studentId, value) => {
@@ -86,47 +87,94 @@ useEffect(() => {
     ));
   };
 
-  // Submit attendance
+  // Simplified Submit - One student at a time
   const handleSubmit = async () => {
-    // Validations
-    if (!totalClasses) return alert('Enter total classes!');
-    if (!selectedSubject) return alert('Select a subject!');
-    
-    const filled = students.filter(s => s.attendedClasses !== '');
-    if (filled.length === 0) return alert('Fill attendance for at least one student!');
-    
-    const invalid = filled.some(s => parseInt(s.attendedClasses) > parseInt(totalClasses));
-    if (invalid) return alert('Attendance cannot exceed total classes!');
+    // Basic validations
+    if (!selectedSubject) {
+      alert('Please select a subject!');
+      return;
+    }
 
-    // Submit
+    if (!totalClasses || parseInt(totalClasses) <= 0) {
+      alert('Please enter valid total classes!');
+      return;
+    }
+
+    // Get students with attendance filled
+    const studentsWithAttendance = students.filter(s => s.attendedClasses !== '');
+
+    if (studentsWithAttendance.length === 0) {
+      alert('Please fill attendance for at least one student!');
+      return;
+    }
+
+    // Check if any attendance exceeds total classes
+    const hasInvalid = studentsWithAttendance.some(
+      s => parseInt(s.attendedClasses) > parseInt(totalClasses)
+    );
+
+    if (hasInvalid) {
+      alert('Attended classes cannot exceed total classes!');
+      return;
+    }
+
+    // Submit each student one by one
     setLoading(true);
-    try {
-      const response = await fetch('http://localhost:3000/api/faculty/SubmitAttendance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          year: selectedYear,
-          subject: selectedSubject,
-          month: selectedMonth,
-          totalClasses,
-          students: filled
-        })
-      });
+    setSubmitProgress({ current: 0, total: studentsWithAttendance.length });
 
-      if (response.ok) {
-        alert('Attendance submitted successfully!');
-        setSelectedYear(null);
-        setStudents([]);
-        setTotalClasses('');
-        setSelectedSubject('');
-      } else {
-        alert('Failed to submit attendance');
+    let successCount = 0;
+    let failedStudents = [];
+
+    for (let i = 0; i < studentsWithAttendance.length; i++) {
+      const student = studentsWithAttendance[i];
+
+    const facultyData = JSON.parse(localStorage.getItem("Faculty"));
+    const facultyId = facultyData?.id; 
+      try {
+        const response = await fetch('http://localhost:3000/api/faculty/SubmitAttendance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            studentId: student.id,
+            facultyId,
+            year: selectedYear,
+            subject: selectedSubject,
+            month: selectedMonth,
+            totalClasses: parseInt(totalClasses),
+            attendedClasses: parseInt(student.attendedClasses)
+          })
+        });
+
+        if (response.ok) {
+          successCount++;
+        } else {
+          failedStudents.push(student.name);
+        }
+      } catch (error) {
+        failedStudents.push(student.name);
       }
-    } catch (error) {
-      alert('Error submitting attendance');
-    } finally {
-      setLoading(false);
+
+      // Update progress
+      setSubmitProgress({ current: i + 1, total: studentsWithAttendance.length });
+    }
+
+    setLoading(false);
+    setSubmitProgress({ current: 0, total: 0 });
+
+    // Show results
+    if (failedStudents.length === 0) {
+      alert(`✅ Attendance submitted successfully for all ${successCount} students!`);
+      // Reset form
+      setSelectedYear(null);
+      setStudents([]);
+      setTotalClasses('');
+      setSelectedSubject('');
+      setSelectedMonth('2026-01');
+    } else {
+      alert(
+        `⚠️ Submitted: ${successCount}/${studentsWithAttendance.length}\n\nFailed for:\n${failedStudents.join(', ')}`
+      );
     }
   };
 
@@ -231,7 +279,24 @@ useEffect(() => {
       {loading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-gradient-to-br from-blue-600/80 to-blue-800/80 rounded-3xl p-8 border border-white/20">
-            <div className="text-white text-xl font-semibold">Loading...</div>
+            {submitProgress.total > 0 ? (
+              <div className="text-center">
+                <div className="text-white text-xl font-semibold mb-4">
+                  Submitting Attendance...
+                </div>
+                <div className="text-blue-200 text-lg">
+                  {submitProgress.current} / {submitProgress.total} students
+                </div>
+                <div className="w-64 h-2 bg-white/20 rounded-full mt-4">
+                  <div 
+                    className="h-full bg-gradient-to-r from-green-400 to-emerald-400 rounded-full transition-all"
+                    style={{ width: `${(submitProgress.current / submitProgress.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="text-white text-xl font-semibold">Loading...</div>
+            )}
           </div>
         </div>
       )}
@@ -365,7 +430,7 @@ useEffect(() => {
                 <li>• Enter total number of classes conducted this month</li>
                 <li>• For each student, enter how many classes they attended</li>
                 <li>• Attended classes cannot exceed total classes</li>
-                <li>• Click Submit to save the attendance</li>
+                <li>• Click Submit to save the attendance (submits one by one)</li>
               </ul>
             </div>
           </div>
