@@ -226,6 +226,66 @@ exports.Submitattendance= async (req, res)=> {
     });
   }
 }
+
+exports.getPreviousAttendance = async (req, res) => {
+  try {
+    const { year, subject, month, facultyId } = req.query;
+
+    // Validate required parameters
+    if (!year || !subject || !month || !facultyId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Year, subject, month, and facultyId are required'
+      });
+    }
+
+    // Fetch attendance records
+    const attendanceRecords = await StudentAttendance.find({
+      year,
+      subject,
+      month,
+      facultyId
+    })
+    .populate('studentId', 'FullName CollegeRollNo Email')
+    .sort({ studentRollNo: 1 });
+
+    // Format the response
+    const formattedRecords = attendanceRecords.map(record => ({
+      id: record._id,
+      studentId: record.studentId?._id,
+      name: record.studentName || record.studentId?.FullName,
+      rollNo: record.studentRollNo || record.studentId?.CollegeRollNo,
+      subject: record.subject,
+      totalClasses: record.totalClasses,
+      attendedClasses: record.attendedClasses,
+      percentage: record.percentage,
+      month: record.month,
+      year: record.year,
+      submittedAt: record.createdAt
+    }));
+
+    return res.status(200).json({
+      success: true,
+      records: formattedRecords,
+      count: formattedRecords.length,
+      summary: {
+        totalStudents: formattedRecords.length,
+        averageAttendance: formattedRecords.length > 0
+          ? (formattedRecords.reduce((sum, r) => sum + parseFloat(r.percentage), 0) / formattedRecords.length).toFixed(2)
+          : 0,
+        below75: formattedRecords.filter(r => parseFloat(r.percentage) < 75).length
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching previous attendance:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch previous attendance',
+      error: error.message
+    });
+  }
+};
 // exports.Getattendance= async (req, res)=> {
 //  try {
 //     const { studentId } = req.params;
