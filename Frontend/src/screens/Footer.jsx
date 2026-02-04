@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef } from "react";
+import Footer2 from './Footer2.jsx'
 
 export default function ScrollRevealText() {
   const ref = useRef(null);
@@ -56,4 +57,5 @@ export default function ScrollRevealText() {
       </motion.div>
     </section>
   );
+     
 }

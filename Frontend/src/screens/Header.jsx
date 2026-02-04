@@ -1,13 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {
-  Home,
-  Sparkles,
-  LogIn,
-  UserCheck,
-  User,
-  LogOut,
-} from "lucide-react";
+import { Home, Sparkles, LogIn, UserCheck, User, LogOut } from "lucide-react";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -59,7 +52,16 @@ export default function Header() {
           </Link>
 
           <Link
-            to="/features"
+            to={
+              token
+                ? student
+                  ? "/StudentDashboard"
+                  : "/FacultyDashboard"
+                : "#"
+            }
+            onClick={(e) => {
+              if (!token) e.preventDefault();
+            }}
             className="text-lg group relative flex items-center gap-2 text-white/70 hover:text-white transition"
           >
             <Sparkles size={18} />
@@ -95,9 +97,9 @@ export default function Header() {
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg hover:scale-110 transition overflow-hidden"
               >
                 {student?.Url ? (
-                  <img 
-                    src={student.Url} 
-                    alt="Profile" 
+                  <img
+                    src={student.Url}
+                    alt="Profile"
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -117,7 +119,7 @@ export default function Header() {
                   </Link>
 
                   <Link
-                  to="/"
+                    to="/"
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-4 py-3 text-red-400 hover:bg-white/10"
                   >
@@ -170,7 +172,7 @@ export default function Header() {
           </Link>
 
           <Link
-            to="/features"
+            to={student ? "/StudentDashboard" : "/FacultyDashboard"}
             onClick={() => setOpen(false)}
             className="group flex items-center gap-2.5 text-white transition hover:translate-x-2"
           >
@@ -203,9 +205,9 @@ export default function Header() {
               {/* Profile Image for Mobile */}
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg overflow-hidden">
                 {student?.Url ? (
-                  <img 
-                    src={student.Url} 
-                    alt="Profile" 
+                  <img
+                    src={student.Url}
+                    alt="Profile"
                     className="h-full w-full object-cover"
                   />
                 ) : (
