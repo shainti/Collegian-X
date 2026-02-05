@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const SubjectCard = ({ subject, index }) => {
   const [isActive, setIsActive] = useState(false);
@@ -70,6 +70,9 @@ const SubjectCard = ({ subject, index }) => {
 
         {/* Progress Bar */}
         <div className="mb-6">
+           <p className="text-white/60 text-sm mt-1">
+              Month: <span className="text-white/80">{subject.month}</span>
+            </p>
           <div className="flex justify-between mb-2">
             <span className="text-white/70 text-sm font-medium">Attendance Progress</span>
             <span className={`text-sm font-bold ${status.color}`}>{percentage}%</span>
@@ -110,57 +113,58 @@ const SubjectCard = ({ subject, index }) => {
 };
 
 export default function StudentAttendance() {
-  const [subjects] = useState([
-    {
-      id: 1,
-      name: 'Mathematics',
-      totalClasses: 45,
-      attendedClasses: 42,
-      bgColor: 'bg-gradient-to-br from-blue-600/20 via-blue-700/20 to-blue-800/20',
-      iconColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
-      icon: '📐'
-    },
-    {
-      id: 2,
-      name: 'Physics',
-      totalClasses: 40,
-      attendedClasses: 38,
-      bgColor: 'bg-gradient-to-br from-cyan-600/20 via-cyan-700/20 to-cyan-800/20',
-      iconColor: 'bg-gradient-to-br from-cyan-500 to-cyan-600',
-      icon: '⚛️'
-    },
-    {
-      id: 3,
-      name: 'Chemistry',
-      totalClasses: 38,
-      attendedClasses: 35,
-      bgColor: 'bg-gradient-to-br from-teal-600/20 via-teal-700/20 to-teal-800/20',
-      iconColor: 'bg-gradient-to-br from-teal-500 to-teal-600',
-      icon: '🧪'
-    },
-    {
-      id: 4,
-      name: 'English',
-      totalClasses: 35,
-      attendedClasses: 33,
-      bgColor: 'bg-gradient-to-br from-emerald-600/20 via-emerald-700/20 to-emerald-800/20',
-      iconColor: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
-      icon: '📚'
-    },
-    {
-      id: 5,
-      name: 'Computer Science',
-      totalClasses: 42,
-      attendedClasses: 40,
-      bgColor: 'bg-gradient-to-br from-purple-600/20 via-purple-700/20 to-purple-800/20',
-      iconColor: 'bg-gradient-to-br from-purple-500 to-purple-600',
-      icon: '💻'
-    }
-  ]);
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getSubject = async () => {
+      setLoading(true);
+      try {
+        const studentData = JSON.parse(localStorage.getItem("Student"));
+        const id = studentData?.id;
+
+        if (!id) {
+          console.error("Student ID not found");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`http://localhost:3000/api/Student/Attendance/${id}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSubjects(data.subjects || []);
+        } else {
+          console.error("Failed to fetch attendance data");
+        }
+      } catch (error) {
+        console.error("Error fetching attendance:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getSubject();
+  }, []);
 
   const totalClassesAll = subjects.reduce((sum, sub) => sum + sub.totalClasses, 0);
   const totalAttendedAll = subjects.reduce((sum, sub) => sum + sub.attendedClasses, 0);
-  const overallPercentage = ((totalAttendedAll / totalClassesAll) * 100).toFixed(1);
+  const overallPercentage = totalClassesAll > 0 ? ((totalAttendedAll / totalClassesAll) * 100).toFixed(1) : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white/20 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading attendance data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -209,11 +213,17 @@ export default function StudentAttendance() {
         </div>
 
         {/* Subject Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-          {subjects.map((subject, index) => (
-            <SubjectCard key={subject.id} subject={subject} index={index} />
-          ))}
-        </div>
+        {subjects.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-white/70 text-lg">No attendance data available</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            {subjects.map((subject, index) => (
+              <SubjectCard key={subject.id} subject={subject} index={index} />
+            ))}
+          </div>
+        )}
 
         {/* Info Card */}
         <div 
