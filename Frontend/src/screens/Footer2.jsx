@@ -4,11 +4,7 @@ const token = localStorage.getItem("token");
 export default function Footer() {
   return (
     <footer
-      className={`relative w-full overflow-hidden bg-gradient-to-br ${
-        !token
-          ? "from-slate-950 via-slate-950 to-slate-900"
-          : "from-blue-950 via-slate-950 to-blue-900"
-      }`}
+      className="relative w-full overflow-hidden bg-gradient-to-br from-blue-950 via-slate-950 to-blue-900"
     >
       {/* Background effects matching attendance page */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">

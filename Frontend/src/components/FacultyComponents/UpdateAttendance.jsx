@@ -160,8 +160,16 @@ export default function FacultyMonthlyAttendance() {
   const [submitProgress, setSubmitProgress] = useState({ current: 0, total: 0 });
   const [showPreviousAttendance, setShowPreviousAttendance] = useState(false);
   const [previousAttendanceData, setPreviousAttendanceData] = useState([]);
-
-  const teacherSubjects = ['Mathematics', 'Physics'];
+let teacherSubjects=[];
+if(selectedYear === '1'){
+teacherSubjects = ['Data structure', 'c', 'Mathamatics','English'];
+}
+else if(selectedYear === '2'){
+teacherSubjects = ['C++', 'OS', 'Mathamatics',];
+}else{
+teacherSubjects = ['Software Enginering', 'Networking', 'Mathamatics',];
+}
+  
 
   // Fetch students when year selected
   useEffect(() => {
