@@ -5,5 +5,5 @@ const StudentConroller = require('../Controller/student.controller')
 studentRoutes.get('/assignment', StudentConroller.GetStudentAssignment)
 studentRoutes.get('/viewtimetable',StudentConroller.viewtimetable);
 studentRoutes.get('/Attendance/:id', StudentConroller.GetStudentAttendance);
-
+studentRoutes.post('/generate-plan',StudentConroller.generateplan);
 module.exports = studentRoutes; 

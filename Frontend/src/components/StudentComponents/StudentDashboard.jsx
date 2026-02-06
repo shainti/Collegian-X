@@ -136,6 +136,16 @@ export default function StudentPortal() {
       onClick: () => console.log("VIew Assignments clicked"),
     },
     {
+  id: 8,
+  image: "/icons/ai-brain.png", // You'll need to add this icon
+  title: "AI Study Planner",
+  buttonText: "Let's Study",
+  bgColor:
+    "bg-gradient-to-br from-pink-600/20 via-rose-700/20 to-purple-800/20",
+  iconColor: "bg-gradient-to-br from-pink-500 to-purple-600",
+  onClick: () => (window.location.href = "/Student/AIStudyPlanner"),
+},
+    {
       id: 6,
       image: "/icons/notice.png",
       title: "Notices",

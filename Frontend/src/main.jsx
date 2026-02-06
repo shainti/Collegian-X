@@ -15,7 +15,8 @@ import Attendance from './components/StudentComponents/Attendance.jsx'
 import UpdateAttendance from './components/FacultyComponents/UpdateAttendance.jsx'
 import FacultyLogin from "./auth/FacultyAuth/FacultyLogin.jsx";
 import FacultyDashboard from "./components/FacultyComponents/FacultyDashboard.jsx";
-import MyProfile from "./screens/MyProfile.jsx"
+import MyProfile from "./screens/MyProfile.jsx";
+import AIStudyPlanner from './components/StudentComponents/AIStudyPlanner.jsx'
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
        { path: "/Student/Attendance", element: <Attendance />},
        { path: "/Faculty/UpdateAttendance", element: <UpdateAttendance />},
       { path: "/Faculty/UpdateAssignment", element: <UpdateAssignment />},
+      { path: "/Student/AIStudyPlanner", element: <AIStudyPlanner />},
       
      
     ],
