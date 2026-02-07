@@ -6,6 +6,8 @@ const facultyRoutes = require('./routes/faculty.route');
 const studentRoutes = require('./routes/student.route');
 const cors = require('cors');
 const path = require('path')
+require("dotenv").config();
+
 
 app.use(cookieParser())
 app.use(express.json())

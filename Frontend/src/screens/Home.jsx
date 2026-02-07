@@ -1,5 +1,6 @@
 import HeroIcons from "../Icons/Heroicon";
 import Footer from "./Footer";
+import FloatingAIButton from "../components/StudentComponents/FloatingAIButton";
 
 export default function Home() {
   const token = localStorage.getItem("token");
@@ -52,6 +53,9 @@ export default function Home() {
 
         <Footer />
       </div>
+
+      {/* Floating AI Button - Only show when student is logged in */}
+      {student && <FloatingAIButton />}
     </div>
   );
 }

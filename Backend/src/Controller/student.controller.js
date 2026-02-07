@@ -1,100 +1,116 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 const AssignmentModel = require("../models/Assignment.model");
-const AttendanceModel = require('../models/StudentAttendance.model')
+const AttendanceModel = require("../models/StudentAttendance.model");
+const Bytez = require("bytez.js");
+
+const sdk = new Bytez(process.env.API_KEY);
 
 exports.GetStudentAssignment = async (req, res) => {
- try {
+  try {
     const assignment = await AssignmentModel.find().sort({ createdAt: -1 });
-    res.status(200).json({
-      assignment,
-    });
+    res.status(200).json({ assignment });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch assignments" });
   }
-
-}
-
-exports.viewtimetable = async (req, res) => {
-  
 };
+
+exports.viewtimetable = async (req, res) => {};
 
 exports.GetStudentAttendance = async (req, res) => {
   const studentId = req.params.id;
-  
+
   try {
-    // Find all attendance records for this student
-    const attendanceRecords = await AttendanceModel.find({ studentId: studentId });
-    
-    if (!attendanceRecords || attendanceRecords.length === 0) {
+    const attendanceRecords = await AttendanceModel.find({ studentId });
+
+    if (!attendanceRecords.length) {
       return res.status(404).json({
         success: false,
         message: "No attendance records found"
       });
     }
 
-    // Group by subject and calculate totals
     const subjectMap = {};
-    
+
     attendanceRecords.forEach(record => {
       if (!subjectMap[record.subject]) {
         subjectMap[record.subject] = {
           name: record.subject,
           totalClasses: 0,
           attendedClasses: 0,
-          month:record.month,
-          // Add appropriate colors and icons based on subject
-          bgColor: 'bg-gradient-to-br from-blue-600/20 via-blue-700/20 to-blue-800/20',
-          iconColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
-          icon: '📚'
+          month: record.month,
+          bgColor: "bg-gradient-to-br from-blue-600/20 via-blue-700/20 to-blue-800/20",
+          iconColor: "bg-gradient-to-br from-blue-500 to-blue-600",
+          icon: "📚"
         };
       }
-      
+
       subjectMap[record.subject].totalClasses += record.totalClasses;
       subjectMap[record.subject].attendedClasses += record.attendedClasses;
     });
 
-    // Convert to array
     const subjects = Object.values(subjectMap).map((subject, index) => ({
       id: index + 1,
       ...subject
     }));
 
-    res.status(200).json({
-      success: true,
-      subjects
-    });
-    
+    res.status(200).json({ success: true, subjects });
   } catch (error) {
-    console.error("Error fetching attendance:", error);
     res.status(500).json({
       success: false,
-      message: "Error fetching attendance data",
-      error: error.message
+      message: "Error fetching attendance data"
     });
   }
 };
 
 exports.generateplan = async (req, res) => {
-   try {
+  try {
+    console.log("BODY:", req.body);
+
     const { prompt } = req.body;
-    
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": "YOUR_API_KEY_HERE", // Get from anthropic.com
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: prompt }],
-      })
+
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
+
+    // Add a delay to avoid rate limiting (for free tier)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const model = sdk.model("openai/gpt-oss-20b");
+
+    console.log("Running Bytez model...");
+
+    const { error, output } = await model.run([
+      { role: "user", content: prompt }
+    ]);
+
+    console.log("Bytez output:", output);
+
+    if (error) {
+      console.error("Bytez model error:", error);
+      
+      // If rate limited, return a specific error code
+      if (error.includes("Rate limited")) {
+        return res.status(429).json({ 
+          error: "Rate limit exceeded. Please try again in a moment.",
+          rateLimited: true 
+        });
+      }
+      
+      return res.status(500).json({ error });
+    }
+
+    // Return in a format compatible with Anthropic API response
+    res.json({ 
+      content: [
+        {
+          type: "text",
+          text: output
+        }
+      ]
     });
 
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error("SERVER CRASH:", err);
+    res.status(500).json({ error: err.message });
   }
 };

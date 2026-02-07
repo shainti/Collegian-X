@@ -76,6 +76,7 @@ export default function AIStudyPlanner() {
 }
 
 Make it encouraging, practical, and tailored to their specific situation!`;
+
 try{
   const response = await fetch("http://localhost:3000/api/Student/generate-plan", {
   method: "POST",
