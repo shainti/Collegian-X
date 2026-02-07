@@ -22,7 +22,9 @@ const PortalCard = ({
   return (
     <div
       className={`group relative ${bgColor} rounded-3xl p-5 flex flex-col items-center justify-between min-h-[240px] cursor-pointer border border-white/10 transition-all duration-500 ease-out ${
-        isActive ? 'scale-105 -translate-y-2 border-white/20' : 'hover:scale-105 hover:-translate-y-2 hover:border-white/20'
+        isActive
+          ? "scale-105 -translate-y-2 border-white/20"
+          : "hover:scale-105 hover:-translate-y-2 hover:border-white/20"
       }`}
       style={{
         animation: `fadeInUp 0.6s ease-out ${index * 0.1}s backwards`,
@@ -34,14 +36,16 @@ const PortalCard = ({
       onClick={onClick}
     >
       {/* Background gradient overlay */}
-      <div className={`absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-3xl transition-opacity duration-500 ${
-        isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-      }`} />
+      <div
+        className={`absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-3xl transition-opacity duration-500 ${
+          isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        }`}
+      />
 
       {/* Animated glow */}
       <div
         className={`absolute -inset-1 bg-gradient-to-r ${bgColor} rounded-3xl blur-xl transition-opacity duration-500 ${
-          isActive ? 'opacity-30' : 'opacity-0 group-hover:opacity-30'
+          isActive ? "opacity-30" : "opacity-0 group-hover:opacity-30"
         }`}
       />
 
@@ -50,7 +54,9 @@ const PortalCard = ({
         {/* PNG ICON */}
         <div
           className={`relative mb-4 ${iconColor} w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
-            isActive ? 'shadow-xl scale-110 -translate-y-1' : 'group-hover:shadow-xl group-hover:scale-110 group-hover:-translate-y-1'
+            isActive
+              ? "shadow-xl scale-110 -translate-y-1"
+              : "group-hover:shadow-xl group-hover:scale-110 group-hover:-translate-y-1"
           }`}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl" />
@@ -61,19 +67,27 @@ const PortalCard = ({
           />
         </div>
 
-        <h3 className={`text-white text-lg font-bold mb-6 text-center transition-transform duration-300 ${
-          isActive ? 'scale-105' : 'group-hover:scale-105'
-        }`}>
+        <h3
+          className={`text-white text-lg font-bold mb-6 text-center transition-transform duration-300 ${
+            isActive ? "scale-105" : "group-hover:scale-105"
+          }`}
+        >
           {title}
         </h3>
 
-        <button className={`mt-auto bg-white/10 backdrop-blur-md text-white px-6 py-2 rounded-full font-semibold text-sm flex items-center gap-2 border border-white/20 transition-all duration-300 shadow-lg ${
-          isActive ? 'bg-white/20 border-white/40 scale-110 shadow-xl' : 'hover:bg-white/20 hover:border-white/40 group-hover:scale-110 hover:shadow-xl'
-        }`}>
+        <button
+          className={`mt-auto bg-white/10 backdrop-blur-md text-white px-6 py-2 rounded-full font-semibold text-sm flex items-center gap-2 border border-white/20 transition-all duration-300 shadow-lg ${
+            isActive
+              ? "bg-white/20 border-white/40 scale-110 shadow-xl"
+              : "hover:bg-white/20 hover:border-white/40 group-hover:scale-110 hover:shadow-xl"
+          }`}
+        >
           <span>{buttonText}</span>
-          <span className={`transition-transform duration-300 ${
-            isActive ? 'translate-x-1' : 'group-hover:translate-x-1'
-          }`}>
+          <span
+            className={`transition-transform duration-300 ${
+              isActive ? "translate-x-1" : "group-hover:translate-x-1"
+            }`}
+          >
             →
           </span>
         </button>
@@ -93,7 +107,6 @@ export default function StudentPortal() {
         "bg-gradient-to-br from-blue-600/20 via-blue-700/20 to-blue-800/20",
       iconColor: "bg-gradient-to-br from-blue-500 to-blue-600",
       onClick: () => (window.location.href = "/Student/Assignments"),
-
     },
     {
       id: 2,
@@ -136,15 +149,15 @@ export default function StudentPortal() {
       onClick: () => console.log("VIew Assignments clicked"),
     },
     {
-  id: 8,
-  image: "/icons/ai-brain.png", // You'll need to add this icon
-  title: "AI Study Planner",
-  buttonText: "Let's Study",
-  bgColor:
-    "bg-gradient-to-br from-pink-600/20 via-rose-700/20 to-purple-800/20",
-  iconColor: "bg-gradient-to-br from-pink-500 to-purple-600",
-  onClick: () => (window.location.href = "/Student/AIStudyPlanner"),
-},
+      id: 8,
+      image: "/icons/ai-brain.png",
+      title: "AI Study Planner",
+      buttonText: "Let's Study",
+      bgColor:
+        "bg-gradient-to-br from-blue-600/20 via-cyan-700/20 to-slate-800/20",
+      iconColor: "bg-gradient-to-br from-blue-500 to-cyan-600",
+      onClick: () => (window.location.href = "/Student/AIStudyPlanner"),
+    },
     {
       id: 6,
       image: "/icons/notice.png",
@@ -172,12 +185,24 @@ export default function StudentPortal() {
       {/* FLOATING EMOJIS */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute top-32 left-10 text-5xl animate-float">📚</div>
-        <div className="absolute top-52 right-20 text-6xl animate-float-delayed">🎓</div>
-        <div className="absolute bottom-32 left-20 text-5xl animate-float-delayed-2">📖</div>
-        <div className="absolute top-1/2 right-10 text-4xl animate-float">✏️</div>
-        <div className="absolute bottom-20 right-1/3 text-5xl animate-float-delayed">🌟</div>
-        <div className="absolute top-1/3 left-1/4 text-4xl animate-spin-slow">⚡</div>
-        <div className="absolute bottom-1/3 right-1/4 text-4xl animate-pulse">💡</div>
+        <div className="absolute top-52 right-20 text-6xl animate-float-delayed">
+          🎓
+        </div>
+        <div className="absolute bottom-32 left-20 text-5xl animate-float-delayed-2">
+          📖
+        </div>
+        <div className="absolute top-1/2 right-10 text-4xl animate-float">
+          ✏️
+        </div>
+        <div className="absolute bottom-20 right-1/3 text-5xl animate-float-delayed">
+          🌟
+        </div>
+        <div className="absolute top-1/3 left-1/4 text-4xl animate-spin-slow">
+          ⚡
+        </div>
+        <div className="absolute bottom-1/3 right-1/4 text-4xl animate-pulse">
+          💡
+        </div>
       </div>
 
       {/* GRADIENT ORBS */}
@@ -205,8 +230,13 @@ export default function StudentPortal() {
           }
         }
         @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0); }
-          50% { transform: translateY(-25px) rotate(8deg); }
+          0%,
+          100% {
+            transform: translateY(0) rotate(0);
+          }
+          50% {
+            transform: translateY(-25px) rotate(8deg);
+          }
         }
         .animate-float {
           animation: float 4s ease-in-out infinite;
@@ -227,8 +257,12 @@ export default function StudentPortal() {
           animation: spin 10s linear infinite;
         }
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
     </div>
