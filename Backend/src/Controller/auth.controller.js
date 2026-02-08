@@ -33,7 +33,6 @@ exports.registerstudents = async (req, res, next) => {
       });
     }
 
-    // then check duplicate student
     const existingStudent = await StudentModel.findOne({ CollegeRollNo });
     if (existingStudent) {
       return res.status(400).json({
@@ -41,15 +40,14 @@ exports.registerstudents = async (req, res, next) => {
       });
     }
 
-    if (!password || password.length !== 8) {
+    if (!password || password.length < 8) {
       return res.status(400).json({
         errors: ["Enter 8 digit valid Password"],
       });
     }
 
     const hashpassword = await bcrypt.hash(password, 10);
-    
-    // FIXED: Generate proper 6-digit verification code
+
     const VerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     const Student = await StudentModel.create({
@@ -62,7 +60,7 @@ exports.registerstudents = async (req, res, next) => {
       VerificationCode,
     });
 
-    // Send verification email with error handling
+
     try {
       await sendverificationcode(Student.email, VerificationCode);
       

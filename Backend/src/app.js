@@ -20,7 +20,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.get("/", (req, res, next) => {
-  res.send('Hello');
 });
 app.use('/api/Student',studentRoutes);
 app.use('/api/auth', authRoutes);

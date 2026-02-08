@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const StudentRegister = () => {
   const Navigate = useNavigate();
   const [errors, setErrors] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     FullName: "",
     email: "",
@@ -29,6 +30,9 @@ const StudentRegister = () => {
       alert("Passwords do not match!");
       return;
     }
+
+    setIsLoading(true);
+    setErrors("");
 
     try {
       await axios.post(
@@ -53,6 +57,8 @@ const StudentRegister = () => {
       
     } catch (data) {
       setErrors(data.response?.data?.errors);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,7 +111,8 @@ const StudentRegister = () => {
               placeholder="Full Name"
               value={formData.FullName}
               onChange={handleChange}
-              className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+              disabled={isLoading}
+              className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             {/* Email and Roll No */}
@@ -116,7 +123,8 @@ const StudentRegister = () => {
                 placeholder="Email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+                disabled={isLoading}
+                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <input
                 type="text"
@@ -124,7 +132,8 @@ const StudentRegister = () => {
                 placeholder="Roll No"
                 value={formData.CollegeRollNo}
                 onChange={handleChange}
-                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+                disabled={isLoading}
+                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -135,7 +144,8 @@ const StudentRegister = () => {
                   name="Department"
                   value={formData.Department}
                   onChange={handleChange}
-                  className={`w-full p-3 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
+                  disabled={isLoading}
+                  className={`w-full p-3 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                     formData.Department ? "text-white" : "text-white/40"
                   }`}
                 >
@@ -166,7 +176,8 @@ const StudentRegister = () => {
                   name="Semester"
                   value={formData.Semester}
                   onChange={handleChange}
-                  className={`w-full p-3 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
+                  disabled={isLoading}
+                  className={`w-full p-3 pr-8 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                     formData.Semester ? "text-white" : "text-white/40"
                   }`}
                 >
@@ -198,7 +209,8 @@ const StudentRegister = () => {
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+                disabled={isLoading}
+                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <input
                 type="password"
@@ -206,15 +218,43 @@ const StudentRegister = () => {
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+                disabled={isLoading}
+                className="w-full p-3 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
             <button
               onClick={handleSubmit}
-              className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-semibold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200"
+              disabled={isLoading}
+              className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-semibold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
             >
-              Register as Student
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  <span>Registering...</span>
+                </>
+              ) : (
+                "Register as Student"
+              )}
             </button>
           </div>
 

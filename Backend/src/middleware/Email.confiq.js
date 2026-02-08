@@ -103,8 +103,6 @@ const sendverificationcode = async (email, verificationCode) => {
         </html>
       `,
     });
-    
-    console.log("✅ Email sent successfully:", info.messageId);
     return info;
   } catch (error) {
     console.log("❌ Email Error:", error.message);
@@ -113,6 +111,3 @@ const sendverificationcode = async (email, verificationCode) => {
 };
 
 module.exports = sendverificationcode;
-
-// Uncomment to test
-// sendverificationcode("samgaming761@gmail.com", "123456");

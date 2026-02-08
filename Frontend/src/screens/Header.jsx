@@ -172,8 +172,16 @@ export default function Header() {
           </Link>
 
           <Link
-            to={student ? "/StudentDashboard" : "/FacultyDashboard"}
-            onClick={() => setOpen(false)}
+            to={
+              token
+                ? student
+                  ? "/StudentDashboard"
+                  : "/FacultyDashboard"
+                : "#"
+            }
+            onClick={(e) => {
+              if (!token) e.preventDefault();
+            }}
             className="group flex items-center gap-2.5 text-white transition hover:translate-x-2"
           >
             <Sparkles size={18} />
