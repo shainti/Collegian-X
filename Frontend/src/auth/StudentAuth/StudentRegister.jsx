@@ -46,7 +46,11 @@ const StudentRegister = () => {
         },
       );
       console.log("Student registration:", formData);
-      Navigate("/Student/login/Success");
+      
+      // Store email in localStorage and pass via state
+      localStorage.setItem('userEmail', formData.email);
+      Navigate("/Student/Emailverify", { state: { email: formData.email } });
+      
     } catch (data) {
       setErrors(data.response?.data?.errors);
     }

@@ -18,6 +18,7 @@ import FacultyDashboard from "./components/FacultyComponents/FacultyDashboard.js
 import MyProfile from "./screens/MyProfile.jsx";
 import AIStudyPlanner from './components/StudentComponents/AIStudyPlanner.jsx'
 import FloatingAIButton from './components/StudentComponents/FloatingAIButton.jsx'
+import Emailverify from './auth/StudentAuth/Emailverify.jsx'
 
 const router = createBrowserRouter([
   {
@@ -39,7 +40,8 @@ const router = createBrowserRouter([
        { path: "/Faculty/UpdateAttendance", element: <UpdateAttendance />},
       { path: "/Faculty/UpdateAssignment", element: <UpdateAssignment />},
       { path: "/Student/AIStudyPlanner", element: <AIStudyPlanner />},
-       { path: "/Student/FloatingAIButton", element: <FloatingAIButton />}
+       { path: "/Student/FloatingAIButton", element: <FloatingAIButton />},
+       { path: "/Student/Emailverify", element: <Emailverify />}
       
      
     ],

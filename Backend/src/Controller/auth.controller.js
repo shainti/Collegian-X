@@ -4,68 +4,144 @@ const jwt = require("jsonwebtoken");
 const { default: mongoose } = require("mongoose");
 const Facultymodel = require("../models/Faculty.model");
 const { check } = require("express-validator");
+const  sendverificationcode = require('../middleware/Email.confiq')
 
 exports.registerstudents = async (req, res, next) => {
-  const { FullName, email, Department, Semester, CollegeRollNo, password } =
-    req.body;
+  try {
+    const { FullName, email, Department, Semester, CollegeRollNo, password } =
+      req.body;
 
-  const Email = await StudentModel.findOne({ email });
-  if (Email) {
-    return res.status(400).json({
-      errors: ["Student Already Exist"],
+    const Email = await StudentModel.findOne({ email });
+    if (Email) {
+      return res.status(400).json({
+        errors: ["Student Already Exist"],
+      });
+    }
+
+    if (!CollegeRollNo || CollegeRollNo.length !== 4) {
+      return res.status(400).json({
+        errors: ["Enter 4 digit valid Roll No"],
+      });
+    }
+
+    const rollnoCollection = mongoose.connection.db.collection("rollno");
+    const rollExists = await rollnoCollection.findOne({ CollegeRollNo });
+
+    if (!rollExists) {
+      return res.status(400).json({
+        errors: ["Roll number not found"],
+      });
+    }
+
+    // then check duplicate student
+    const existingStudent = await StudentModel.findOne({ CollegeRollNo });
+    if (existingStudent) {
+      return res.status(400).json({
+        errors: ["Roll number already exists"],
+      });
+    }
+
+    if (!password || password.length !== 8) {
+      return res.status(400).json({
+        errors: ["Enter 8 digit valid Password"],
+      });
+    }
+
+    const hashpassword = await bcrypt.hash(password, 10);
+    
+    // FIXED: Generate proper 6-digit verification code
+    const VerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const Student = await StudentModel.create({
+      FullName,
+      email,
+      Department,
+      Semester,
+      CollegeRollNo,
+      password: hashpassword,
+      VerificationCode,
+    });
+
+    // Send verification email with error handling
+    try {
+      await sendverificationcode(Student.email, VerificationCode);
+      
+      res.status(201).json({
+        message: "Student Registered Successfully. Verification code sent to your email.",
+        Student: {
+          _id: Student._id,
+          FullName: Student.FullName,
+          email: Student.email,
+          Department: Student.Department,
+          Semester: Student.Semester,
+          CollegeRollNo: Student.CollegeRollNo,
+        },
+      });
+    } catch (emailError) {
+      // If email fails, delete the student and return error
+      await StudentModel.findByIdAndDelete(Student._id);
+      console.error("Email send error:", emailError);
+      
+      return res.status(500).json({
+        errors: ["Failed to send verification email. Please try registering again."],
+      });
+    }
+  } catch (error) {
+    console.error("Registration error:", error);
+    return res.status(500).json({
+      errors: ["Server error during registration. Please try again."],
     });
   }
-
-if (!CollegeRollNo || CollegeRollNo.length !== 4) {
-  return res.status(400).json({
-    errors: ["Enter 4 digit valid Roll No"],
-  });
-}
-
-const rollnoCollection = mongoose.connection.db.collection("rollno");
-const rollExists = await rollnoCollection.findOne({ CollegeRollNo });
-
-if (!rollExists) {
-  return res.status(400).json({
-    errors: ["Roll number not found"],
-  });
-}
-
-// then check duplicate student
-const existingStudent = await StudentModel.findOne({ CollegeRollNo });
-if (existingStudent) {
-  return res.status(400).json({
-    errors: ["Roll number already exists"],
-  });
-}
-
-if (!password || password.length !== 8) {
-  return res.status(400).json({
-    errors: ["Enter 8 digit valid Password"],
-  });
-}
-const hashpassword = await bcrypt.hash(password, 10);
-  const Student = await StudentModel.create({
-    FullName,
-    email,
-    Department,
-    Semester,
-    CollegeRollNo,
-    password: hashpassword,
-  });
-
-  res.status(201).json({
-    message: "Student Register Successfully",
-    Student: {
-      _id: Student._id,
-      FullName: Student.FullName,
-      email: Student.email,
-      Department: Student.Department,
-      Semester: Student.Semester,
-      CollegeRollNo: Student.CollegeRollNo,
-    },
-  });
 };
+
+exports.verifyMail = async (req, res) => {
+  try {
+    const { email, verificationCode } = req.body;
+
+    if (!email || !verificationCode) {
+      return res.status(400).json({
+        errors: ["Email and verification code are required"],
+      });
+    }
+
+    const student = await StudentModel.findOne({ email });
+
+    if (!student) {
+      return res.status(404).json({
+        errors: ["Student not found"],
+      });
+    }
+
+    if (student.isverified) {
+      return res.status(400).json({
+        errors: ["Email already verified"],
+      });
+    }
+
+    if (student.VerificationCode !== verificationCode) {
+      return res.status(400).json({
+        errors: ["Invalid verification code"],
+      });
+    }
+
+    student.isverified = true;
+    student.VerificationCode = null;
+
+    await student.save();
+
+    res.status(200).json({
+      message: "Email verified successfully",
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      errors: ["Server error"],
+    });
+  }
+};
+
+
 
 exports.loginstudents = async (req, res, next) => {
   const { email, CollegeRollNo, Department, password } = req.body;

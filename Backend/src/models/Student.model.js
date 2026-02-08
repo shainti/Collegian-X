@@ -27,6 +27,11 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isverified: {
+      type: Boolean,
+      default: false,
+    },
+    VerificationCode:String,
   },
   {
     Timestamp: true,
