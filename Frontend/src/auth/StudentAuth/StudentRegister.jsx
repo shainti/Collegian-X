@@ -58,39 +58,23 @@ const StudentRegister = () => {
 
   return (
     <div className="relative w-full min-h-screen bg-[#050B16] flex items-center justify-center p-4">
-      {/* BLUE GLOW BACKGROUND */}
+      {/* BLUE GLOW BACKGROUND - Static */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-blue-500/20 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-purple-500/20 rounded-full blur-3xl"></div>
       </div>
 
-      {/* FLOATING ICONS */}
+      {/* FLOATING ICONS - Removed all animations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
-        <div className="absolute top-20 left-10 text-4xl animate-float">📚</div>
-        <div className="absolute top-32 right-20 text-5xl animate-float-delayed">
-          🎓
-        </div>
-        <div className="absolute bottom-40 left-16 text-4xl animate-float-delayed-2">
-          📖
-        </div>
-        <div className="absolute top-1/2 right-12 text-3xl animate-float">
-          ✏️
-        </div>
-        <div className="absolute bottom-24 right-1/3 text-4xl animate-float-delayed">
-          🌟
-        </div>
-        <div className="absolute top-1/3 left-1/4 text-3xl animate-spin-slow">
-          ⚡
-        </div>
-        <div className="absolute bottom-1/3 right-1/4 text-3xl animate-pulse">
-          💡
-        </div>
-        <div className="absolute top-1/4 right-1/3 text-4xl animate-float-delayed-2">
-          📝
-        </div>
-        <div className="absolute bottom-1/2 left-1/3 text-3xl animate-float">
-          🎯
-        </div>
+        <div className="absolute top-20 left-10 text-4xl">📚</div>
+        <div className="absolute top-32 right-20 text-5xl">🎓</div>
+        <div className="absolute bottom-40 left-16 text-4xl">📖</div>
+        <div className="absolute top-1/2 right-12 text-3xl">✏️</div>
+        <div className="absolute bottom-24 right-1/3 text-4xl">🌟</div>
+        <div className="absolute top-1/3 left-1/4 text-3xl">⚡</div>
+        <div className="absolute bottom-1/3 right-1/4 text-3xl">💡</div>
+        <div className="absolute top-1/4 right-1/3 text-4xl">📝</div>
+        <div className="absolute bottom-1/2 left-1/3 text-3xl">🎯</div>
       </div>
 
       {/* MAIN CONTAINER */}
@@ -247,38 +231,6 @@ const StudentRegister = () => {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0) rotate(0);
-          }
-          50% {
-            transform: translateY(-20px) rotate(5deg);
-          }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-        .animate-float-delayed {
-          animation: float 4s ease-in-out infinite 1s;
-        }
-        .animate-float-delayed-2 {
-          animation: float 4s ease-in-out infinite 2s;
-        }
-        .animate-spin-slow {
-          animation: spin 8s linear infinite;
-        }
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 };

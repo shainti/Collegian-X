@@ -97,7 +97,7 @@ exports.registerstudents = async (req, res, next) => {
 exports.verifyMail = async (req, res) => {
   try {
     const { email, verificationCode } = req.body;
-
+    console.log(email,verificationCode);
     if (!email || !verificationCode) {
       return res.status(400).json({
         errors: ["Email and verification code are required"],
@@ -146,20 +146,30 @@ exports.verifyMail = async (req, res) => {
 exports.loginstudents = async (req, res, next) => {
   const { email, CollegeRollNo, Department, password } = req.body;
   const Student = await StudentModel.findOne({
-    email,
+    CollegeRollNo,
   });
+
   if (!Student) {
     return res.status(400).json({
-      errors: ["invalid Email or password"],
+      errors: ["invalid College Roll No"],
+    });
+  }
+  if (Student.isverified !== true) {
+    await StudentModel.findByIdAndDelete(Student._id);
+  
+    return res.status(403).json({
+      errors: ["Email not verified. Student registration removed."],
     });
   }
 
 
-  if (Student.CollegeRollNo !== CollegeRollNo) {
+
+  if (Student.email !== email) {
     return res.status(400).json({
-      errors: ["Invalid College Roll NO"],
+      errors: ["Invalid Email or Password"],
     });
   }
+
   
 const rollnoCollection = mongoose.connection.db.collection("rollno");
 const rollExists = await rollnoCollection.findOne({ CollegeRollNo });

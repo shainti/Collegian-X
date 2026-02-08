@@ -102,7 +102,7 @@ const EmailVerification = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/Student/verify-email', {
+      const response = await fetch('http://localhost:3000/api/auth/Student/verify-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -173,23 +173,23 @@ const EmailVerification = () => {
 
   return (
     <div className="relative w-full min-h-screen bg-[#050B16] flex items-center justify-center px-4 py-8">
-      {/* BLUE GLOW BACKGROUND - NO PURPLE */}
+      {/* BLUE GLOW BACKGROUND - Static, no animation */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-blue-500/20 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-blue-500/20 rounded-full blur-3xl"></div>
       </div>
 
-      {/* FLOATING ICONS */}
+      {/* FLOATING ICONS - Removed all animations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
-        <div className="absolute top-[10%] left-[5%] text-3xl md:text-4xl animate-float">📧</div>
-        <div className="absolute top-[15%] right-[10%] text-4xl md:text-5xl animate-float-delayed">✉️</div>
-        <div className="absolute bottom-[25%] left-[8%] text-3xl md:text-4xl animate-float-delayed-2">📬</div>
-        <div className="absolute top-[45%] right-[8%] text-2xl md:text-3xl animate-float">🔐</div>
-        <div className="absolute bottom-[15%] right-[30%] text-3xl md:text-4xl animate-float-delayed">✅</div>
-        <div className="absolute top-[30%] left-[20%] text-2xl md:text-3xl animate-spin-slow">⚡</div>
-        <div className="absolute bottom-[30%] right-[20%] text-2xl md:text-3xl animate-pulse">🔑</div>
-        <div className="absolute top-[20%] right-[30%] text-3xl md:text-4xl animate-float-delayed-2">📱</div>
-        <div className="absolute bottom-[45%] left-[30%] text-2xl md:text-3xl animate-float">🎯</div>
+        <div className="absolute top-[10%] left-[5%] text-3xl md:text-4xl">📧</div>
+        <div className="absolute top-[15%] right-[10%] text-4xl md:text-5xl">✉️</div>
+        <div className="absolute bottom-[25%] left-[8%] text-3xl md:text-4xl">📬</div>
+        <div className="absolute top-[45%] right-[8%] text-2xl md:text-3xl">🔐</div>
+        <div className="absolute bottom-[15%] right-[30%] text-3xl md:text-4xl">✅</div>
+        <div className="absolute top-[30%] left-[20%] text-2xl md:text-3xl">⚡</div>
+        <div className="absolute bottom-[30%] right-[20%] text-2xl md:text-3xl">🔑</div>
+        <div className="absolute top-[20%] right-[30%] text-3xl md:text-4xl">📱</div>
+        <div className="absolute bottom-[45%] left-[30%] text-2xl md:text-3xl">🎯</div>
       </div>
 
       {/* MAIN CONTAINER - CENTERED AND RESPONSIVE */}
@@ -197,7 +197,7 @@ const EmailVerification = () => {
         
         {/* Success Message */}
         {successMessage && (
-          <div className="mb-4 rounded-xl border border-green-400/40 bg-green-500/10 px-4 py-3 text-sm text-green-300 shadow-[0_0_25px_rgba(34,197,94,0.25)] backdrop-blur-md animate-fade-in">
+          <div className="mb-4 rounded-xl border border-green-400/40 bg-green-500/10 px-4 py-3 text-sm text-green-300 shadow-[0_0_25px_rgba(34,197,94,0.25)] backdrop-blur-md">
             <div className="flex items-center gap-2">
               <CheckCircle size={18} className="text-green-400 flex-shrink-0" />
               <span className="font-medium">{successMessage}</span>
@@ -207,7 +207,7 @@ const EmailVerification = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_25px_rgba(248,113,113,0.25)] backdrop-blur-md animate-fade-in">
+          <div className="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_25px_rgba(248,113,113,0.25)] backdrop-blur-md">
             <div className="flex items-center gap-2">
               <AlertCircle size={18} className="text-red-400 flex-shrink-0" />
               <span className="font-medium">{error}</span>
@@ -328,50 +328,6 @@ const EmailVerification = () => {
         </p>
         
       </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0) rotate(0);
-          }
-          50% {
-            transform: translateY(-20px) rotate(5deg);
-          }
-        }
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-        .animate-float-delayed {
-          animation: float 4s ease-in-out infinite 1s;
-        }
-        .animate-float-delayed-2 {
-          animation: float 4s ease-in-out infinite 2s;
-        }
-        .animate-spin-slow {
-          animation: spin 8s linear infinite;
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out;
-        }
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 };
