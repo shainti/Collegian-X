@@ -5,6 +5,7 @@ import axios from "axios";
 
 const FacultyLogin = () => {
   const [errors, setErrors] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     FacultyId: "",
     password: "",
@@ -17,6 +18,8 @@ const FacultyLogin = () => {
     });
   };
   const handleSubmit = async () => {
+    setLoading(true);
+    setErrors("");
     try {
       const response = await fetch(
         "http://localhost:3000/api/auth/Faculty/login",
@@ -48,10 +51,12 @@ const FacultyLogin = () => {
         window.location.href = "/FacultyDashboard";
       } else {
         setErrors(data.errors);
+        setLoading(false);
       }
     } catch (error) {
       setErrors("Login failed. Please try again.");
       console.error("Login error:", error);
+      setLoading(false);
     }
   };
 
@@ -110,7 +115,8 @@ const FacultyLogin = () => {
               placeholder="Faculty ID"
               value={formData.FacultyId}
               onChange={handleChange}
-              className="w-full p-3 mb-3 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+              disabled={loading}
+              className="w-full p-3 mb-3 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             <input
@@ -119,14 +125,23 @@ const FacultyLogin = () => {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full p-3 mb-5 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+              disabled={loading}
+              className="w-full p-3 mb-5 rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             <button
               onClick={handleSubmit}
-              className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200"
+              disabled={loading}
+              className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2"
             >
-              Login as Faculty
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Logging in...</span>
+                </>
+              ) : (
+                "Login as Faculty"
+              )}
             </button>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { UserCircle2, ChevronDown } from "lucide-react";
 
 const StudentLogin = () => {
   const [errors, setErrors] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     CollegeRollNo: "",
@@ -18,6 +19,8 @@ const StudentLogin = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
+    setErrors("");
     try {
       const response = await fetch("http://localhost:3000/api/auth/Student/login", {
         method: "POST",
@@ -48,10 +51,12 @@ const StudentLogin = () => {
         window.location.href = "/StudentDashboard";
       } else {
         setErrors(data.errors);
+        setLoading(false);
       }
     } catch (error) {
       setErrors("Login failed. Please try again.");
       console.error("Login error:", error);
+      setLoading(false);
     }
   };
 
@@ -88,7 +93,7 @@ const StudentLogin = () => {
       {/* MAIN CONTAINER */}
       <div className="relative z-10 w-full max-w-[380px] my-auto">
         {errors && (
-          <div className="mb-4 rounded-xl border border-blue-400/40 bg-white-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_25px_rgba(248,113,113,0.25)] backdrop-blur-md">
+          <div className="mb-4 rounded-xl border border-blue-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_25px_rgba(248,113,113,0.25)] backdrop-blur-md">
             <div className="flex items-center gap-2">
               <span className="text-lg">⚠️</span>
               <span className="font-medium">
@@ -112,7 +117,8 @@ const StudentLogin = () => {
               placeholder="Email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full p-2.5 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+              disabled={loading}
+              className="w-full p-2.5 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             <input
@@ -121,7 +127,8 @@ const StudentLogin = () => {
               placeholder="College Roll No"
               value={formData.CollegeRollNo}
               onChange={handleChange}
-              className="w-full p-2.5 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+              disabled={loading}
+              className="w-full p-2.5 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             <div className="relative">
@@ -129,7 +136,8 @@ const StudentLogin = () => {
                 name="Department"
                 value={formData.Department}
                 onChange={handleChange}
-                className={`w-full p-2.5 pr-10 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer ${
+                disabled={loading}
+                className={`w-full p-2.5 pr-10 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 outline-none focus:border-cyan-400 transition-colors duration-200 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                   formData.Department ? "text-white" : "text-white/40"
                 }`}
               >
@@ -161,14 +169,23 @@ const StudentLogin = () => {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full p-2.5 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200"
+              disabled={loading}
+              className="w-full p-2.5 text-sm rounded-lg bg-[#050B16]/60 border border-blue-400/40 text-white placeholder-white/40 outline-none focus:border-cyan-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             <button
               onClick={handleSubmit}
-              className="w-full py-2.5 mt-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-semibold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200"
+              disabled={loading}
+              className="w-full py-2.5 mt-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-semibold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2"
             >
-              Login as Student
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Logging in...</span>
+                </>
+              ) : (
+                "Login as Student"
+              )}
             </button>
           </div>
 

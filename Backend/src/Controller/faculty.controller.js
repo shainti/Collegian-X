@@ -80,7 +80,7 @@ exports.Assignment = async (req, res) => {
         // Assignment is already created, just log the error
       }
     } else {
-      console.log('No students found for year:', year); // Debug log
+      console.log('No students found for year:', year); 
     }
 
     // 4️⃣ IMPORTANT: Return response AFTER everything is done
