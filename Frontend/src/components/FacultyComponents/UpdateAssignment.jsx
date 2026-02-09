@@ -11,6 +11,8 @@ import {
   Loader2,
 } from "lucide-react";
 
+const faculty = JSON.parse(localStorage.getItem('Faculty'));
+console.log(faculty.TeacherName);
 export default function FacultyAssignmentManager() {
   const [showForm, setShowForm] = useState(false);
   const [questions, setQuestions] = useState(["", ""]);
@@ -19,7 +21,7 @@ export default function FacultyAssignmentManager() {
   const [formData, setFormData] = useState({
     topic: "",
     subject: "",
-    teacherName: "",
+    teacherName: faculty.TeacherName,
     year: "",
     assignedDate: "",
     dueDate: "",
@@ -87,7 +89,7 @@ export default function FacultyAssignmentManager() {
       setFormData({
         topic: assignment.topic || "",
         subject: assignment.subject || "",
-        teacherName: assignment.teacherName || "",
+        teacherName: faculty.TeacherName || "",
         year: assignment.year || "",
         assignedDate: assignment.assignedDate
           ? assignment.assignedDate.split("T")[0]
@@ -308,7 +310,7 @@ export default function FacultyAssignmentManager() {
                     <input
                       type="text"
                       name="TeacherName"
-                      value={formData.teacherName}
+                      value={faculty.TeacherName}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
