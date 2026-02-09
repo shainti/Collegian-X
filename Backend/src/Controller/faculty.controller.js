@@ -3,6 +3,7 @@ const AssignmentModel = require("../models/Assignment.model");
 const StudentModel = require('../models/Student.model')
 const StudentAttendance = require('../models/StudentAttendance.model')
 const fs = require("fs");
+const sendMail = require('../middleware/Email.confiq')
 
 exports.Assignment = async (req, res) => {
   try {
@@ -16,7 +17,6 @@ exports.Assignment = async (req, res) => {
       questions,
     } = req.body;
 
-    // questions may come as string when using FormData
     let parsedQuestions = [];
 
     if (questions) {
@@ -42,18 +42,63 @@ exports.Assignment = async (req, res) => {
       assignmentData.mimeType = req.file.mimetype;
     }
 
-    // 👉 UNCOMMENT THIS - Save to DB
+    // 1️⃣ Save assignment to database
     const assignment = await AssignmentModel.create(assignmentData);
 
+    // 2️⃣ Find students for this year
+    const students = await StudentModel.find({ Semester: year }).select("email FullName");
+
+    // 3️⃣ Send email notification if students exist
+    if (students.length > 0) {
+      const emails = students.map((s) => s.email);
+
+      const mailHTML = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">New Assignment Available</h2>
+          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Subject:</strong> ${subject}</p>
+            <p><strong>Topic:</strong> ${topic}</p>
+            <p><strong>Teacher:</strong> ${teacherName}</p>
+            <p><strong>Due Date:</strong> ${new Date(dueDate).toDateString()}</p>
+            ${assignment.fileName ? `<p><strong>Attached File:</strong> ${assignment.fileName}</p>` : ''}
+          </div>
+          <p>Please log in to the student portal to view complete assignment details and download any attached files.</p>
+          <p style="color: #6b7280; font-size: 12px; margin-top: 20px;">This is an automated message. Please do not reply to this email.</p>
+        </div>
+      `;
+
+      try {for (const email of emails) {
+  await sendMail({
+    to: email,
+    subject: "New Assignment Available",
+    html: mailHTML,
+  });
+}
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        // Don't fail the entire request if email fails
+        // Assignment is already created, just log the error
+      }
+    } else {
+      console.log('No students found for year:', year); // Debug log
+    }
+
+    // 4️⃣ IMPORTANT: Return response AFTER everything is done
     return res.status(201).json({
       success: true,
       message: "Assignment created successfully",
-      assignment: assignment, // Return the actual saved assignment
+      assignment: assignment,
+      emailsSent: students.length > 0 ? students.length : 0
     });
+
   } catch (error) {
+    console.error('Assignment creation error:', error); // Debug log
+    
     // Remove uploaded file if something fails
     if (req.file && req.file.path) {
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.log('Error deleting file:', err);
+      });
     }
 
     return res.status(500).json({
@@ -78,8 +123,19 @@ exports.putassignment = async (req, res) => {
   try {
     // Parse questions if it's a string (from FormData)
     let parsedQuestions = questions;
+    
     if (typeof questions === "string") {
-      parsedQuestions = JSON.parse(questions);
+      try {
+        parsedQuestions = JSON.parse(questions);
+      } catch (e) {
+        console.error("Error parsing questions:", e);
+        parsedQuestions = [];
+      }
+    }
+
+    // Ensure it's an array
+    if (!Array.isArray(parsedQuestions)) {
+      parsedQuestions = [];
     }
 
     const updateData = {
@@ -89,7 +145,7 @@ exports.putassignment = async (req, res) => {
       year,
       assignedDate,
       dueDate,
-      questions: parsedQuestions,
+      questions: parsedQuestions, // This will be stored as an array in MongoDB
     };
 
     // If new file uploaded, update file info

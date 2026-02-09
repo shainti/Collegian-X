@@ -110,4 +110,14 @@ const sendverificationcode = async (email, verificationCode) => {
   }
 };
 
+const sendMail = async ({ to, subject, html }) => {
+  await transporter.sendMail({
+    from: `"Assignment Portal" <collegianx@gmail.com>`,
+    to,
+    subject,
+    html,
+  });
+};
+
 module.exports = sendverificationcode;
+module.exports = sendMail;

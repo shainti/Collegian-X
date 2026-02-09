@@ -37,6 +37,28 @@ export default function FacultyAssignmentManager() {
     fetchAssignments();
   }, []);
 
+  // Helper function to parse questions safely
+  const parseQuestions = (questions) => {
+    let parsedQuestions = questions;
+    
+    // Handle multiple levels of stringification
+    while (typeof parsedQuestions === 'string') {
+      try {
+        parsedQuestions = JSON.parse(parsedQuestions);
+      } catch (e) {
+        console.error("Failed to parse questions:", e);
+        return [];
+      }
+    }
+    
+    // Ensure it's an array
+    if (!Array.isArray(parsedQuestions)) {
+      return [];
+    }
+    
+    return parsedQuestions;
+  };
+
   // Calculate days left
   const calculateDaysLeft = (dueDate) => {
     const today = new Date();
@@ -127,7 +149,10 @@ export default function FacultyAssignmentManager() {
         dueDate: assignment.dueDate ? assignment.dueDate.split("T")[0] : "",
       });
 
-      setQuestions(assignment.questions || []);
+      // Use the helper function to parse questions
+      const parsedQuestions = parseQuestions(assignment.questions || []);
+      setQuestions(parsedQuestions.length > 0 ? parsedQuestions : ["", ""]);
+      
       setSelectedFile(null);
       setEditingId(assignment._id);
       setShowForm(true);
@@ -591,6 +616,8 @@ export default function FacultyAssignmentManager() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {assignmentList.map((assignment) => {
               const daysLeft = calculateDaysLeft(assignment.dueDate);
+              // Parse questions using the helper function
+              const questionsList = parseQuestions(assignment.questions || []);
 
               return (
                 <div
@@ -623,7 +650,16 @@ export default function FacultyAssignmentManager() {
                       Due: {new Date(assignment.dueDate).toLocaleDateString()}
                     </div>
                     <div className="text-xs sm:text-sm text-blue-100">
-                      Questions: {assignment.questions.length}
+                      <div className="font-semibold mb-1">Questions: {questionsList.length}</div>
+                      {questionsList.length > 0 && (
+                        <div className="space-y-1 mt-2 pl-2">
+                          {questionsList.map((question, index) => (
+                            <div key={index} className="text-blue-200">
+                              <span className="font-medium">Q{index + 1}:</span> {question}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     {assignment.filePath && (
                       <div className="flex items-center justify-between text-xs sm:text-sm text-blue-100 bg-white/5 rounded-lg p-2">
