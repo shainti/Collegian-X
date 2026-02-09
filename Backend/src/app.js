@@ -23,6 +23,6 @@ app.get("/", (req, res, next) => {
 });
 app.use('/api/Student',studentRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/faculty',facultyRoutes);
+app.use('/api/Faculty',facultyRoutes);
 
 module.exports = app;

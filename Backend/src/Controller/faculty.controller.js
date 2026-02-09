@@ -2,12 +2,11 @@ const { default: mongoose } = require("mongoose");
 const AssignmentModel = require("../models/Assignment.model");
 const StudentModel = require('../models/Student.model')
 const StudentAttendance = require('../models/StudentAttendance.model')
+const fs = require("fs");
 
 exports.Assignment = async (req, res) => {
   try {
-    const { topic, subject, teacherName,year, assignedDate, dueDate, questions } = req.body;
-
-    const assignment = await AssignmentModel.create({
+    const {
       topic,
       subject,
       teacherName,
@@ -15,16 +14,128 @@ exports.Assignment = async (req, res) => {
       assignedDate,
       dueDate,
       questions,
-    });
+    } = req.body;
 
-    res.status(201).json({
-      assignment,
-      message: "Assignment created",
+    // questions may come as string when using FormData
+    let parsedQuestions = [];
+
+    if (questions) {
+      parsedQuestions =
+        typeof questions === "string" ? JSON.parse(questions) : questions;
+    }
+
+    const assignmentData = {
+      topic,
+      subject,
+      teacherName,
+      year,
+      assignedDate,
+      dueDate,
+      questions: parsedQuestions,
+    };
+
+    // If file uploaded
+    if (req.file) {
+      assignmentData.fileName = req.file.originalname;
+      assignmentData.filePath = req.file.filename;
+      assignmentData.fileSize = req.file.size;
+      assignmentData.mimeType = req.file.mimetype;
+    }
+
+    // 👉 UNCOMMENT THIS - Save to DB
+    const assignment = await AssignmentModel.create(assignmentData);
+
+    return res.status(201).json({
+      success: true,
+      message: "Assignment created successfully",
+      assignment: assignment, // Return the actual saved assignment
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to create assignment",
-      error: error.message,
+    // Remove uploaded file if something fails
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, () => {});
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to create assignment",
+    });
+  }
+};
+
+exports.putassignment = async (req, res) => {
+  const { Id } = req.params;
+  const {
+    topic,
+    subject,
+    teacherName,
+    year,
+    assignedDate,
+    dueDate,
+    questions,
+  } = req.body;
+
+  try {
+    // Parse questions if it's a string (from FormData)
+    let parsedQuestions = questions;
+    if (typeof questions === "string") {
+      parsedQuestions = JSON.parse(questions);
+    }
+
+    const updateData = {
+      topic,
+      subject,
+      teacherName,
+      year,
+      assignedDate,
+      dueDate,
+      questions: parsedQuestions,
+    };
+
+    // If new file uploaded, update file info
+    if (req.file) {
+      // Get old assignment to delete old file
+      const oldAssignment = await AssignmentModel.findById(Id);
+      
+      // Delete old file if exists
+      if (oldAssignment && oldAssignment.filePath) {
+        const oldFilePath = `uploads/${oldAssignment.filePath}`;
+        fs.unlink(oldFilePath, (err) => {
+          if (err) console.log('Error deleting old file:', err);
+        });
+      }
+
+      // Add new file info
+      updateData.fileName = req.file.originalname;
+      updateData.filePath = req.file.filename;
+      updateData.fileSize = req.file.size;
+      updateData.mimeType = req.file.mimetype;
+    }
+
+    const updatedAssignment = await AssignmentModel.findByIdAndUpdate(
+      Id,
+      updateData,
+      { new: true } // return updated document
+    );
+
+    if (!updatedAssignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    res.status(200).json({
+      assignment: updatedAssignment,
+      message: "Assignment updated successfully",
+    });
+  } catch (error) {
+    // Remove uploaded file if update fails
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, () => {});
+    }
+    
+    console.error("Update error:", error);
+    res.status(500).json({ 
+      message: "Failed to update assignment",
+      error: error.message 
     });
   }
 };

@@ -5,6 +5,8 @@ import {
   BookOpen,
   FileText,
   ArrowLeft,
+  File,
+  FileDown,
 } from "lucide-react";
 
 export default function AssignmentViewer() {
@@ -49,10 +51,21 @@ export default function AssignmentViewer() {
     }
   };
 
+  // Download assignment file (PDF/DOCX) uploaded by faculty
+  const handleDownloadFile = (filePath, fileName) => {
+    if (!filePath || !fileName) {
+      alert('No file attached to this assignment');
+      return;
+    }
+    // Open file in new tab or download
+    window.open(`http://localhost:3000/uploads/${filePath}`, '_blank');
+  };
+
+  // Download assignment details as text
   const handleDownload = (assignment) => {
     const content = `Assignment: ${assignment.topic}
 Subject: ${assignment.subject}
-Faculty: ${assignment.faculty}
+Faculty: ${assignment.teacherName}
 Assigned Date: ${new Date(assignment.assignedDate).toLocaleDateString()}
 Due Date: ${new Date(assignment.dueDate).toLocaleDateString()}
 
@@ -191,6 +204,12 @@ ${assignment.questions.map((q, i) => `${i + 1}. ${q}`).join("\n\n")}`;
                         Due:{" "}
                         {new Date(assignment.dueDate).toLocaleDateString()}
                       </div>
+                      {assignment.filePath && (
+                        <div className="flex items-center gap-2 text-green-300">
+                          <File size={16} />
+                          File Attached
+                        </div>
+                      )}
                     </div>
 
                     <button className="w-full mt-4 bg-white/10 text-white px-6 py-2.5 rounded-full border border-white/20 hover:bg-white/20 transition">
@@ -222,14 +241,49 @@ ${assignment.questions.map((q, i) => `${i + 1}. ${q}`).join("\n\n")}`;
                 </p>
               </div>
 
-              <button
-                onClick={() => handleDownload(selectedAssignment)}
-                className="flex items-center gap-2 bg-white/10 text-white px-6 py-3 rounded-full border border-white/20 hover:bg-white/20 transition"
-              >
-                <Download size={18} />
-                Download
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                
+                {/* Download as Text */}
+                <button
+                  onClick={() => handleDownload(selectedAssignment)}
+                  className="flex items-center gap-2 bg-white/10 text-white px-6 py-3 rounded-full border border-white/20 hover:bg-white/20 transition"
+                >
+                  <Download size={18} />
+                  Download as Text
+                </button>
+              </div>
             </div>
+
+            {/* File Attachment Card (if exists) */}
+            {selectedAssignment.filePath && (
+              <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 rounded-2xl p-6 border border-green-400/30 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-600 w-14 h-14 rounded-xl flex items-center justify-center">
+                      <File className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-green-300 mb-1">Attached File</p>
+                      <p className="font-semibold text-white text-lg">
+                        {selectedAssignment.fileName}
+                      </p>
+                      <p className="text-xs text-green-200 mt-1">
+                        {selectedAssignment.fileSize 
+                          ? `${(selectedAssignment.fileSize / 1024 / 1024).toFixed(2)} MB`
+                          : 'File available'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDownloadFile(selectedAssignment.filePath, selectedAssignment.fileName)}
+                    className="flex items-center gap-2 bg-green-500/20 text-green-300 px-5 py-2.5 rounded-full border border-green-400/30 hover:bg-green-500/30 transition"
+                  >
+                    <Download size={16} />
+                    Download
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* INFO CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

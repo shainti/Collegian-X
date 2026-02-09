@@ -9,15 +9,19 @@ import {
   Calendar,
   BookOpen,
   Loader2,
+  Upload,
+  File,
+  Download,
 } from "lucide-react";
 
 const faculty = JSON.parse(localStorage.getItem('Faculty'));
-console.log(faculty.TeacherName);
+
 export default function FacultyAssignmentManager() {
   const [showForm, setShowForm] = useState(false);
   const [questions, setQuestions] = useState(["", ""]);
   const [assignmentList, setAssignmentList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState({
     topic: "",
     subject: "",
@@ -56,19 +60,45 @@ export default function FacultyAssignmentManager() {
     return "bg-green-500/20 text-green-300 border-green-400/30";
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Please upload only PDF or DOCX files');
+        e.target.value = '';
+        return;
+      }
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size should not exceed 10MB');
+        e.target.value = '';
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const handleDownloadFile = (filePath, fileName) => {
+    // Download file from server
+    window.open(`http://localhost:3000/uploads/${filePath}`, '_blank');
+  };
+
   const handleAddNew = () => {
     setEditingId(null);
 
     setFormData({
       topic: "",
       subject: "",
-      teacherName: "",
+      teacherName: faculty.TeacherName,
       year: "",
       assignedDate: "",
       dueDate: "",
     });
 
     setQuestions(["", ""]);
+    setSelectedFile(null);
     setShowForm(true);
   };
 
@@ -98,22 +128,35 @@ export default function FacultyAssignmentManager() {
       });
 
       setQuestions(assignment.questions || []);
+      setSelectedFile(null);
       setEditingId(assignment._id);
       setShowForm(true);
     } catch (error) {
       console.error("Edit fetch failed", error);
     }
   };
+  
   const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this assignment?')) {
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:3000/api/Faculty/Deleteassignment/${id}`, {
-        method: "GET",
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
-    } catch (error) {}
-    console.log("Delete Assignment ID:", id);
+      
+      if (response.ok) {
+        // Refresh the assignment list after deletion
+        fetchAssignments();
+      }
+    } catch (error) {
+      console.error("Delete failed", error);
+    }
   };
 
 
@@ -123,26 +166,44 @@ export default function FacultyAssignmentManager() {
     try {
       setLoading(true);
 
-      await fetch(
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('topic', formData.topic);
+      formDataToSend.append('subject', formData.subject);
+      formDataToSend.append('teacherName', faculty.TeacherName);
+      formDataToSend.append('year', formData.year);
+      formDataToSend.append('assignedDate', formData.assignedDate);
+      formDataToSend.append('dueDate', formData.dueDate);
+      formDataToSend.append('questions', JSON.stringify(questions.filter((q) => q.trim() !== "")));
+      
+      // Add file if selected
+      if (selectedFile) {
+        formDataToSend.append('assignmentFile', selectedFile);
+      }
+
+      const response = await fetch(
         editingId
           ? `http://localhost:3000/api/Faculty/assignment/${editingId}`
           : "http://localhost:3000/api/Faculty/assignment",
         {
           method: editingId ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({
-            ...formData,
-            questions: questions.filter((q) => q.trim() !== ""),
-          }),
+          body: formDataToSend,
         },
       );
 
-      setShowForm(false);
-      setEditingId(null);
-      fetchAssignments();
+      if (response.ok) {
+        setShowForm(false);
+        setEditingId(null);
+        setSelectedFile(null);
+        fetchAssignments();
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to save assignment');
+      }
     } catch (error) {
       console.error("Save failed", error);
+      alert('Failed to save assignment');
     } finally {
       setLoading(false);
     }
@@ -187,6 +248,7 @@ export default function FacultyAssignmentManager() {
 
   const handleCancel = () => {
     setShowForm(false);
+    setSelectedFile(null);
   };
 
   const handleAddQuestion = () => {
@@ -257,7 +319,7 @@ export default function FacultyAssignmentManager() {
           <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 rounded-3xl p-4 sm:p-6 md:p-8 border border-white/10">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl sm:text-2xl font-bold text-white">
-                Create New Assignment
+                {editingId ? "Edit Assignment" : "Create New Assignment"}
               </h2>
               <button
                 onClick={handleCancel}
@@ -377,6 +439,51 @@ export default function FacultyAssignmentManager() {
                       required
                     />
                   </div>
+                </div>
+
+                {/* File Upload Section */}
+                <div>
+                  <label className="text-blue-200 text-sm mb-2 block">
+                    Upload Assignment File (PDF or DOCX)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="flex items-center justify-center gap-3 w-full bg-white/5 border-2 border-dashed border-white/20 rounded-xl px-4 py-6 text-white hover:bg-white/10 hover:border-blue-400/50 transition-all cursor-pointer"
+                    >
+                      <Upload className="w-5 h-5 text-blue-400" />
+                      <span className="text-sm">
+                        {selectedFile
+                          ? selectedFile.name
+                          : "Click to upload PDF or DOCX file"}
+                      </span>
+                    </label>
+                  </div>
+                  {selectedFile && (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                      <File className="w-4 h-4 flex-shrink-0" />
+                      <span className="flex-1">
+                        {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFile(null)}
+                        className="text-red-400 hover:text-red-300 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                  <p className="text-xs text-blue-300/70 mt-2">
+                    Maximum file size: 10MB. Supported formats: PDF, DOCX
+                  </p>
                 </div>
 
                 <div>
@@ -518,6 +625,21 @@ export default function FacultyAssignmentManager() {
                     <div className="text-xs sm:text-sm text-blue-100">
                       Questions: {assignment.questions.length}
                     </div>
+                    {assignment.filePath && (
+                      <div className="flex items-center justify-between text-xs sm:text-sm text-blue-100 bg-white/5 rounded-lg p-2">
+                        <div className="flex items-center flex-1 min-w-0">
+                          <File className="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+                          <span className="truncate">{assignment.fileName}</span>
+                        </div>
+                        <button
+                          onClick={() => handleDownloadFile(assignment.filePath, assignment.fileName)}
+                          className="ml-2 text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0"
+                          title="Download file"
+                        >
+                          <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex gap-2">
