@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const { default: mongoose } = require("mongoose");
 const Facultymodel = require("../models/Faculty.model");
 const { check } = require("express-validator");
-const  sendverificationcode = require('../middleware/Email.confiq')
+const { sendverificationcode } = require('../middleware/Email.confiq')
 
 exports.registerstudents = async (req, res, next) => {
   try {
@@ -59,7 +59,6 @@ exports.registerstudents = async (req, res, next) => {
       password: hashpassword,
       VerificationCode,
     });
-
 
     try {
       await sendverificationcode(Student.email, VerificationCode);

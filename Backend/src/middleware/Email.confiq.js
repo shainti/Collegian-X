@@ -119,5 +119,7 @@ const sendMail = async ({ to, subject, html }) => {
   });
 };
 
-module.exports = sendverificationcode;
-module.exports = sendMail;
+module.exports = {
+  sendverificationcode,
+  sendMail,
+};
