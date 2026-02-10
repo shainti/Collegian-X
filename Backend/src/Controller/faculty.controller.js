@@ -34,7 +34,6 @@ exports.Assignment = async (req, res) => {
       questions: parsedQuestions,
     };
 
-    // If file uploaded
     if (req.file) {
       assignmentData.fileName = req.file.originalname;
       assignmentData.filePath = req.file.filename;
@@ -42,13 +41,11 @@ exports.Assignment = async (req, res) => {
       assignmentData.mimeType = req.file.mimetype;
     }
 
-    // 1️⃣ Save assignment to database
+
     const assignment = await AssignmentModel.create(assignmentData);
 
-    // 2️⃣ Find students for this year
     const students = await StudentModel.find({ Semester: year }).select("email FullName");
 
-    // 3️⃣ Send email notification if students exist
     if (students.length > 0) {
       const emails = students.map((s) => s.email);
 
@@ -76,14 +73,11 @@ exports.Assignment = async (req, res) => {
 }
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
-        // Don't fail the entire request if email fails
-        // Assignment is already created, just log the error
       }
     } else {
       console.log('No students found for year:', year); 
     }
 
-    // 4️⃣ IMPORTANT: Return response AFTER everything is done
     return res.status(201).json({
       success: true,
       message: "Assignment created successfully",
@@ -92,9 +86,8 @@ exports.Assignment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Assignment creation error:', error); // Debug log
+    console.error('Assignment creation error:', error); 
     
-    // Remove uploaded file if something fails
     if (req.file && req.file.path) {
       fs.unlink(req.file.path, (err) => {
         if (err) console.log('Error deleting file:', err);
@@ -121,7 +114,6 @@ exports.putassignment = async (req, res) => {
   } = req.body;
 
   try {
-    // Parse questions if it's a string (from FormData)
     let parsedQuestions = questions;
     
     if (typeof questions === "string") {
@@ -318,7 +310,6 @@ exports.Submitattendance= async (req, res)=> {
     const { studentId, facultyId , year, subject, month, totalClasses, attendedClasses,} = req.body;
     // const facultyId = req.user._id; // From authentication middleware
 
-    // Validation
     if (!studentId || !year || !subject || !month || !totalClasses || attendedClasses === undefined) {
       return res.status(400).json({
         success: false,
@@ -453,88 +444,5 @@ exports.getPreviousAttendance = async (req, res) => {
     });
   }
 };
-// exports.Getattendance= async (req, res)=> {
-//  try {
-//     const { studentId } = req.params;
-//     const { year, subject, month } = req.query;
 
-//     const filters = {};
-//     if (year) filters.year = year;
-//     if (subject) filters.subject = subject;
-//     if (month) filters.month = month;
-
-//     const attendance = await StudentAttendance.getStudentAttendance(studentId, filters);
-
-//     res.status(200).json({
-//       success: true,
-//       count: attendance.length,
-//       data: attendance
-//     });
-
-//   } catch (error) {
-//     console.error('Get student attendance error:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Failed to fetch student attendance'
-//     });
-//   }
-// }
-
-// exports.GetReport= async (req, res)=> {
-// try {
-//     const { year, subject, month } = req.query;
-
-//     if (!year || !subject || !month) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Year, subject, and month are required'
-//       });
-//     }
-
-//     const report = await StudentAttendance.getMonthlyReport(year, subject, month);
-
-//     res.status(200).json({
-//       success: true,
-//       count: report.length,
-//       data: report
-//     });
-
-//   } catch (error) {
-//     console.error('Get monthly report error:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Failed to fetch monthly report'
-//     });
-//   }
-// }
-// exports.Getlowattendance = async (req, res) =>{
-// try {
-//     const { year, subject, month } = req.query;
-
-//     const query = {};
-//     if (year) query.year = year;
-//     if (subject) query.subject = subject;
-//     if (month) query.month = month;
-
-//     const allAttendance = await StudentAttendance.find(query)
-//       .populate('studentId', 'FullName CollegeRollNo')
-//       .exec();
-
-//     // Filter students with low attendance
-//     const lowAttendance = allAttendance.filter(record => record.hasLowAttendance());
-
-//     res.status(200).json({
-//       success: true,
-//       count: lowAttendance.length,
-//       data: lowAttendance
-//     });
-
-//   } catch (error) {
-//     console.error('Get low attendance error:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Failed to fetch low attendance students'
-//     });
-//   }
-// }
 
