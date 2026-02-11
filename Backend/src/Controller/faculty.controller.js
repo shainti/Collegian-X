@@ -3,7 +3,7 @@ const AssignmentModel = require("../models/Assignment.model");
 const StudentModel = require('../models/Student.model')
 const StudentAttendance = require('../models/StudentAttendance.model')
 const fs = require("fs");
-const sendMail = require('../middleware/Email.confiq')
+const { sendMail } = require('../middleware/Email.confiq')
 
 exports.Assignment = async (req, res) => {
   try {
