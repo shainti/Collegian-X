@@ -132,7 +132,7 @@ export default function FacultyDashboard() {
       bgColor:
         "bg-gradient-to-br from-yellow-600/20 via-blue-700/20 to-blue-800/20",
       iconColor: "bg-gradient-to-br from-blue-500 to-yellow-600",
-      onClick: () => console.log("Update Assignments clicked"),
+      onClick: () => (window.location.href = "/Faculty/UpdateLeaves"),
     },
     {
       id: 6,
