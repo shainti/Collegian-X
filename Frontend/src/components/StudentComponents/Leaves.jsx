@@ -1,9 +1,18 @@
-import React, { useState, useCallback, useMemo, memo } from 'react';
-import { Upload, Calendar, FileText, CheckCircle, XCircle, Clock, Paperclip, X } from 'lucide-react';
+import React, { useState, useCallback, useMemo, memo, useEffect } from "react";
+import {
+  Upload,
+  Calendar,
+  FileText,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Paperclip,
+  X,
+} from "lucide-react";
 
 // Memoized file preview component
 const FilePreview = memo(({ file, onRemove, index }) => {
-  const fileIcon = file.type.includes('pdf') ? '📄' : '🖼️';
+  const fileIcon = file.type.includes("pdf") ? "📄" : "🖼️";
   const fileSize = (file.size / 1024).toFixed(2);
 
   return (
@@ -27,24 +36,25 @@ const FilePreview = memo(({ file, onRemove, index }) => {
   );
 });
 
-FilePreview.displayName = 'FilePreview';
+FilePreview.displayName = "FilePreview";
 
 // Memoized status badge component
 const StatusBadge = memo(({ status }) => {
   const statusConfig = {
-    pending: { color: 'amber', icon: Clock, label: 'Pending' },
-    approved: { color: 'emerald', icon: CheckCircle, label: 'Approved' },
-    rejected: { color: 'red', icon: XCircle, label: 'Rejected' }
+    pending: { color: "amber", icon: Clock, label: "Pending" },
+    approved: { color: "emerald", icon: CheckCircle, label: "Approved" },
+    rejected: { color: "red", icon: XCircle, label: "Rejected" },
   };
 
-  const config = statusConfig[status];
+  const config = statusConfig[status] || statusConfig.pending;
   const Icon = config.icon;
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide
-      ${status === 'pending' ? 'bg-amber-500/20 text-amber-300' : ''}
-      ${status === 'approved' ? 'bg-emerald-500/20 text-emerald-300' : ''}
-      ${status === 'rejected' ? 'bg-red-500/20 text-red-300' : ''}`}
+    <span
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide
+      ${status === "pending" ? "bg-amber-500/20 text-amber-300" : ""}
+      ${status === "approved" ? "bg-emerald-500/20 text-emerald-300" : ""}
+      ${status === "rejected" ? "bg-red-500/20 text-red-300" : ""}`}
     >
       <Icon className="w-3.5 h-3.5" />
       {config.label}
@@ -52,26 +62,31 @@ const StatusBadge = memo(({ status }) => {
   );
 });
 
-StatusBadge.displayName = 'StatusBadge';
+StatusBadge.displayName = "StatusBadge";
 
 // Memoized leave history card
 const LeaveHistoryCard = memo(({ leave }) => {
-  const startDate = new Date(leave.startDate).toLocaleDateString('en-IN', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
-  });
-  const endDate = new Date(leave.endDate).toLocaleDateString('en-IN', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
-  });
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const startDate = formatDate(leave.startDate);
+  const endDate = formatDate(leave.endDate);
+  const appliedDate = formatDate(leave.appliedDate);
+
+  const statusClass = {
+    pending: "bg-gradient-to-br from-amber-900/20 to-amber-800/10 border-amber-500",
+    approved: "bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-500",
+    rejected: "bg-gradient-to-br from-red-900/20 to-red-800/10 border-red-500",
+  };
 
   return (
-    <div className={`relative overflow-hidden rounded-xl p-5 border-l-4 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl
-      ${leave.status === 'pending' ? 'bg-gradient-to-br from-amber-900/20 to-amber-800/10 border-amber-500' : ''}
-      ${leave.status === 'approved' ? 'bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-500' : ''}
-      ${leave.status === 'rejected' ? 'bg-gradient-to-br from-red-900/20 to-red-800/10 border-red-500' : ''}`}
+    <div
+      className={`relative overflow-hidden rounded-xl p-5 border-l-4 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl ${statusClass[leave.status] || statusClass.pending}`}
     >
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -79,7 +94,7 @@ const LeaveHistoryCard = memo(({ leave }) => {
             {leave.leaveType} Leave
           </h3>
           <p className="text-sm text-slate-400 mt-1">
-            Applied on {new Date(leave.appliedDate).toLocaleDateString('en-IN')}
+            Applied on {appliedDate}
           </p>
         </div>
         <StatusBadge status={leave.status} />
@@ -88,29 +103,30 @@ const LeaveHistoryCard = memo(({ leave }) => {
       <div className="space-y-2 text-sm text-slate-300">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-slate-400" />
-          <span>{startDate} → {endDate} ({leave.numberOfDays} day{leave.numberOfDays > 1 ? 's' : ''})</span>
+          <span>
+            {startDate} → {endDate} ({leave.numberOfDays} day
+            {leave.numberOfDays > 1 ? "s" : ""})
+          </span>
         </div>
         <div className="flex items-start gap-2">
           <FileText className="w-4 h-4 text-slate-400 mt-0.5" />
           <span className="flex-1">{leave.reason}</span>
         </div>
-        
+
         {leave.approvedBy && (
           <p className="text-xs text-emerald-400 mt-3">
             ✓ Approved by {leave.approvedBy}
           </p>
         )}
-        
+
         {leave.rejectionReason && (
-          <p className="text-xs text-red-400 mt-3">
-            ✗ {leave.rejectionReason}
-          </p>
+          <p className="text-xs text-red-400 mt-3">✗ {leave.rejectionReason}</p>
         )}
-        
+
         {leave.attachments?.length > 0 && (
-          <a 
-            href={leave.attachments[0]} 
-            target="_blank" 
+          <a
+            href={leave.attachments[0]}
+            target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors mt-2"
           >
@@ -123,37 +139,65 @@ const LeaveHistoryCard = memo(({ leave }) => {
   );
 });
 
-LeaveHistoryCard.displayName = 'LeaveHistoryCard';
+LeaveHistoryCard.displayName = "LeaveHistoryCard";
+
+// Constants
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
 
 // Main Component
 const LeaveApplication = () => {
   const [formData, setFormData] = useState({
-    leaveType: '',
-    startDate: '',
-    endDate: '',
-    reason: ''
+    leaveType: "",
+    startDate: "",
+    endDate: "",
+    reason: "",
   });
-  
+
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [leaveHistory, setLeaveHistory] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [studentInfo, setStudentInfo] = useState(null);
 
   // Get today's date for min date validation
-  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-  // Memoized file validation
+  // Get student data from localStorage (defined first as it's used by other functions)
+  const getStudentData = useCallback(() => {
+    try {
+      // Get the student object from localStorage
+      const studentStr = localStorage.getItem("Student");
+      
+      if (studentStr) {
+        const student = JSON.parse(studentStr);
+        return student;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error parsing student data:", error);
+      return null;
+    }
+  }, []);
+
+  // Load student info on mount
+  useEffect(() => {
+    const data = getStudentData();
+    if (data) {
+      setStudentInfo(data);
+    }
+  }, [getStudentData]);
+
+  // File validation
   const validateFile = useCallback((file) => {
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-
-    if (!allowedTypes.includes(file.type)) {
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       alert(`"${file.name}" is not a supported format. Please upload PDF, JPG, or PNG.`);
       return false;
     }
 
-    if (file.size > maxSize) {
+    if (file.size > MAX_FILE_SIZE) {
       alert(`"${file.name}" exceeds 5MB limit.`);
       return false;
     }
@@ -162,14 +206,17 @@ const LeaveApplication = () => {
   }, []);
 
   // Handle file selection
-  const handleFiles = useCallback((files) => {
-    const validFiles = Array.from(files).filter(validateFile);
-    setUploadedFiles(prev => [...prev, ...validFiles]);
-  }, [validateFile]);
+  const handleFiles = useCallback(
+    (files) => {
+      const validFiles = Array.from(files).filter(validateFile);
+      setUploadedFiles((prev) => [...prev, ...validFiles]);
+    },
+    [validateFile]
+  );
 
   // Remove file
   const removeFile = useCallback((index) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   // Drag and drop handlers
@@ -182,67 +229,123 @@ const LeaveApplication = () => {
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    handleFiles(e.dataTransfer.files);
-  }, [handleFiles]);
+  const handleDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      setIsDragging(false);
+      handleFiles(e.dataTransfer.files);
+    },
+    [handleFiles]
+  );
 
   // Form change handler
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
-
-  // Submit form
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const data = new FormData();
-    Object.keys(formData).forEach(key => data.append(key, formData[key]));
-    data.append('studentId', sessionStorage.getItem('studentId') || 'STUDENT_ID');
-    uploadedFiles.forEach(file => data.append('certificates', file));
-
-    try {
-      const response = await fetch('/api/leave/submit', {
-        method: 'POST',
-        body: data
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setShowSuccess(true);
-        setFormData({ leaveType: '', startDate: '', endDate: '', reason: '' });
-        setUploadedFiles([]);
-        loadLeaveHistory();
-        setTimeout(() => setShowSuccess(false), 5000);
-      } else {
-        alert('Error: ' + result.message);
-      }
-    } catch (error) {
-      console.error('Submit error:', error);
-      alert('Failed to submit leave application');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [formData, uploadedFiles]);
 
   // Load leave history
   const loadLeaveHistory = useCallback(async () => {
     try {
-      const studentId = sessionStorage.getItem('studentId') || 'STUDENT_ID';
-      const response = await fetch(`/api/leave/history?studentId=${studentId}`);
+      const studentData = getStudentData();
+      
+      if (!studentData?.id) {
+        console.warn("No student ID found in storage");
+        return;
+      }
+
+      const response = await fetch(
+        `http://localhost:3000/api/Student/leave/history?studentId=${studentData.id}`,
+        {
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch history: ${response.status}`);
+      }
+
       const data = await response.json();
-      setLeaveHistory(data);
+      setLeaveHistory(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Load history error:', error);
+      console.error("Load history error:", error);
+      setLeaveHistory([]);
     }
-  }, []);
+  }, [getStudentData]);
+
+  // Submit form
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      
+      const studentData = getStudentData();
+      
+      if (!studentData?.id) {
+        alert("Student ID not found. Please log in again.");
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      try {
+        const formDataToSend = new FormData();
+
+        // Append text fields
+        formDataToSend.append("leaveType", formData.leaveType);
+        formDataToSend.append("startDate", formData.startDate);
+        formDataToSend.append("endDate", formData.endDate);
+        formDataToSend.append("reason", formData.reason);
+        formDataToSend.append("id", studentData.id);
+
+        // Append files
+        uploadedFiles.forEach((file) => {
+          formDataToSend.append("certificates", file);
+        });
+
+        const response = await fetch(
+          "http://localhost:3000/api/Student/leave/submit",
+          {
+            method: "POST",
+            body: formDataToSend,
+            credentials: "include",
+            // Don't set Content-Type header - browser will set it with boundary for FormData
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || `Server error: ${response.status}`);
+        }
+
+        // Success
+        setShowSuccess(true);
+        setFormData({
+          leaveType: "",
+          startDate: "",
+          endDate: "",
+          reason: "",
+        });
+        setUploadedFiles([]);
+        
+        // Reload history
+        await loadLeaveHistory();
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => setShowSuccess(false), 5000);
+        
+      } catch (error) {
+        console.error("Submit error:", error);
+        alert(error.message || "Failed to submit leave application. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [formData, uploadedFiles, loadLeaveHistory, getStudentData]
+  );
 
   // Load history on mount
-  React.useEffect(() => {
+  useEffect(() => {
     loadLeaveHistory();
   }, [loadLeaveHistory]);
 
@@ -251,10 +354,31 @@ const LeaveApplication = () => {
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
       </div>
 
       <div className="relative max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8 pt-25">
+        {/* Student Info Card */}
+        {studentInfo && (
+          <div className="mb-6 bg-gradient-to-r from-blue-900/30 to-indigo-900/30 backdrop-blur-sm border border-blue-500/30 rounded-xl p-4 flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              {studentInfo.FullName?.charAt(0).toUpperCase() || "S"}
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-slate-100 capitalize">
+                {studentInfo.FullName || "Student"}
+              </h3>
+              <p className="text-sm text-slate-400">
+                {studentInfo.CollegeRollNo && `Roll No: ${studentInfo.CollegeRollNo}`}
+                {studentInfo.Department && ` • ${studentInfo.Department}`}
+                {studentInfo.Semester && ` • Semester ${studentInfo.Semester}`}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Success Message */}
         {showSuccess && (
@@ -274,7 +398,10 @@ const LeaveApplication = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Leave Type */}
             <div>
-              <label htmlFor="leaveType" className="block text-sm font-semibold text-slate-300 mb-2">
+              <label
+                htmlFor="leaveType"
+                className="block text-sm font-semibold text-slate-300 mb-2"
+              >
                 Leave Type *
               </label>
               <select
@@ -297,7 +424,10 @@ const LeaveApplication = () => {
             {/* Date Range */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="startDate" className="block text-sm font-semibold text-slate-300 mb-2">
+                <label
+                  htmlFor="startDate"
+                  className="block text-sm font-semibold text-slate-300 mb-2"
+                >
                   From Date *
                 </label>
                 <input
@@ -312,7 +442,10 @@ const LeaveApplication = () => {
                 />
               </div>
               <div>
-                <label htmlFor="endDate" className="block text-sm font-semibold text-slate-300 mb-2">
+                <label
+                  htmlFor="endDate"
+                  className="block text-sm font-semibold text-slate-300 mb-2"
+                >
                   To Date *
                 </label>
                 <input
@@ -330,7 +463,10 @@ const LeaveApplication = () => {
 
             {/* Reason */}
             <div>
-              <label htmlFor="reason" className="block text-sm font-semibold text-slate-300 mb-2">
+              <label
+                htmlFor="reason"
+                className="block text-sm font-semibold text-slate-300 mb-2"
+              >
                 Reason for Leave *
               </label>
               <textarea
@@ -350,20 +486,28 @@ const LeaveApplication = () => {
               <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Attach Certificate (PDF, JPG, PNG - Max 5MB)
               </label>
-              
+
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={() => document.getElementById('fileInput').click()}
+                onClick={() => document.getElementById("fileInput").click()}
                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300
-                  ${isDragging 
-                    ? 'border-emerald-500 bg-emerald-500/10 scale-105' 
-                    : 'border-slate-600 bg-slate-800/30 hover:border-emerald-500/50 hover:bg-slate-800/50'}`}
+                  ${
+                    isDragging
+                      ? "border-emerald-500 bg-emerald-500/10 scale-105"
+                      : "border-slate-600 bg-slate-800/30 hover:border-emerald-500/50 hover:bg-slate-800/50"
+                  }`}
               >
-                <Upload className={`w-12 h-12 mx-auto mb-3 transition-colors ${isDragging ? 'text-emerald-400' : 'text-slate-500'}`} />
-                <p className="text-slate-300 mb-1">Click to upload or drag and drop</p>
-                <p className="text-sm text-slate-500">Medical certificate, supporting documents</p>
+                <Upload
+                  className={`w-12 h-12 mx-auto mb-3 transition-colors ${isDragging ? "text-emerald-400" : "text-slate-500"}`}
+                />
+                <p className="text-slate-300 mb-1">
+                  Click to upload or drag and drop
+                </p>
+                <p className="text-sm text-slate-500">
+                  Medical certificate, supporting documents
+                </p>
               </div>
 
               <input
@@ -379,7 +523,12 @@ const LeaveApplication = () => {
               {uploadedFiles.length > 0 && (
                 <div className="mt-4 space-y-2">
                   {uploadedFiles.map((file, index) => (
-                    <FilePreview key={index} file={file} onRemove={removeFile} index={index} />
+                    <FilePreview
+                      key={`${file.name}-${index}`}
+                      file={file}
+                      onRemove={removeFile}
+                      index={index}
+                    />
                   ))}
                 </div>
               )}
@@ -391,7 +540,7 @@ const LeaveApplication = () => {
               disabled={isSubmitting}
               className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02]"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Leave Application'}
+              {isSubmitting ? "Submitting..." : "Submit Leave Application"}
             </button>
           </form>
         </div>
@@ -410,7 +559,7 @@ const LeaveApplication = () => {
                 <p>No leave applications yet</p>
               </div>
             ) : (
-              leaveHistory.map(leave => (
+              leaveHistory.map((leave) => (
                 <LeaveHistoryCard key={leave.id} leave={leave} />
               ))
             )}

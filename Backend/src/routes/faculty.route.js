@@ -1,7 +1,7 @@
 const express = require("express");
 const FacultyRouter = express.Router();
 const FacultyController = require("../Controller/faculty.controller");
-const upload = require("../middleware/Multer.config");
+const {upload} = require("../middleware/Multer.config");
 
 FacultyRouter.post(
   "/assignment",

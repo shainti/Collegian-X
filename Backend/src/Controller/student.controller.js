@@ -3,6 +3,7 @@ const AssignmentModel = require("../models/Assignment.model");
 const AttendanceModel = require("../models/StudentAttendance.model");
 const Bytez = require("bytez.js");
 
+
 const sdk = new Bytez(process.env.API_KEY);
 
 exports.GetStudentAssignment = async (req, res) => {
@@ -262,5 +263,34 @@ Return ONLY the JSON:`;
     } catch (fallbackErr) {
       res.status(500).json({ error: err.message });
     }
+  }
+};
+
+exports.submitleaves = async (req, res) => {
+  try {
+    console.log("Body:", req.body);
+    console.log("Files:", req.files);
+
+    const leaveData = {
+      studentId: req.body.id,
+      leaveType: req.body.leaveType,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      reason: req.body.reason,
+      certificates: req.files ? req.files.map(file => file.path) : [],
+      status: 'pending',
+      appliedDate: new Date()
+    };
+
+    res.status(200).json({ 
+      message: "Leave application submitted successfully",
+      data: leaveData 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      message: "Server error", 
+      error: error.message 
+    });
   }
 };
