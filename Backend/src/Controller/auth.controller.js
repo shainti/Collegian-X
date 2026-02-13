@@ -148,7 +148,7 @@ exports.loginstudents = async (req, res, next) => {
 
   if (!Student) {
     return res.status(400).json({
-      errors: ["invalid College Roll No"],
+      errors: ["Please Register First"],
     });
   }
   if (Student.isverified !== true) {
