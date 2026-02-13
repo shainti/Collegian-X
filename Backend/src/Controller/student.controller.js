@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const AssignmentModel = require("../models/Assignment.model");
 const AttendanceModel = require("../models/StudentAttendance.model");
 const Bytez = require("bytez.js");
+const Leavemodel = require("../models/Leave.model");
 
 
 const sdk = new Bytez(process.env.API_KEY);
@@ -268,9 +269,6 @@ Return ONLY the JSON:`;
 
 exports.submitleaves = async (req, res) => {
   try {
-    console.log("Body:", req.body);
-    console.log("Files:", req.files);
-
     const leaveData = {
       studentId: req.body.id,
       leaveType: req.body.leaveType,
@@ -281,6 +279,7 @@ exports.submitleaves = async (req, res) => {
       status: 'pending',
       appliedDate: new Date()
     };
+     await Leavemodel.create(leaveData)
 
     res.status(200).json({ 
       message: "Leave application submitted successfully",
@@ -291,6 +290,33 @@ exports.submitleaves = async (req, res) => {
     res.status(500).json({ 
       message: "Server error", 
       error: error.message 
+    });
+  }
+};
+
+exports.getleavehistory = async (req, res) => {
+  try {
+    const { studentId } = req.query;
+
+    if (!studentId) {
+      return res.status(400).json({
+        success: false,
+        message: "studentId is required",
+      });
+    }
+
+    const leaves = await Leavemodel
+      .find({ studentId })
+      .sort({ appliedDate: -1 }); // latest first
+
+    return res.status(200).json({
+      data: leaves,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch leave history",
     });
   }
 };

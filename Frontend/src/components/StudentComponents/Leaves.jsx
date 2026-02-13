@@ -160,6 +160,7 @@ const LeaveApplication = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [studentInfo, setStudentInfo] = useState(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
   // Get today's date for min date validation
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
@@ -246,11 +247,13 @@ const LeaveApplication = () => {
 
   // Load leave history
   const loadLeaveHistory = useCallback(async () => {
+    setIsLoadingHistory(true);
     try {
       const studentData = getStudentData();
       
       if (!studentData?.id) {
         console.warn("No student ID found in storage");
+        setIsLoadingHistory(false);
         return;
       }
 
@@ -265,13 +268,44 @@ const LeaveApplication = () => {
         throw new Error(`Failed to fetch history: ${response.status}`);
       }
 
-      const data = await response.json();
-      setLeaveHistory(Array.isArray(data) ? data : []);
+      const result = await response.json();
+      console.log("API Response:", result);
+      
+      // Handle the response structure { success: true, data: [...] }
+      const leaveData = result.success && result.data ? result.data : (Array.isArray(result) ? result : []);
+      
+      // Transform the data to match UI expectations
+      const transformedData = leaveData.map(leave => ({
+        id: leave._id,
+        leaveType: leave.leaveType,
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        reason: leave.reason,
+        status: leave.status,
+        appliedDate: leave.appliedDate || leave.createdAt,
+        numberOfDays: calculateDays(leave.startDate, leave.endDate),
+        attachments: leave.certificates || [],
+        approvedBy: leave.approvedBy,
+        rejectionReason: leave.rejectionReason,
+      }));
+      
+      setLeaveHistory(transformedData);
     } catch (error) {
       console.error("Load history error:", error);
       setLeaveHistory([]);
+    } finally {
+      setIsLoadingHistory(false);
     }
   }, [getStudentData]);
+  
+  // Helper function to calculate days between dates
+  const calculateDays = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end date
+    return diffDays;
+  };
 
   // Submit form
   const handleSubmit = useCallback(
@@ -484,7 +518,7 @@ const LeaveApplication = () => {
             {/* File Upload */}
             <div>
               <label className="block text-sm font-semibold text-slate-300 mb-2">
-                Attach Certificate (PDF, JPG, PNG - Max 5MB)
+                Attach Certificate (Optional - PDF, JPG, PNG - Max 5MB)
               </label>
 
               <div
@@ -492,22 +526,26 @@ const LeaveApplication = () => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => document.getElementById("fileInput").click()}
-                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300
+                className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all duration-300
                   ${
                     isDragging
-                      ? "border-emerald-500 bg-emerald-500/10 scale-105"
+                      ? "border-emerald-500 bg-emerald-500/10"
                       : "border-slate-600 bg-slate-800/30 hover:border-emerald-500/50 hover:bg-slate-800/50"
                   }`}
               >
-                <Upload
-                  className={`w-12 h-12 mx-auto mb-3 transition-colors ${isDragging ? "text-emerald-400" : "text-slate-500"}`}
-                />
-                <p className="text-slate-300 mb-1">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-sm text-slate-500">
-                  Medical certificate, supporting documents
-                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <Upload
+                    className={`w-5 h-5 ${isDragging ? "text-emerald-400" : "text-slate-400"}`}
+                  />
+                  <div className="text-left">
+                    <p className="text-sm text-slate-300">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Medical certificate, supporting documents
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <input
@@ -521,7 +559,7 @@ const LeaveApplication = () => {
 
               {/* File Previews */}
               {uploadedFiles.length > 0 && (
-                <div className="mt-4 space-y-2">
+                <div className="mt-3 space-y-2">
                   {uploadedFiles.map((file, index) => (
                     <FilePreview
                       key={`${file.name}-${index}`}
@@ -547,21 +585,59 @@ const LeaveApplication = () => {
 
         {/* Leave History */}
         <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 sm:p-8 shadow-2xl">
-          <h2 className="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-            <Clock className="w-6 h-6 text-blue-400" />
-            Leave History
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
+              <Clock className="w-6 h-6 text-blue-400" />
+              Leave History
+            </h2>
+            {leaveHistory.length > 0 && (
+              <div className="text-sm text-slate-400">
+                Total: {leaveHistory.length} application{leaveHistory.length > 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
 
           <div className="space-y-4">
-            {leaveHistory.length === 0 ? (
+            {isLoadingHistory ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4"></div>
+                <p className="text-slate-400">Loading leave history...</p>
+              </div>
+            ) : leaveHistory.length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>No leave applications yet</p>
+                <p className="text-lg font-medium mb-2">No leave applications yet</p>
+                <p className="text-sm text-slate-600">Your submitted leave applications will appear here</p>
               </div>
             ) : (
-              leaveHistory.map((leave) => (
-                <LeaveHistoryCard key={leave.id} leave={leave} />
-              ))
+              <>
+                {/* Summary Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 p-4 bg-slate-800/30 rounded-lg border border-slate-700/30">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-amber-400">
+                      {leaveHistory.filter(l => l.status === 'pending').length}
+                    </div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wide">Pending</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-emerald-400">
+                      {leaveHistory.filter(l => l.status === 'approved').length}
+                    </div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wide">Approved</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-400">
+                      {leaveHistory.filter(l => l.status === 'rejected').length}
+                    </div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wide">Rejected</div>
+                  </div>
+                </div>
+
+                {/* Leave Cards */}
+                {leaveHistory.map((leave) => (
+                  <LeaveHistoryCard key={leave.id} leave={leave} />
+                ))}
+              </>
             )}
           </div>
         </div>

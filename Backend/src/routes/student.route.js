@@ -12,4 +12,5 @@ studentRoutes.post(
   Leaveupload.array('certificates', 5), // ✅ Use Leaveupload for leave certificates
   StudentController.submitleaves
 );
+studentRoutes.get("/leave/history",StudentController.getleavehistory);
 module.exports = studentRoutes; 
