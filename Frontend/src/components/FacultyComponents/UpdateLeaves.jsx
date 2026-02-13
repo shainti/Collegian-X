@@ -92,8 +92,9 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
             <User className="w-5 h-5 text-slate-300" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-100">Student Name</h3>
-            <p className="text-sm text-slate-400">ID: {leave.studentId}</p>
+            <h3 className="text-lg font-bold text-slate-100">{leave.studentName}</h3>
+             <p className="text-sm text-slate-400">Year: {leave.Year}</p>
+             <p className="text-sm text-slate-400">Roll No: {leave.CollegeRollno}</p>
           </div>
         </div>
         <StatusBadge status={leave.status} />
@@ -131,7 +132,7 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
           {leave.attachments.map((file, idx) => (
             <a
               key={idx}
-              href={file}
+              href={`http://localhost:3000/${file}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg text-xs text-blue-300 transition-all duration-200"
@@ -165,14 +166,15 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
         <div className="pt-4 border-t border-slate-700/50">
           <p className="text-sm text-emerald-400 flex items-center gap-2">
             <CheckCircle className="w-4 h-4" />
-            Approved by {leave.approvedBy} on {new Date(leave.approvedDate).toLocaleDateString('en-IN')}
+            Approved by {leave.approvedBy || 'Faculty'} 
+            {leave.approvedDate && ` on ${new Date(leave.approvedDate).toLocaleDateString('en-IN')}`}
           </p>
         </div>
       ) : (
         <div className="pt-4 border-t border-slate-700/50">
           <p className="text-sm text-red-400 flex items-start gap-2">
             <XCircle className="w-4 h-4 mt-0.5" />
-            <span>Rejected by {leave.rejectedBy || 'Faculty'}: {leave.rejectionReason}</span>
+            <span>Rejected by {leave.rejectedBy || 'Faculty'}: {leave.rejectionReason || 'No reason provided'}</span>
           </p>
         </div>
       )}
@@ -258,14 +260,25 @@ const TeacherLeaveApproval = () => {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [currentRejectId, setCurrentRejectId] = useState(null);
 
+  // Helper function to calculate days between dates
+  const calculateDays = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays;
+  };
+
   // Load statistics
   const loadStatistics = useCallback(async () => {
     try {
-      const response = await fetch('/api/leave/statistics');
+      const response = await fetch('http://localhost:3000/api/Faculty/Updateleave/statistics', {
+        credentials: 'include',
+      });
       const data = await response.json();
-      if (data.success) {
-        setStatistics(data.data);
-      }
+      console.log(data);
+      // Handle response structure { data: {...} }
+        setStatistics(data);
     } catch (error) {
       console.error('Statistics error:', error);
     }
@@ -274,41 +287,69 @@ const TeacherLeaveApproval = () => {
   // Load applications
   const loadApplications = useCallback(async (status) => {
     try {
-      const url = status === 'all' ? '/api/leave/teacher/all' : '/api/leave/teacher/pending';
-      const response = await fetch(url);
-      const data = await response.json();
+      const response = await fetch(
+        `http://localhost:3000/api/Faculty/Updateleave/applications?status=${status}`,
+        {
+          credentials: 'include',
+        }
+      );
+      const result = await response.json();
+      // Handle response structure { data: [...] }
+      const leaveData = result.data ? result.data : (Array.isArray(result) ? result : []);
       
-      const filtered = status === 'all' || status === 'pending' 
-        ? data 
-        : data.filter(app => app.status === status);
+      // Transform data to match UI expectations
+      const transformedData = leaveData.map(leave => ({
+        id: leave._id,
+        studentId: leave.studentId,
+        studentName: leave.FullName,
+        CollegeRollno:leave.CollegeRollNo,
+        Year:leave.Semester,
+        leaveType: leave.leaveType,
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        reason: leave.reason,
+        status: leave.status,
+        appliedDate: leave.appliedDate || leave.createdAt,
+        numberOfDays: calculateDays(leave.startDate, leave.endDate),
+        attachments: leave.certificates || [],
+        approvedBy: leave.approvedBy,
+        approvedDate: leave.approvedDate,
+        rejectedBy: leave.rejectedBy,
+        rejectionReason: leave.rejectionReason,
+      }));
       
-      setApplications(filtered);
+      setApplications(transformedData);
     } catch (error) {
       console.error('Load applications error:', error);
+      setApplications([]);
     }
   }, []);
 
   // Approve leave
   const handleApprove = useCallback(async (id) => {
-    if (!confirm('Are you sure you want to approve this leave application?')) return;
+    if (!window.confirm('Are you sure you want to approve this leave application?')) return;
 
     try {
-      const response = await fetch(`/api/leave/teacher/approve/${id}`, {
+      const facultyData = JSON.parse(localStorage.getItem('Faculty') || '{}');
+      
+      const response = await fetch(`http://localhost:3000/api/Faculty/leave/approve/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
-          teacherId: sessionStorage.getItem('teacherId') || 'TEACHER_ID',
-          teacherName: sessionStorage.getItem('teacherName') || 'Prof. Smith'
+          facultyId: facultyData.id,
+          facultyName: facultyData.FullName || 'Faculty'
         })
       });
 
       const result = await response.json();
 
-      if (result.success) {
+      if (response.ok) {
         loadApplications(statusFilter);
         loadStatistics();
+        alert('Leave application approved successfully!');
       } else {
-        alert('Error: ' + result.message);
+        alert('Error: ' + (result.message || 'Failed to approve'));
       }
     } catch (error) {
       console.error('Approve error:', error);
@@ -325,25 +366,29 @@ const TeacherLeaveApproval = () => {
   // Confirm rejection
   const confirmReject = useCallback(async (reason) => {
     try {
-      const response = await fetch(`/api/leave/teacher/reject/${currentRejectId}`, {
+      const facultyData = JSON.parse(localStorage.getItem('Faculty') || '{}');
+      
+      const response = await fetch(`http://localhost:3000/api/Faculty/leave/reject/${currentRejectId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
-          teacherId: sessionStorage.getItem('teacherId') || 'TEACHER_ID',
-          teacherName: sessionStorage.getItem('teacherName') || 'Prof. Smith',
+          facultyId: facultyData.id,
+          facultyName: facultyData.FullName || 'Faculty',
           rejectionReason: reason
         })
       });
 
       const result = await response.json();
 
-      if (result.success) {
+      if (response.ok) {
         setRejectModalOpen(false);
         setCurrentRejectId(null);
         loadApplications(statusFilter);
         loadStatistics();
+        alert('Leave application rejected.');
       } else {
-        alert('Error: ' + result.message);
+        alert('Error: ' + (result.message || 'Failed to reject'));
       }
     } catch (error) {
       console.error('Reject error:', error);
@@ -362,7 +407,7 @@ const TeacherLeaveApproval = () => {
   useEffect(() => {
     loadStatistics();
     loadApplications(statusFilter);
-  }, [loadStatistics, loadApplications, statusFilter]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -385,14 +430,14 @@ const TeacherLeaveApproval = () => {
           />
           <StatCard 
             icon={CheckCircle} 
-            label="Approved Today" 
+            label="Approved" 
             value={statistics.approved} 
             color="bg-gradient-to-br from-emerald-500 to-green-500"
             delay={100}
           />
           <StatCard 
             icon={XCircle} 
-            label="Rejected Today" 
+            label="Rejected" 
             value={statistics.rejected} 
             color="bg-gradient-to-br from-red-500 to-rose-500"
             delay={200}

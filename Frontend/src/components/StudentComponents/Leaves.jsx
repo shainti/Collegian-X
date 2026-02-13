@@ -271,8 +271,8 @@ const LeaveApplication = () => {
       const result = await response.json();
       console.log("API Response:", result);
       
-      // Handle the response structure { success: true, data: [...] }
-      const leaveData = result.success && result.data ? result.data : (Array.isArray(result) ? result : []);
+      // Handle the response structure { data: [...] }
+      const leaveData = result.data ? result.data : (Array.isArray(result) ? result : []);
       
       // Transform the data to match UI expectations
       const transformedData = leaveData.map(leave => ({
@@ -330,6 +330,8 @@ const LeaveApplication = () => {
         formDataToSend.append("endDate", formData.endDate);
         formDataToSend.append("reason", formData.reason);
         formDataToSend.append("id", studentData.id);
+
+
 
         // Append files
         uploadedFiles.forEach((file) => {
@@ -408,7 +410,7 @@ const LeaveApplication = () => {
               <p className="text-sm text-slate-400">
                 {studentInfo.CollegeRollNo && `Roll No: ${studentInfo.CollegeRollNo}`}
                 {studentInfo.Department && ` • ${studentInfo.Department}`}
-                {studentInfo.Semester && ` • Semester ${studentInfo.Semester}`}
+                {studentInfo.Semester && ` • Year ${studentInfo.Semester}`}
               </p>
             </div>
           </div>

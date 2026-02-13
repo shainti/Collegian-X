@@ -4,6 +4,7 @@ const StudentModel = require('../models/Student.model')
 const StudentAttendance = require('../models/StudentAttendance.model')
 const fs = require("fs");
 const { sendMail } = require('../middleware/Email.confiq')
+const Leavemodel = require('../models/Leave.model')
 
 exports.Assignment = async (req, res) => {
   try {
@@ -445,4 +446,69 @@ exports.getPreviousAttendance = async (req, res) => {
   }
 };
 
+exports.GetLeave = async (req, res) =>{
+  try {
+    const { status } = req.query;
 
+    let filter = {};
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+    
+   const leaves = await Leavemodel
+  .find(filter)
+  .sort({ appliedDate: -1 })
+  .populate("studentId", "FullName CollegeRollNo Semester email")
+  .lean();
+
+  const formattedLeaves = leaves.map(leave => ({
+  _id: leave._id,
+  leaveType: leave.leaveType,
+  startDate: leave.startDate,
+  endDate: leave.endDate,
+  reason: leave.reason,
+  status: leave.status,
+  appliedDate: leave.appliedDate,
+  certificates: leave.certificates,
+
+  // flatten student fields
+  studentId: leave.studentId?._id,
+  FullName: leave.studentId?.FullName,
+  CollegeRollNo: leave.studentId?.CollegeRollNo,
+  Semester: leave.studentId?.Semester,
+}));
+    res.status(200).json(formattedLeaves);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+exports.GetLeaveStatic = async (req, res) => {
+  try {
+    const stats = await Leavemodel.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // normalize response
+    const result = {
+      pending: 0,
+      approved: 0,
+      rejected: 0,
+      total: 0
+    };
+
+    stats.forEach(item => {
+      result[item._id] = item.count;
+      result.total += item.count;
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch leave statistics" });
+  }
+};
