@@ -20,6 +20,7 @@ FacultyRouter.get("/GetStudent", FacultyController.GetStudent);
 FacultyRouter.post("/SubmitAttendance", FacultyController.Submitattendance);
 FacultyRouter.get('/Updateleave/applications', FacultyController.GetLeave);
 FacultyRouter.get('/Updateleave/statistics', FacultyController.GetLeaveStatic);
+FacultyRouter.put('/Updateleave/approve/:id', FacultyController.Approveleave);
 FacultyRouter.get(
   "/GetPreviousAttendance",
   FacultyController.getPreviousAttendance,

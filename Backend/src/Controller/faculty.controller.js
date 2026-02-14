@@ -5,6 +5,7 @@ const StudentAttendance = require('../models/StudentAttendance.model')
 const fs = require("fs");
 const { sendMail } = require('../middleware/Email.confiq')
 const Leavemodel = require('../models/Leave.model')
+const { sendLeaveMail } = require('../middleware/Email.confiq')
 
 exports.Assignment = async (req, res) => {
   try {
@@ -512,3 +513,93 @@ exports.GetLeaveStatic = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch leave statistics" });
   }
 };
+
+exports.Approveleave = async (req, res) => {
+  try {
+    const { id } = req.params; // leave id
+    const { facultyId, facultyName, studentId } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Leave id is required" });
+    }
+
+    if (!facultyId) {
+      return res.status(400).json({ message: "Faculty id is required" });
+    }
+
+    if (!studentId) {
+      return res.status(400).json({ message: "Student id is required" });
+    }
+
+    // Find the leave document
+    const leave = await Leavemodel.findById(id);
+    
+    if (!leave) {
+      return res.status(404).json({ message: "Leave not found" });
+    }
+
+    // Update the leave
+    const updatedLeave = await Leavemodel.findByIdAndUpdate(
+      id,
+      {
+        status: "approved",
+        facultyId,
+        approvedBy: facultyName,
+        approvedDate: new Date()
+      },
+      { new: true }
+    );
+
+    // Find the student using the studentId from request body
+    const student = await StudentModel.findById(studentId);
+    
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    console.log('Sending approval email to:', student.email);
+
+    const leavehtml =  `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #10b981;">Leave Application Approved ✓</h2>
+          <p>Dear ${student.FullName || 'Student'},</p>
+          
+          <p>Your leave application has been <strong style="color: #10b981;">approved</strong> by ${facultyName}.</p>
+          
+          <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Leave Details:</h3>
+            <p><strong>Leave Type:</strong> ${leave.leaveType}</p>
+            <p><strong>From:</strong> ${new Date(leave.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+            <p><strong>To:</strong> ${new Date(leave.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+            <p><strong>Reason:</strong> ${leave.reason}</p>
+            <p><strong>Approved By:</strong> ${facultyName}</p>
+            <p><strong>Approved On:</strong> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+          </div>
+          
+          <p>If you have any questions, please contact the administration.</p>
+          
+          <p>Best regards,<br>College Administration</p>
+        </div>
+      `;
+      try {
+        await sendLeaveMail({
+      to: student.email,
+      subject: 'Leave Application Approved ✓',
+      html: leavehtml
+    })
+      } catch (emailError) {
+          console.error('Email sending failed:', emailError);
+      }
+    // Send email (don't wait for it, send response immediatelyS
+
+    res.status(200).json({
+      message: "Leave approved successfully",
+      data: updatedLeave,
+      emailSent: true
+    });
+
+  } catch (error) {
+    console.error('Approve leave error:', error);
+    res.status(500).json({ message: "Failed to approve leave", error: error.message });
+  }
+};
+

@@ -11,7 +11,6 @@ import {
   Paperclip,
   X
 } from 'lucide-react';
-
 // Memoized Statistics Card Component
 const StatCard = memo(({ icon: Icon, label, value, color, delay }) => (
   <div 
@@ -69,7 +68,7 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
   );
 
   const borderColor = useMemo(() => {
-    if (leave.status === 'pending') return 'border-amber-500';
+    if (leave.status === 'pending') return 'border-blue-500';
     if (leave.status === 'approved') return 'border-emerald-500';
     return 'border-red-500';
   }, [leave.status]);
@@ -83,7 +82,7 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
   return (
     <div className={`relative overflow-hidden bg-gradient-to-br ${bgGradient} backdrop-blur-sm border-l-4 ${borderColor} rounded-xl p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl group`}>
       {/* Status indicator line */}
-      <div className={`absolute top-0 left-0 right-0 h-1 ${leave.status === 'pending' ? 'bg-gradient-to-r from-amber-500 to-yellow-500' : leave.status === 'approved' ? 'bg-gradient-to-r from-emerald-500 to-green-500' : 'bg-gradient-to-r from-red-500 to-rose-500'}`}></div>
+      <div className={`absolute top-0 left-0 right-0 h-1 ${leave.status === 'pending' ? 'bg-gradient-to-r from-blue-500 to-blue-500' : leave.status === 'approved' ? 'bg-gradient-to-r from-emerald-500 to-green-500' : 'bg-gradient-to-r from-red-500 to-rose-500'}`}></div>
 
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
@@ -148,7 +147,7 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
       {leave.status === 'pending' ? (
         <div className="flex gap-3 pt-4 border-t border-slate-700/50">
           <button
-            onClick={() => onApprove(leave.id)}
+            onClick={() => onApprove(leave.id, leave.studentId)}
             className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-4 h-4" />
@@ -201,7 +200,7 @@ const RejectModal = memo(({ isOpen, onClose, onConfirm }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]"
       onClick={onClose}
     >
       <div 
@@ -276,7 +275,6 @@ const TeacherLeaveApproval = () => {
         credentials: 'include',
       });
       const data = await response.json();
-      console.log(data);
       // Handle response structure { data: {...} }
         setStatistics(data);
     } catch (error) {
@@ -326,23 +324,23 @@ const TeacherLeaveApproval = () => {
   }, []);
 
   // Approve leave
-  const handleApprove = useCallback(async (id) => {
+  const handleApprove = useCallback(async (id, studentId) => {
     if (!window.confirm('Are you sure you want to approve this leave application?')) return;
-
+console.log(id);
     try {
       const facultyData = JSON.parse(localStorage.getItem('Faculty') || '{}');
-      
-      const response = await fetch(`http://localhost:3000/api/Faculty/leave/approve/${id}`, {
-        method: 'POST',
+      const response = await fetch(`http://localhost:3000/api/Faculty/Updateleave/approve/${id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
           facultyId: facultyData.id,
-          facultyName: facultyData.FullName || 'Faculty'
+          facultyName: facultyData.TeacherName || 'Faculty',
+          studentId: studentId
         })
       });
 
-      const result = await response.json();
+       const result = await response.json();
 
       if (response.ok) {
         loadApplications(statusFilter);
@@ -425,21 +423,21 @@ const TeacherLeaveApproval = () => {
             icon={Clock} 
             label="Pending Approvals" 
             value={statistics.pending} 
-            color="bg-gradient-to-br from-amber-500 to-yellow-500"
+            color="bg-gradient-to-br from-blue-500 to-blue-600"
             delay={0}
           />
           <StatCard 
             icon={CheckCircle} 
             label="Approved" 
             value={statistics.approved} 
-            color="bg-gradient-to-br from-emerald-500 to-green-500"
+            color="bg-gradient-to-br from-green-500 to-green-600"
             delay={100}
           />
           <StatCard 
             icon={XCircle} 
             label="Rejected" 
             value={statistics.rejected} 
-            color="bg-gradient-to-br from-red-500 to-rose-500"
+            color="bg-gradient-to-br from-red-500 to-red-600"
             delay={200}
           />
         </div>
@@ -515,5 +513,4 @@ const TeacherLeaveApproval = () => {
     </div>
   );
 };
-
 export default TeacherLeaveApproval;
