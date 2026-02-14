@@ -277,6 +277,7 @@ exports.submitleaves = async (req, res) => {
       reason: req.body.reason,
       approvedBy:"",
       rejectedBy: "",
+      rejectionReason:"",
       certificates: req.files ? req.files.map(file => file.path) : [],
       status: 'pending',
       appliedDate: new Date()

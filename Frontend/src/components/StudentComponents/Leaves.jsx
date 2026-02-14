@@ -8,6 +8,7 @@ import {
   Clock,
   Paperclip,
   X,
+  Loader2,
 } from "lucide-react";
 
 // Memoized file preview component
@@ -119,8 +120,17 @@ const LeaveHistoryCard = memo(({ leave }) => {
           </p>
         )}
 
+        {leave.rejectedBy && (
+          <p className="text-xs text-red-400 mt-3">
+            ✗ Rejected by {leave.rejectedBy}
+          </p>
+        )}
+
         {leave.rejectionReason && (
-          <p className="text-xs text-red-400 mt-3">✗ {leave.rejectionReason}</p>
+          <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <p className="text-xs font-semibold text-red-300 mb-1">Rejection Reason:</p>
+            <p className="text-xs text-red-400 italic">{leave.rejectionReason}</p>
+          </div>
         )}
 
         {leave.attachments?.length > 0 && (
@@ -286,6 +296,7 @@ const LeaveApplication = () => {
         numberOfDays: calculateDays(leave.startDate, leave.endDate),
         attachments: leave.certificates || [],
         approvedBy: leave.approvedBy,
+        rejectedBy: leave.rejectedBy,
         rejectionReason: leave.rejectionReason,
       }));
       
@@ -445,8 +456,9 @@ const LeaveApplication = () => {
                 name="leaveType"
                 value={formData.leaveType}
                 onChange={handleChange}
+                disabled={isSubmitting}
                 required
-                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select leave type</option>
                 <option value="sick">Sick Leave</option>
@@ -473,8 +485,9 @@ const LeaveApplication = () => {
                   value={formData.startDate}
                   onChange={handleChange}
                   min={today}
+                  disabled={isSubmitting}
                   required
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               <div>
@@ -491,8 +504,9 @@ const LeaveApplication = () => {
                   value={formData.endDate}
                   onChange={handleChange}
                   min={formData.startDate || today}
+                  disabled={isSubmitting}
                   required
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -510,10 +524,11 @@ const LeaveApplication = () => {
                 name="reason"
                 value={formData.reason}
                 onChange={handleChange}
+                disabled={isSubmitting}
                 required
                 rows={4}
                 placeholder="Please provide a detailed reason for your leave..."
-                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none resize-none"
+                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none resize-none disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -527,8 +542,9 @@ const LeaveApplication = () => {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={() => document.getElementById("fileInput").click()}
-                className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all duration-300
+                onClick={() => !isSubmitting && document.getElementById("fileInput").click()}
+                className={`border-2 border-dashed rounded-lg p-4 text-center transition-all duration-300
+                  ${isSubmitting ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
                   ${
                     isDragging
                       ? "border-emerald-500 bg-emerald-500/10"
@@ -555,6 +571,7 @@ const LeaveApplication = () => {
                 id="fileInput"
                 accept=".pdf,.jpg,.jpeg,.png"
                 multiple
+                disabled={isSubmitting}
                 onChange={(e) => handleFiles(e.target.files)}
                 className="hidden"
               />
@@ -578,9 +595,16 @@ const LeaveApplication = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02]"
+              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2"
             >
-              {isSubmitting ? "Submitting..." : "Submit Leave Application"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Submitting Leave Application...
+                </>
+              ) : (
+                "Submit Leave Application"
+              )}
             </button>
           </form>
         </div>

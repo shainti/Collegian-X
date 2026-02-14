@@ -9,7 +9,8 @@ import {
   Filter,
   TrendingUp,
   Paperclip,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 // Memoized Statistics Card Component
 const StatCard = memo(({ icon: Icon, label, value, color, delay }) => (
@@ -51,7 +52,7 @@ const StatusBadge = memo(({ status }) => {
 StatusBadge.displayName = 'StatusBadge';
 
 // Memoized Leave Application Card
-const LeaveCard = memo(({ leave, onApprove, onReject }) => {
+const LeaveCard = memo(({ leave, onApprove, onReject, loadingId }) => {
   const startDate = useMemo(() => 
     new Date(leave.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
     [leave.startDate]
@@ -78,6 +79,8 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
     if (leave.status === 'approved') return 'from-emerald-900/10 to-emerald-800/5';
     return 'from-red-900/10 to-red-800/5';
   }, [leave.status]);
+
+  const isLoading = loadingId === leave.id;
 
   return (
     <div className={`relative overflow-hidden bg-gradient-to-br ${bgGradient} backdrop-blur-sm border-l-4 ${borderColor} rounded-xl p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl group`}>
@@ -148,14 +151,25 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
         <div className="flex gap-3 pt-4 border-t border-slate-700/50">
           <button
             onClick={() => onApprove(leave.id, leave.studentId)}
-            className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 flex items-center justify-center gap-2"
+            disabled={isLoading}
+            className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <CheckCircle className="w-4 h-4" />
-            Approve
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Approving...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                Approve
+              </>
+            )}
           </button>
           <button
-            onClick={() => onReject(leave.id)}
-            className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-red-500/50 transition-all duration-300 flex items-center justify-center gap-2"
+            onClick={() => onReject(leave.id, leave.studentId)}
+            disabled={isLoading}
+            className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-red-500/50 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <XCircle className="w-4 h-4" />
             Reject
@@ -184,7 +198,7 @@ const LeaveCard = memo(({ leave, onApprove, onReject }) => {
 LeaveCard.displayName = 'LeaveCard';
 
 // Reject Modal Component
-const RejectModal = memo(({ isOpen, onClose, onConfirm }) => {
+const RejectModal = memo(({ isOpen, onClose, onConfirm, isSubmitting }) => {
   const [reason, setReason] = useState('');
 
   const handleConfirm = useCallback(() => {
@@ -193,15 +207,21 @@ const RejectModal = memo(({ isOpen, onClose, onConfirm }) => {
       return;
     }
     onConfirm(reason);
-    setReason('');
   }, [reason, onConfirm]);
+
+  const handleClose = useCallback(() => {
+    if (!isSubmitting) {
+      setReason('');
+      onClose();
+    }
+  }, [isSubmitting, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]"
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div 
         className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-[slideUp_0.3s_ease-out]"
@@ -210,8 +230,9 @@ const RejectModal = memo(({ isOpen, onClose, onConfirm }) => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-slate-100">Reject Leave Application</h3>
           <button 
-            onClick={onClose}
-            className="p-1 hover:bg-slate-700 rounded-lg transition-colors"
+            onClick={handleClose}
+            disabled={isSubmitting}
+            className="p-1 hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5 text-slate-400" />
           </button>
@@ -224,24 +245,34 @@ const RejectModal = memo(({ isOpen, onClose, onConfirm }) => {
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
+            disabled={isSubmitting}
             placeholder="Please provide a reason for rejecting this leave application..."
             rows={4}
-            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all outline-none resize-none"
+            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all outline-none resize-none disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
 
         <div className="flex gap-3">
           <button
-            onClick={onClose}
-            className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-lg transition-colors"
+            onClick={handleClose}
+            disabled={isSubmitting}
+            className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
+            disabled={isSubmitting}
+            className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Confirm Rejection
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Rejecting...
+              </>
+            ) : (
+              'Confirm Rejection'
+            )}
           </button>
         </div>
       </div>
@@ -258,6 +289,8 @@ const TeacherLeaveApproval = () => {
   const [statusFilter, setStatusFilter] = useState('pending');
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [currentRejectId, setCurrentRejectId] = useState(null);
+  const [loadingId, setLoadingId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Helper function to calculate days between dates
   const calculateDays = (startDate, endDate) => {
@@ -292,29 +325,37 @@ const TeacherLeaveApproval = () => {
         }
       );
       const result = await response.json();
+
+      
       // Handle response structure { data: [...] }
       const leaveData = result.data ? result.data : (Array.isArray(result) ? result : []);
       
       // Transform data to match UI expectations
-      const transformedData = leaveData.map(leave => ({
-        id: leave._id,
-        studentId: leave.studentId,
-        studentName: leave.FullName,
-        CollegeRollno:leave.CollegeRollNo,
-        Year:leave.Semester,
-        leaveType: leave.leaveType,
-        startDate: leave.startDate,
-        endDate: leave.endDate,
-        reason: leave.reason,
-        status: leave.status,
-        appliedDate: leave.appliedDate || leave.createdAt,
-        numberOfDays: calculateDays(leave.startDate, leave.endDate),
-        attachments: leave.certificates || [],
-        approvedBy: leave.approvedBy,
-        approvedDate: leave.approvedDate,
-        rejectedBy: leave.rejectedBy,
-        rejectionReason: leave.rejectionReason,
-      }));
+      const transformedData = leaveData.map(leave => {
+        console.log('Individual Leave:', leave);
+        console.log('approvedBy field:', leave.approvedBy);
+        console.log('rejectedBy field:', leave.rejectedBy);
+        
+        return {
+          id: leave._id,
+          studentId: leave.studentId,
+          studentName: leave.FullName,
+          CollegeRollno:leave.CollegeRollNo,
+          Year:leave.Semester,
+          leaveType: leave.leaveType,
+          startDate: leave.startDate,
+          endDate: leave.endDate,
+          reason: leave.reason,
+          status: leave.status,
+          appliedDate: leave.appliedDate || leave.createdAt,
+          numberOfDays: calculateDays(leave.startDate, leave.endDate),
+          attachments: leave.certificates || [],
+          approvedBy: leave.approvedBy,
+          approvedDate: leave.approvedDate,
+          rejectedBy: leave.rejectedBy,
+          rejectionReason: leave.rejectionReason,
+        };
+      });
       
       setApplications(transformedData);
     } catch (error) {
@@ -326,16 +367,22 @@ const TeacherLeaveApproval = () => {
   // Approve leave
   const handleApprove = useCallback(async (id, studentId) => {
     if (!window.confirm('Are you sure you want to approve this leave application?')) return;
-console.log(id);
+    
+    setLoadingId(id);
+    console.log(id);
+    
     try {
       const facultyData = JSON.parse(localStorage.getItem('Faculty') || '{}');
+      console.log('Faculty Data:', facultyData);
+      console.log('Faculty Name being sent:', facultyData.FullName || facultyData.TeacherName || facultyData.name || 'Faculty');
+      
       const response = await fetch(`http://localhost:3000/api/Faculty/Updateleave/approve/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
           facultyId: facultyData.id,
-          facultyName: facultyData.TeacherName || 'Faculty',
+          facultyName: facultyData.TeacherName || facultyData.TeacherName || facultyData.name || 'Faculty',
           studentId: studentId
         })
       });
@@ -352,28 +399,35 @@ console.log(id);
     } catch (error) {
       console.error('Approve error:', error);
       alert('Failed to approve leave');
+    } finally {
+      setLoadingId(null);
     }
   }, [statusFilter, loadApplications, loadStatistics]);
 
   // Open reject modal
-  const openRejectModal = useCallback((id) => {
-    setCurrentRejectId(id);
+  const openRejectModal = useCallback((id, studentId) => {
+    setCurrentRejectId({ id, studentId });
     setRejectModalOpen(true);
   }, []);
 
   // Confirm rejection
   const confirmReject = useCallback(async (reason) => {
+    setIsSubmitting(true);
+    
     try {
       const facultyData = JSON.parse(localStorage.getItem('Faculty') || '{}');
+      console.log('Faculty Data (Reject):', facultyData);
+      console.log('Faculty Name being sent:', facultyData.FullName || facultyData.TeacherName || facultyData.name || 'Faculty');
       
-      const response = await fetch(`http://localhost:3000/api/Faculty/leave/reject/${currentRejectId}`, {
-        method: 'POST',
+      const response = await fetch(`http://localhost:3000/api/Faculty/Updateleave/rejected/${currentRejectId.id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
           facultyId: facultyData.id,
-          facultyName: facultyData.FullName || 'Faculty',
-          rejectionReason: reason
+          facultyName: facultyData.FullName || facultyData.TeacherName || facultyData.name || 'Faculty',
+          rejectionReason: reason,
+          studentId: currentRejectId.studentId
         })
       });
 
@@ -391,6 +445,8 @@ console.log(id);
     } catch (error) {
       console.error('Reject error:', error);
       alert('Failed to reject leave');
+    } finally {
+      setIsSubmitting(false);
     }
   }, [currentRejectId, statusFilter, loadApplications, loadStatistics]);
 
@@ -480,6 +536,7 @@ console.log(id);
                   leave={app} 
                   onApprove={handleApprove}
                   onReject={openRejectModal}
+                  loadingId={loadingId}
                 />
               ))
             )}
@@ -492,6 +549,7 @@ console.log(id);
         isOpen={rejectModalOpen}
         onClose={() => setRejectModalOpen(false)}
         onConfirm={confirmReject}
+        isSubmitting={isSubmitting}
       />
 
       <style jsx>{`

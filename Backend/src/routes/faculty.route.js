@@ -21,6 +21,8 @@ FacultyRouter.post("/SubmitAttendance", FacultyController.Submitattendance);
 FacultyRouter.get('/Updateleave/applications', FacultyController.GetLeave);
 FacultyRouter.get('/Updateleave/statistics', FacultyController.GetLeaveStatic);
 FacultyRouter.put('/Updateleave/approve/:id', FacultyController.Approveleave);
+FacultyRouter.put('/Updateleave/Rejected/:id', FacultyController.Rejectedleave);
+
 FacultyRouter.get(
   "/GetPreviousAttendance",
   FacultyController.getPreviousAttendance,

@@ -37,6 +37,10 @@ const leaveSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    rejectionReason: {
+      type: String,
+      trim: true,
+    },
     certificates: {
       type: [String], // file paths
       default: [],
