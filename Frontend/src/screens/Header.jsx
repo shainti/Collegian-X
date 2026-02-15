@@ -35,7 +35,7 @@ export default function Header() {
             Collegian
           </h1>
           <img
-            src="/x3_logo.png"
+            src="/uploads/x3_logo.png"
             alt="Logo"
             className="h-10 w-10 sm:h-13 sm:w-13"
           />
