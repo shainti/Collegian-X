@@ -1,12 +1,13 @@
-require('dotenv').config();
-const app = require('./src/app')
-const connectdb = require("./src/db/db")
+require("dotenv").config();
+const app = require("./src/app");
+const connectdb = require("./src/db/db");
 
 connectdb();
-const PORT = process.env.PORT || 3000;
-const HOST = 'localhost'
-app.listen(PORT, HOST, ()=>{
-    console.log(`server start at http://${HOST}:${PORT}`);
-})
 
-exports.app = app;
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+module.exports = app;
