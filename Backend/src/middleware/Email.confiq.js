@@ -121,7 +121,7 @@ const sendMail = async ({ to, subject, html }) => {
 
 const sendLeaveMail = async({to, subject, html}) =>{
     await transporter.sendMail({
-     from: `"Leave Portal" <collegianx@gmail.com`,
+     from: `"Leave Portal" <collegianx@gmail.com>`,
      to,
      subject,
      html,
@@ -132,5 +132,4 @@ module.exports = {
   sendMail,
   sendverificationcode,
   sendLeaveMail,
-
 };

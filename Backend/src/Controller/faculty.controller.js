@@ -521,7 +521,10 @@ exports.GetLeaveStatic = async (req, res) => {
 exports.Approveleave = async (req, res) => {
   try {
     const { id } = req.params; // leave id
+    console.log(req.body);
     const { facultyId, facultyName, studentId } = req.body;
+    console.log(studentId);
+    console.log('📋 Approve Leave Request:', { id, facultyId, facultyName, studentId });
 
     if (!id) {
       return res.status(400).json({ message: "Leave id is required" });
@@ -560,34 +563,149 @@ exports.Approveleave = async (req, res) => {
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
-    console.log('Sending approval email to:', student.email);
 
-    const leavehtml =  `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #10b981;">Leave Application Approved ✓</h2>
-          <p>Dear ${student.FullName || 'Student'},</p>
-          
-          <p>Your leave application has been <strong style="color: #10b981;">approved</strong> by ${facultyName}.</p>
-          
-          <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0;">Leave Details:</h3>
-            <p><strong>Leave Type:</strong> ${leave.leaveType}</p>
-            <p><strong>From:</strong> ${new Date(leave.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-            <p><strong>To:</strong> ${new Date(leave.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-            <p><strong>Reason:</strong> ${leave.reason}</p>
-            <p><strong>Approved By:</strong> ${facultyName}</p>
-            <p><strong>Approved On:</strong> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-          </div>
-          
-          <p>If you have any questions, please contact the administration.</p>
-          
-          <p>Best regards,<br>College Administration</p>
+
+    // Check if email exists
+    if (!student.email) {
+      console.log('⚠️ Warning: Student has no email address');
+      return res.status(200).json({
+        message: "Leave approved successfully but no email sent (student has no email)",
+        data: updatedLeave,
+        emailSent: false
+      });
+    }
+
+    const leavehtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #10b981;">Leave Application Approved ✓</h2>
+        <p>Dear ${student.FullName || 'Student'},</p>
+        
+        <p>Your leave application has been <strong style="color: #10b981;">approved</strong> by ${facultyName}.</p>
+        
+        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Leave Details:</h3>
+          <p><strong>Leave Type:</strong> ${leave.leaveType}</p>
+          <p><strong>From:</strong> ${new Date(leave.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+          <p><strong>To:</strong> ${new Date(leave.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+          <p><strong>Reason:</strong> ${leave.reason}</p>
+          <p><strong>Approved By:</strong> ${facultyName}</p>
+          <p><strong>Approved On:</strong> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
         </div>
-      `;
+        
+        <p>If you have any questions, please contact the administration.</p>
+        
+        <p>Best regards,<br>College Administration</p>
+      </div>
+    `;
+
+    let emailSent = false;
+    
+    try {
+      
+      await sendLeaveMail({
+        to: student.email,
+        subject: 'Leave Application Approved ✓',
+        html: leavehtml
+      });
+
+      emailSent = true;
+      
+    } catch (emailError) {
+      console.error('Error details:', {
+        message: emailError.message,
+        code: emailError.code,
+        response: emailError.response
+      });
+    }
+
+    res.status(200).json({
+      message: "Leave approved successfully",
+      data: updatedLeave,
+      emailSent: emailSent
+    });
+
+  } catch (error) {
+    console.error('❌ Approve leave error:', error);
+    res.status(500).json({ 
+      message: "Failed to approve leave", 
+      error: error.message 
+    });
+  }
+};
+
+exports.Rejectedleave = async (req, res) => {
+  try {
+    const { id } = req.params; // leave id
+    const { facultyId, facultyName, rejectionReason, studentId } = req.body;
+    console.log(studentId)
+
+    if (!id) {
+      return res.status(400).json({ message: "Leave id is required" });
+    }
+
+    if (!facultyId) {
+      return res.status(400).json({ message: "Faculty id is required" });
+    }
+
+    // Find the leave document
+    const leave = await Leavemodel.findById(id);
+    
+    if (!leave) {
+      return res.status(404).json({ message: "Leave not found" });
+    }
+
+    // Update the leave
+    const updatedLeave = await Leavemodel.findByIdAndUpdate(
+      id,
+      {
+        status: "rejected",
+        facultyId,
+        rejectedBy: facultyName,
+        rejectionReason: rejectionReason,
+        approvedDate: new Date()
+      },
+      { new: true }
+    );
+
+    // Find the student using the studentId from request body
+    const student = await StudentModel.findById(studentId);
+    
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    console.log('Sending Rejected email to:', student.email);
+
+    const leavehtml = `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #dc2626;">Leave Application Rejected ✗</h2>
+    <p>Dear ${student.FullName || 'Student'},</p>
+    
+    <p>Your leave application has been <strong style="color: #dc2626;">Rejected</strong> by ${facultyName}.</p>
+    
+    <div style="background-color: #fee2e2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+      <h3 style="margin-top: 0; color: #991b1b;">Leave Details:</h3>
+      <p><strong>Leave Type:</strong> ${leave.leaveType}</p>
+      <p><strong>From:</strong> ${new Date(leave.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+      <p><strong>To:</strong> ${new Date(leave.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+      <p><strong>Your Reason:</strong> ${leave.reason}</p>
+      <p><strong>Rejected By:</strong> ${facultyName}</p>
+      <p><strong>Rejected On:</strong> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+    </div>
+    
+    <div style="background-color: #fef2f2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f87171;">
+      <h3 style="margin-top: 0; color: #dc2626;">Reason for Rejection:</h3>
+      <p style="font-style: italic; color: #4b5563;">${rejectionReason || 'No reason provided'}</p>
+    </div>
+    
+    <p>If you have any questions or wish to submit a new application, please contact the administration.</p>
+    
+    <p>Best regards,<br>College Administration</p>
+  </div>
+`;
       try {
         await sendLeaveMail({
       to: student.email,
-      subject: 'Leave Application Approved ✓',
+      subject: 'Leave Application Rejected X',
       html: leavehtml
     })
       } catch (emailError) {
@@ -596,7 +714,7 @@ exports.Approveleave = async (req, res) => {
     // Send email (don't wait for it, send response immediatelyS
 
     res.status(200).json({
-      message: "Leave approved successfully",
+      message: "Leave Rejected successfully",
       data: updatedLeave,
       emailSent: true
     });
@@ -606,5 +724,4 @@ exports.Approveleave = async (req, res) => {
     res.status(500).json({ message: "Failed to approve leave", error: error.message });
   }
 };
-
 
