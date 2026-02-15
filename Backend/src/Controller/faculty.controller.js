@@ -520,32 +520,37 @@ exports.GetLeaveStatic = async (req, res) => {
 
 exports.Approveleave = async (req, res) => {
   try {
-    const { id } = req.params; // leave id
-    console.log(req.body);
+    const { id } = req.params;
+    console.log('📥 Request body:', req.body);
     const { facultyId, facultyName, studentId } = req.body;
-    console.log(studentId);
+    console.log('📥 Student ID from body:', studentId);
     console.log('📋 Approve Leave Request:', { id, facultyId, facultyName, studentId });
 
     if (!id) {
+      console.log('❌ No leave id provided');
       return res.status(400).json({ message: "Leave id is required" });
     }
 
     if (!facultyId) {
+      console.log('❌ No faculty id provided');
       return res.status(400).json({ message: "Faculty id is required" });
     }
 
     if (!studentId) {
+      console.log('❌ No student id provided');
       return res.status(400).json({ message: "Student id is required" });
     }
 
-    // Find the leave document
+    console.log('🔍 Finding leave document with ID:', id);
     const leave = await Leavemodel.findById(id);
     
     if (!leave) {
+      console.log('❌ Leave not found');
       return res.status(404).json({ message: "Leave not found" });
     }
+    console.log('✅ Leave found:', leave._id);
 
-    // Update the leave
+    console.log('🔄 Updating leave status...');
     const updatedLeave = await Leavemodel.findByIdAndUpdate(
       id,
       {
@@ -556,16 +561,23 @@ exports.Approveleave = async (req, res) => {
       },
       { new: true }
     );
+    console.log('✅ Leave updated');
 
-    // Find the student using the studentId from request body
+    console.log('🔍 Finding student with ID:', studentId);
     const student = await StudentModel.findById(studentId);
     
     if (!student) {
+      console.log('❌ Student not found with ID:', studentId);
       return res.status(404).json({ message: "Student not found" });
     }
 
+    console.log('👤 Student found:', {
+      id: student._id,
+      name: student.FullName,
+      email: student.email,
+      hasEmail: !!student.email
+    });
 
-    // Check if email exists
     if (!student.email) {
       console.log('⚠️ Warning: Student has no email address');
       return res.status(200).json({
@@ -575,6 +587,7 @@ exports.Approveleave = async (req, res) => {
       });
     }
 
+    console.log('📝 Creating email HTML...');
     const leavehtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #10b981;">Leave Application Approved ✓</h2>
@@ -601,31 +614,36 @@ exports.Approveleave = async (req, res) => {
     let emailSent = false;
     
     try {
+      console.log('📧 About to call sendLeaveMail...');
+      console.log('Email will be sent to:', student.email);
       
       await sendLeaveMail({
         to: student.email,
         subject: 'Leave Application Approved ✓',
         html: leavehtml
       });
-
+      
+      console.log('✅ sendLeaveMail completed successfully');
       emailSent = true;
       
     } catch (emailError) {
-      console.error('Error details:', {
-        message: emailError.message,
-        code: emailError.code,
-        response: emailError.response
-      });
+      console.error('❌ Email sending failed:', emailError);
+      console.error('Error name:', emailError.name);
+      console.error('Error message:', emailError.message);
+      console.error('Error stack:', emailError.stack);
     }
 
+    console.log('📤 Sending response to client...');
     res.status(200).json({
       message: "Leave approved successfully",
       data: updatedLeave,
       emailSent: emailSent
     });
+    console.log('✅ Response sent');
 
   } catch (error) {
     console.error('❌ Approve leave error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       message: "Failed to approve leave", 
       error: error.message 
