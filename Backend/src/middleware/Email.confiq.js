@@ -1,18 +1,37 @@
 const nodemailer = require("nodemailer");
 
+console.log('\n=== EMAIL CONFIGURATION CHECK ===');
+console.log('Email:', process.env.Collegian_Email);
+console.log('Password:', process.env.Collegian_pass ? '✅ EXISTS' : '❌ MISSING');
+console.log('================================\n');
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.Collegian_Email,
-    pass: process.env.Collegian_pass, 
+    pass: process.env.Collegian_pass,
   },
+  // Add these options
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 10000,
 });
 
-// Export a function that sends verification emails
+// Test connection - make it synchronous with await
+console.log('🔄 Testing email server connection...');
+(async () => {
+  try {
+    await transporter.verify();
+    console.log('✅ Email server connection verified!\n');
+  } catch (error) {
+    console.error('❌ Email server connection failed:', error.message);
+    console.error('This will cause email sending to fail!\n');
+  }
+})();
+
 const sendverificationcode = async (email, verificationCode) => {
   try {
     const info = await transporter.sendMail({
-      from: '"Collegian X" <collegianx@gmail.com>',
+      from: '"Collegian X" <collegainx@gmail.com>',
       to: email,
       subject: "Verify Your Email Address",
       text: `Your verification code is: ${verificationCode}. This code will expire in 10 minutes.`,
@@ -103,30 +122,57 @@ const sendverificationcode = async (email, verificationCode) => {
         </html>
       `,
     });
+    console.log('✅ Verification email sent to:', email);
     return info;
   } catch (error) {
-    console.log("❌ Email Error:", error.message);
+    console.log("❌ Verification Email Error:", error.message);
     throw error;
   }
 };
 
 const sendMail = async ({ to, subject, html }) => {
-  await transporter.sendMail({
-    from: `"Assignment Portal" <collegianx@gmail.com>`,
-    to,
-    subject,
-    html,
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: `"Assignment Portal" <collegainx@gmail.com>`,
+      to,
+      subject,
+      html,
+    });
+    console.log('✅ Assignment email sent to:', to);
+    return info;
+  } catch (error) {
+    console.error('❌ Assignment email failed:', error.message);
+    throw error;
+  }
 };
 
-const sendLeaveMail = async({to, subject, html}) =>{
-    await transporter.sendMail({
-     from: `"Leave Portal" <collegianx@gmail.com>`,
-     to,
-     subject,
-     html,
+const sendLeaveMail = async({to, subject, html}) => {
+  try {
+    console.log('\n🔵 sendLeaveMail called');
+    console.log('To:', to);
+    console.log('Subject:', subject);
+    console.log('Transporter exists:', !!transporter);
+    
+    const info = await transporter.sendMail({
+      from: `"Leave Portal" <collegainx@gmail.com>`,
+      to,
+      subject,
+      html,
     });
+    
+    console.log('✅ Leave email sent successfully!');
+    console.log('Message ID:', info.messageId);
+    console.log('Response:', info.response);
+    return info;
+  } catch (error) {
+    console.error('❌ Leave email failed!');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Full error:', JSON.stringify(error, null, 2));
+    throw error;
   }
+}
 
 module.exports = {
   sendMail,
