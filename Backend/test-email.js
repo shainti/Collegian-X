@@ -1,43 +1,17 @@
 require('dotenv').config();
-const nodemailer = require("nodemailer");
+const { sendLeaveMail } = require('./src/middleware/Email.confiq');
 
-console.log('=== Email Configuration Test ===');
-console.log('Email:', process.env.Collegian_Email);
-console.log('Password exists:', !!process.env.Collegian_pass);
-console.log('Password length:', process.env.Collegian_pass?.length);
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.Collegian_Email,
-    pass: process.env.Collegian_pass,
-  },
-});
-
-// Test the connection
-async function testConnection() {
+async function test() {
   try {
-    console.log('\n--- Testing SMTP Connection ---');
-    await transporter.verify();
-    console.log('✅ SMTP Connection successful!');
-    
-    // Try sending a test email
-    console.log('\n--- Sending Test Email ---');
-    const info = await transporter.sendMail({
-      from: '"Leave Portal" <collegainx@gmail.com>',
-      to: 'collegainx@gmail.com', // Send to yourself for testing
-      subject: 'Test Email',
-      text: 'This is a test email',
-      html: '<b>This is a test email</b>',
+    await sendLeaveMail({
+      to: 'shaintykashyap@gmail.com',
+      subject: 'Test Email - Collegian X',
+      html: '<h1>Test Email</h1><p>If you receive this, Brevo API is working! ✅</p>'
     });
-    
-    console.log('✅ Email sent successfully!');
-    console.log('Message ID:', info.messageId);
-    
+    console.log('✅ Test passed!');
   } catch (error) {
-    console.error('❌ Error:', error.message);
-    console.error('Full error:', error);
+    console.error('❌ Test failed:', error);
   }
 }
 
-testConnection();
+test();

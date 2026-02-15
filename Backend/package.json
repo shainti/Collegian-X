@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "bcrypt": "^6.0.0",
     "bytez": "^0.7.0",
     "bytez.js": "^3.0.0",
