@@ -102,7 +102,7 @@ const EmailVerification = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/Student/verify-email', {
+      const response = await fetch('https://collegian-x-1.onrender.com/api/auth/Student/verify-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ const EmailVerification = () => {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/resend-verification', {
+      const response = await fetch('https://collegian-x-1.onrender.com/api/resend-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

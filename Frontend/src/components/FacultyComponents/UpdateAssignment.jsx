@@ -104,7 +104,7 @@ export default function FacultyAssignmentManager() {
 
   const handleDownloadFile = (filePath, fileName) => {
     // Download file from server
-    window.open(`http://localhost:3000/uploads/${filePath}`, '_blank');
+    window.open(`https://collegian-x-1.onrender.com/uploads/${filePath}`, '_blank');
   };
 
   const handleAddNew = () => {
@@ -127,7 +127,7 @@ export default function FacultyAssignmentManager() {
   const handleEdit = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/Faculty/editassignment/${id}`,
+        `https://collegian-x-1.onrender.com/api/Faculty/editassignment/${id}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -167,7 +167,7 @@ export default function FacultyAssignmentManager() {
     }
     
     try {
-      const response = await fetch(`http://localhost:3000/api/Faculty/Deleteassignment/${id}`, {
+      const response = await fetch(`https://collegian-x-1.onrender.com/api/Faculty/Deleteassignment/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -208,8 +208,8 @@ export default function FacultyAssignmentManager() {
 
       const response = await fetch(
         editingId
-          ? `http://localhost:3000/api/Faculty/assignment/${editingId}`
-          : "http://localhost:3000/api/Faculty/assignment",
+          ? `https://collegian-x-1.onrender.com/api/Faculty/assignment/${editingId}`
+          : "https://collegian-x-1.onrender.com/api/Faculty/assignment",
         {
           method: editingId ? "PUT" : "POST",
           credentials: "include",
@@ -239,7 +239,7 @@ export default function FacultyAssignmentManager() {
       setLoading(true);
 
       const getresponse = await fetch(
-        "http://localhost:3000/api/Faculty/assignment",
+        "https://collegian-x-1.onrender.com/api/Faculty/assignment",
         {
           method: "GET",
           headers: {

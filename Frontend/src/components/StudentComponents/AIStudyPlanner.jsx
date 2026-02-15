@@ -73,7 +73,7 @@ Create a weekly schedule (Monday-Sunday) that distributes subjects optimally, in
 REMEMBER: Output ONLY the JSON object, nothing else.`;
 
     try {
-      const response = await fetch("http://localhost:3000/api/Student/generate-plan", {
+      const response = await fetch("https://collegian-x-1.onrender.com/api/Student/generate-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: prompt })

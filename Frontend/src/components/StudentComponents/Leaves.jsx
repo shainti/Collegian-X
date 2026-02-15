@@ -268,7 +268,7 @@ const LeaveApplication = () => {
       }
 
       const response = await fetch(
-        `http://localhost:3000/api/Student/leave/history?studentId=${studentData.id}`,
+        `https://collegian-x-1.onrender.com/api/Student/leave/history?studentId=${studentData.id}`,
         {
           credentials: "include",
         }
@@ -350,7 +350,7 @@ const LeaveApplication = () => {
         });
 
         const response = await fetch(
-          "http://localhost:3000/api/Student/leave/submit",
+          "https://collegian-x-1.onrender.com/api/Student/leave/submit",
           {
             method: "POST",
             body: formDataToSend,

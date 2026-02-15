@@ -206,7 +206,7 @@ teacherSubjects = ['Multimedia And Tech','Software Enginering', ' Computer Netwo
     const fetchStudents = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:3000/api/faculty/GetStudent?year=${selectedYear}`, {
+        const res = await fetch(`https://collegian-x-1.onrender.com/api/faculty/GetStudent?year=${selectedYear}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -239,7 +239,7 @@ teacherSubjects = ['Multimedia And Tech','Software Enginering', ' Computer Netwo
     try {
       const facultyId = JSON.parse(localStorage.getItem("Faculty"))?.id;
       const res = await fetch(
-        `http://localhost:3000/api/faculty/GetPreviousAttendance?year=${selectedYear}&subject=${selectedSubject}&month=${selectedMonth}&facultyId=${facultyId}`,
+        `https://collegian-x-1.onrender.com/api/faculty/GetPreviousAttendance?year=${selectedYear}&subject=${selectedSubject}&month=${selectedMonth}&facultyId=${facultyId}`,
         { method: "GET", headers: { "Content-Type": "application/json" }, credentials: "include" }
       );
 
@@ -283,7 +283,7 @@ teacherSubjects = ['Multimedia And Tech','Software Enginering', ' Computer Netwo
     for (let i = 0; i < studentsWithAttendance.length; i++) {
       const student = studentsWithAttendance[i];
       try {
-        const res = await fetch('http://localhost:3000/api/faculty/SubmitAttendance', {
+        const res = await fetch('https://collegian-x-1.onrender.com/api/faculty/SubmitAttendance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',

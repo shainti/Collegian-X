@@ -22,7 +22,7 @@ export default function AssignmentViewer() {
     setLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:3000/api/Student/assignment",
+        "https://collegian-x-1.onrender.com/api/Student/assignment",
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -58,7 +58,7 @@ export default function AssignmentViewer() {
       return;
     }
     // Open file in new tab or download
-    window.open(`http://localhost:3000/uploads/${filePath}`, '_blank');
+    window.open(`https://collegian-x-1.onrender.com/uploads/${filePath}`, '_blank');
   };
 
   // Download assignment details as text

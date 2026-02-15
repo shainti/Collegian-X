@@ -134,7 +134,7 @@ const LeaveCard = memo(({ leave, onApprove, onReject, loadingId }) => {
           {leave.attachments.map((file, idx) => (
             <a
               key={idx}
-              href={`http://localhost:3000/${file}`}
+              href={`https://collegian-x-1.onrender.com/${file}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg text-xs text-blue-300 transition-all duration-200"
@@ -304,7 +304,7 @@ const TeacherLeaveApproval = () => {
   // Load statistics
   const loadStatistics = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/Faculty/Updateleave/statistics', {
+      const response = await fetch('https://collegian-x-1.onrender.com/api/Faculty/Updateleave/statistics', {
         credentials: 'include',
       });
       const data = await response.json();
@@ -319,7 +319,7 @@ const TeacherLeaveApproval = () => {
   const loadApplications = useCallback(async (status) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/Faculty/Updateleave/applications?status=${status}`,
+        `https://collegian-x-1.onrender.com/api/Faculty/Updateleave/applications?status=${status}`,
         {
           credentials: 'include',
         }
@@ -376,7 +376,7 @@ const TeacherLeaveApproval = () => {
       console.log('Faculty Data:', facultyData);
       console.log('Faculty Name being sent:', facultyData.FullName || facultyData.TeacherName || facultyData.name || 'Faculty');
       
-      const response = await fetch(`http://localhost:3000/api/Faculty/Updateleave/approve/${id}`, {
+      const response = await fetch(`https://collegian-x-1.onrender.com/api/Faculty/Updateleave/approve/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -419,7 +419,7 @@ const TeacherLeaveApproval = () => {
       console.log('Faculty Data (Reject):', facultyData);
       console.log('Faculty Name being sent:', facultyData.FullName || facultyData.TeacherName || facultyData.name || 'Faculty');
       
-      const response = await fetch(`http://localhost:3000/api/Faculty/Updateleave/rejected/${currentRejectId.id}`, {
+      const response = await fetch(`https://collegian-x-1.onrender.com/api/Faculty/Updateleave/rejected/${currentRejectId.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

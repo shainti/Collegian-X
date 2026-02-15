@@ -22,7 +22,7 @@ const FacultyLogin = () => {
     setErrors("");
     try {
       const response = await fetch(
-        "http://localhost:3000/api/auth/Faculty/login",
+        "https://collegian-x-1.onrender.com/api/auth/Faculty/login",
         {
           method: "POST",
           headers: {

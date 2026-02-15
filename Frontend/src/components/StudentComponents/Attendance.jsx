@@ -129,7 +129,7 @@ export default function StudentAttendance() {
           return;
         }
 
-        const response = await fetch(`http://localhost:3000/api/Student/Attendance/${id}`, {
+        const response = await fetch(`https://collegian-x-1.onrender.com/api/Student/Attendance/${id}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

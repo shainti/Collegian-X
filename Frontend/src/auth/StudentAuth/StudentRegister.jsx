@@ -36,7 +36,7 @@ const StudentRegister = () => {
 
     try {
       await axios.post(
-        "http://localhost:3000/api/auth/Student/register",
+        "https://collegian-x-1.onrender.com/api/auth/Student/register",
         {
           FullName: formData.FullName,
           email: formData.email,
