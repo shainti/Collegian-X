@@ -1,19 +1,38 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-console.log('\n=== RESEND EMAIL CONFIGURATION ===');
-console.log('API Key exists:', !!process.env.RESEND_API_KEY);
-console.log('API Key preview:', process.env.RESEND_API_KEY ? `${process.env.RESEND_API_KEY.substring(0, 10)}...` : 'MISSING');
+console.log('\n=== BREVO EMAIL CONFIGURATION ===');
+console.log('SMTP User exists:', !!process.env.SMTP_USER);
+console.log('SMTP Password exists:', !!process.env.SMTP_PASSWORD);
+console.log('SMTP From Email:', process.env.SMTP_FROM_EMAIL);
 console.log('===================================\n');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create transporter with Brevo SMTP
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false, // Use TLS
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
+});
+
+// Verify connection on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.log('❌ SMTP connection error:', error);
+  } else {
+    console.log('✅ SMTP server is ready to send emails');
+  }
+});
 
 const sendverificationcode = async (email, verificationCode) => {
   try {
     console.log('📧 Sending verification email to:', email);
     
-    const data = await resend.emails.send({
-      from: 'Collegian X <onboarding@resend.dev>',
-      to: [email],
+    const mailOptions = {
+      from: `"Collegian X" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: email,
       subject: 'Verify Your Email Address',
       html: `
         <!DOCTYPE html>
@@ -101,10 +120,11 @@ const sendverificationcode = async (email, verificationCode) => {
         </body>
         </html>
       `,
-    });
+    };
     
-    console.log('✅ Verification email sent, ID:', data.id);
-    return data;
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Verification email sent, ID:', info.messageId);
+    return { id: info.messageId };
   } catch (error) {
     console.error("❌ Verification Email Error:", error.message);
     console.error("Full error:", error);
@@ -116,15 +136,16 @@ const sendMail = async ({ to, subject, html }) => {
   try {
     console.log('📧 Sending assignment email to:', to);
     
-    const data = await resend.emails.send({
-      from: 'Assignment Portal <onboarding@resend.dev>',
-      to: [to],
+    const mailOptions = {
+      from: `"Assignment Portal" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: to,
       subject: subject,
       html: html,
-    });
+    };
     
-    console.log('✅ Assignment email sent, ID:', data.id);
-    return data;
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Assignment email sent, ID:', info.messageId);
+    return { id: info.messageId };
   } catch (error) {
     console.error('❌ Assignment email failed:', error.message);
     console.error("Full error:", error);
@@ -134,30 +155,31 @@ const sendMail = async ({ to, subject, html }) => {
 
 const sendLeaveMail = async ({ to, subject, html }) => {
   try {
-    console.log('\n🔵 sendLeaveMail called (using Resend)');
+    console.log('\n🔵 sendLeaveMail called (using Nodemailer + Brevo)');
     console.log('To:', to);
     console.log('Subject:', subject);
-    console.log('Resend instance exists:', !!resend);
+    console.log('Transporter exists:', !!transporter);
     
-    const data = await resend.emails.send({
-      from: 'Leave Portal <onboarding@resend.dev>',
-      to: [to],
+    const mailOptions = {
+      from: `"Leave Portal" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: to,
       subject: subject,
       html: html,
-    });
+    };
     
+    const info = await transporter.sendMail(mailOptions);
     console.log('✅ Leave email sent successfully!');
-    console.log('Email ID:', data.id);
+    console.log('Email ID:', info.messageId);
     console.log('');
-    return data;
+    return { id: info.messageId };
   } catch (error) {
     console.error('❌ Leave email failed!');
     console.error('Error name:', error.name);
     console.error('Error message:', error.message);
-    if (error.statusCode) {
-      console.error('Status code:', error.statusCode);
+    if (error.code) {
+      console.error('Error code:', error.code);
     }
-    console.error('Full error:', JSON.stringify(error, null, 2));
+    console.error('Full error:', error);
     throw error;
   }
 };
