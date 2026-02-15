@@ -32,13 +32,8 @@ export default function Header() {
         {/* LOGO */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <h1 className="text-white text-xl sm:text-3xl font-bold">
-            Collegian
+            Collegian <span className="text-cyan-400">X</span>
           </h1>
-          <img
-            src="/uploads/x3_logo.png"
-            alt="Logo"
-            className="h-10 w-10 sm:h-13 sm:w-13"
-          />
         </div>
 
         {/* DESKTOP MENU */}
