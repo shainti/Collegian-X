@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: [
     "http://localhost:5173",
-     "https://collegian-x-fgy8.vercel.app"
+     "https://collegianx.vercel.app",
     ],
   credentials: true
 }));
