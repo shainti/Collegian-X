@@ -1,40 +1,20 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require('resend');
 
-console.log('\n=== EMAIL CONFIGURATION CHECK ===');
-console.log('Email:', process.env.Collegian_Email);
-console.log('Password:', process.env.Collegian_pass ? '✅ EXISTS' : '❌ MISSING');
-console.log('================================\n');
+console.log('\n=== RESEND EMAIL CONFIGURATION ===');
+console.log('API Key exists:', !!process.env.RESEND_API_KEY);
+console.log('API Key preview:', process.env.RESEND_API_KEY ? `${process.env.RESEND_API_KEY.substring(0, 10)}...` : 'MISSING');
+console.log('===================================\n');
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.Collegian_Email,
-    pass: process.env.Collegian_pass,
-  },
-  // Add these options
-  connectionTimeout: 10000, // 10 seconds
-  greetingTimeout: 10000,
-});
-
-// Test connection - make it synchronous with await
-console.log('🔄 Testing email server connection...');
-(async () => {
-  try {
-    await transporter.verify();
-    console.log('✅ Email server connection verified!\n');
-  } catch (error) {
-    console.error('❌ Email server connection failed:', error.message);
-    console.error('This will cause email sending to fail!\n');
-  }
-})();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendverificationcode = async (email, verificationCode) => {
   try {
-    const info = await transporter.sendMail({
-      from: '"Collegian X" <collegainx@gmail.com>',
-      to: email,
-      subject: "Verify Your Email Address",
-      text: `Your verification code is: ${verificationCode}. This code will expire in 10 minutes.`,
+    console.log('📧 Sending verification email to:', email);
+    
+    const data = await resend.emails.send({
+      from: 'Collegian X <onboarding@resend.dev>',
+      to: [email],
+      subject: 'Verify Your Email Address',
       html: `
         <!DOCTYPE html>
         <html>
@@ -122,57 +102,65 @@ const sendverificationcode = async (email, verificationCode) => {
         </html>
       `,
     });
-    console.log('✅ Verification email sent to:', email);
-    return info;
+    
+    console.log('✅ Verification email sent, ID:', data.id);
+    return data;
   } catch (error) {
-    console.log("❌ Verification Email Error:", error.message);
+    console.error("❌ Verification Email Error:", error.message);
+    console.error("Full error:", error);
     throw error;
   }
 };
 
 const sendMail = async ({ to, subject, html }) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"Assignment Portal" <collegainx@gmail.com>`,
-      to,
-      subject,
-      html,
+    console.log('📧 Sending assignment email to:', to);
+    
+    const data = await resend.emails.send({
+      from: 'Assignment Portal <onboarding@resend.dev>',
+      to: [to],
+      subject: subject,
+      html: html,
     });
-    console.log('✅ Assignment email sent to:', to);
-    return info;
+    
+    console.log('✅ Assignment email sent, ID:', data.id);
+    return data;
   } catch (error) {
     console.error('❌ Assignment email failed:', error.message);
+    console.error("Full error:", error);
     throw error;
   }
 };
 
-const sendLeaveMail = async({to, subject, html}) => {
+const sendLeaveMail = async ({ to, subject, html }) => {
   try {
-    console.log('\n🔵 sendLeaveMail called');
+    console.log('\n🔵 sendLeaveMail called (using Resend)');
     console.log('To:', to);
     console.log('Subject:', subject);
-    console.log('Transporter exists:', !!transporter);
+    console.log('Resend instance exists:', !!resend);
     
-    const info = await transporter.sendMail({
-      from: `"Leave Portal" <collegainx@gmail.com>`,
-      to,
-      subject,
-      html,
+    const data = await resend.emails.send({
+      from: 'Leave Portal <onboarding@resend.dev>',
+      to: [to],
+      subject: subject,
+      html: html,
     });
     
     console.log('✅ Leave email sent successfully!');
-    console.log('Message ID:', info.messageId);
-    console.log('Response:', info.response);
-    return info;
+    console.log('Email ID:', data.id);
+    console.log('');
+    return data;
   } catch (error) {
     console.error('❌ Leave email failed!');
     console.error('Error name:', error.name);
     console.error('Error message:', error.message);
-    console.error('Error code:', error.code);
+    if (error.statusCode) {
+      console.error('Status code:', error.statusCode);
+    }
     console.error('Full error:', JSON.stringify(error, null, 2));
     throw error;
   }
-}
+};
 
 module.exports = {
   sendMail,

@@ -3,9 +3,8 @@ const AssignmentModel = require("../models/Assignment.model");
 const StudentModel = require('../models/Student.model')
 const StudentAttendance = require('../models/StudentAttendance.model')
 const fs = require("fs");
-const { sendMail } = require('../middleware/Email.confiq')
+const { sendMail, sendLeaveMail } = require('../middleware/Email.confiq')
 const Leavemodel = require('../models/Leave.model')
-const { sendLeaveMail } = require('../middleware/Email.confiq')
 
 exports.Assignment = async (req, res) => {
   try {
@@ -66,13 +65,14 @@ exports.Assignment = async (req, res) => {
         </div>
       `;
 
-      try {for (const email of emails) {
-  await sendMail({
-    to: email,
-    subject: "New Assignment Available",
-    html: mailHTML,
-  });
-}
+      try {
+        for (const email of emails) {
+          await sendMail({
+            to: email,
+            subject: "New Assignment Available",
+            html: mailHTML,
+          });
+        }
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
       }
@@ -139,7 +139,7 @@ exports.putassignment = async (req, res) => {
       year,
       assignedDate,
       dueDate,
-      questions: parsedQuestions, // This will be stored as an array in MongoDB
+      questions: parsedQuestions,
     };
 
     // If new file uploaded, update file info
@@ -165,7 +165,7 @@ exports.putassignment = async (req, res) => {
     const updatedAssignment = await AssignmentModel.findByIdAndUpdate(
       Id,
       updateData,
-      { new: true } // return updated document
+      { new: true }
     );
 
     if (!updatedAssignment) {
@@ -191,20 +191,19 @@ exports.putassignment = async (req, res) => {
 };
 
 
-exports.GetAssignment = async (req, res) =>{
-     try {
+exports.GetAssignment = async (req, res) => {
+  try {
     const assignment = await AssignmentModel.find().sort({ createdAt: -1 });
-
     res.status(200).json({
       assignment,
     });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch assignments" });
   }
-
 }
-exports.editViewassignment = async (req, res) =>{
-  const  Id  = req.params.Id
+
+exports.editViewassignment = async (req, res) => {
+  const Id = req.params.Id
   try {
     const assignment = await AssignmentModel.findById(Id)
     res.status(200).json({
@@ -213,49 +212,7 @@ exports.editViewassignment = async (req, res) =>{
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch assignments" });
   }
-
 }
-
-exports.putassignment = async (req, res) => {
-  const { Id } = req.params;
-  const {
-    topic,
-    subject,
-    teacherName,
-    year,
-    assignedDate,
-    dueDate,
-    questions,
-  } = req.body;
-
-  try {
-    const updatedAssignment = await AssignmentModel.findByIdAndUpdate(
-      Id,
-      {
-        topic,
-        subject,
-        teacherName,
-        year,
-        assignedDate,
-        dueDate,
-        questions,
-      },
-      { new: true } // return updated document
-    );
-
-    if (!updatedAssignment) {
-      return res.status(404).json({ message: "Assignment not found" });
-    }
-
-    res.status(200).json({
-      assignment: updatedAssignment,
-      message: "Assignment updated successfully",
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update assignment" });
-  }
-};
-
 
 exports.Deleteassignment = async (req, res) => {
   const { Id } = req.params;
@@ -276,7 +233,7 @@ exports.Deleteassignment = async (req, res) => {
 
 exports.GetStudent = async (req, res) => {
   try {
-    const { year } = req.query; // Get from query string (?year=1)
+    const { year } = req.query;
     
     if (!year) {
       return res.status(400).json({ 
@@ -307,10 +264,9 @@ exports.GetStudent = async (req, res) => {
   }
 };
 
-exports.Submitattendance= async (req, res)=> {
- try {
-    const { studentId, facultyId , year, subject, month, totalClasses, attendedClasses,} = req.body;
-    // const facultyId = req.user._id; // From authentication middleware
+exports.Submitattendance = async (req, res) => {
+  try {
+    const { studentId, facultyId, year, subject, month, totalClasses, attendedClasses } = req.body;
 
     if (!studentId || !year || !subject || !month || !totalClasses || attendedClasses === undefined) {
       return res.status(400).json({
@@ -391,7 +347,6 @@ exports.getPreviousAttendance = async (req, res) => {
   try {
     const { year, subject, month, facultyId } = req.query;
 
-    // Validate required parameters
     if (!year || !subject || !month || !facultyId) {
       return res.status(400).json({
         success: false,
@@ -399,7 +354,6 @@ exports.getPreviousAttendance = async (req, res) => {
       });
     }
 
-    // Fetch attendance records
     const attendanceRecords = await StudentAttendance.find({
       year,
       subject,
@@ -409,7 +363,6 @@ exports.getPreviousAttendance = async (req, res) => {
     .populate('studentId', 'FullName CollegeRollNo Email')
     .sort({ studentRollNo: 1 });
 
-    // Format the response
     const formattedRecords = attendanceRecords.map(record => ({
       id: record._id,
       studentId: record.studentId?._id,
@@ -447,7 +400,7 @@ exports.getPreviousAttendance = async (req, res) => {
   }
 };
 
-exports.GetLeave = async (req, res) =>{
+exports.GetLeave = async (req, res) => {
   try {
     const { status } = req.query;
 
@@ -456,32 +409,30 @@ exports.GetLeave = async (req, res) =>{
       filter.status = status;
     }
     
-   const leaves = await Leavemodel
-  .find(filter)
-  .sort({ appliedDate: -1 })
-  .populate("studentId", "FullName CollegeRollNo Semester email")
-  .lean();
+    const leaves = await Leavemodel
+      .find(filter)
+      .sort({ appliedDate: -1 })
+      .populate("studentId", "FullName CollegeRollNo Semester email")
+      .lean();
 
-  const formattedLeaves = leaves.map(leave => ({
-  _id: leave._id,
-  leaveType: leave.leaveType,
-  startDate: leave.startDate,
-  endDate: leave.endDate,
-  reason: leave.reason,
-  status: leave.status,
-  appliedDate: leave.appliedDate,
-  certificates: leave.certificates,
-  approvedBy: leave.approvedBy,
-  rejectedBy: leave.rejectedBy,
-  rejectionReason: leave.rejectionReason,
+    const formattedLeaves = leaves.map(leave => ({
+      _id: leave._id,
+      leaveType: leave.leaveType,
+      startDate: leave.startDate,
+      endDate: leave.endDate,
+      reason: leave.reason,
+      status: leave.status,
+      appliedDate: leave.appliedDate,
+      certificates: leave.certificates,
+      approvedBy: leave.approvedBy,
+      rejectedBy: leave.rejectedBy,
+      rejectionReason: leave.rejectionReason,
+      studentId: leave.studentId?._id,
+      FullName: leave.studentId?.FullName,
+      CollegeRollNo: leave.studentId?.CollegeRollNo,
+      Semester: leave.studentId?.Semester,
+    }));
 
-
-  // flatten student fields
-  studentId: leave.studentId?._id,
-  FullName: leave.studentId?.FullName,
-  CollegeRollNo: leave.studentId?.CollegeRollNo,
-  Semester: leave.studentId?.Semester,
-}));
     res.status(200).json(formattedLeaves);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -499,7 +450,6 @@ exports.GetLeaveStatic = async (req, res) => {
       }
     ]);
 
-    // normalize response
     const result = {
       pending: 0,
       approved: 0,
@@ -653,26 +603,37 @@ exports.Approveleave = async (req, res) => {
 
 exports.Rejectedleave = async (req, res) => {
   try {
-    const { id } = req.params; // leave id
+    const { id } = req.params;
+    console.log('📥 Reject Request body:', req.body);
     const { facultyId, facultyName, rejectionReason, studentId } = req.body;
-    console.log(studentId)
+    console.log('📥 Student ID from body:', studentId);
+    console.log('📋 Reject Leave Request:', { id, facultyId, facultyName, studentId });
 
     if (!id) {
+      console.log('❌ No leave id provided');
       return res.status(400).json({ message: "Leave id is required" });
     }
 
     if (!facultyId) {
+      console.log('❌ No faculty id provided');
       return res.status(400).json({ message: "Faculty id is required" });
     }
 
-    // Find the leave document
+    if (!studentId) {
+      console.log('❌ No student id provided');
+      return res.status(400).json({ message: "Student id is required" });
+    }
+
+    console.log('🔍 Finding leave document with ID:', id);
     const leave = await Leavemodel.findById(id);
     
     if (!leave) {
+      console.log('❌ Leave not found');
       return res.status(404).json({ message: "Leave not found" });
     }
+    console.log('✅ Leave found:', leave._id);
 
-    // Update the leave
+    console.log('🔄 Updating leave status to rejected...');
     const updatedLeave = await Leavemodel.findByIdAndUpdate(
       id,
       {
@@ -680,66 +641,103 @@ exports.Rejectedleave = async (req, res) => {
         facultyId,
         rejectedBy: facultyName,
         rejectionReason: rejectionReason,
-        approvedDate: new Date()
+        rejectedDate: new Date()
       },
       { new: true }
     );
+    console.log('✅ Leave updated to rejected');
 
-    // Find the student using the studentId from request body
+    console.log('🔍 Finding student with ID:', studentId);
     const student = await StudentModel.findById(studentId);
     
     if (!student) {
+      console.log('❌ Student not found with ID:', studentId);
       return res.status(404).json({ message: "Student not found" });
     }
-    console.log('Sending Rejected email to:', student.email);
 
-    const leavehtml = `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <h2 style="color: #dc2626;">Leave Application Rejected ✗</h2>
-    <p>Dear ${student.FullName || 'Student'},</p>
-    
-    <p>Your leave application has been <strong style="color: #dc2626;">Rejected</strong> by ${facultyName}.</p>
-    
-    <div style="background-color: #fee2e2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
-      <h3 style="margin-top: 0; color: #991b1b;">Leave Details:</h3>
-      <p><strong>Leave Type:</strong> ${leave.leaveType}</p>
-      <p><strong>From:</strong> ${new Date(leave.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-      <p><strong>To:</strong> ${new Date(leave.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-      <p><strong>Your Reason:</strong> ${leave.reason}</p>
-      <p><strong>Rejected By:</strong> ${facultyName}</p>
-      <p><strong>Rejected On:</strong> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-    </div>
-    
-    <div style="background-color: #fef2f2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f87171;">
-      <h3 style="margin-top: 0; color: #dc2626;">Reason for Rejection:</h3>
-      <p style="font-style: italic; color: #4b5563;">${rejectionReason || 'No reason provided'}</p>
-    </div>
-    
-    <p>If you have any questions or wish to submit a new application, please contact the administration.</p>
-    
-    <p>Best regards,<br>College Administration</p>
-  </div>
-`;
-      try {
-        await sendLeaveMail({
-      to: student.email,
-      subject: 'Leave Application Rejected X',
-      html: leavehtml
-    })
-      } catch (emailError) {
-          console.error('Email sending failed:', emailError);
-      }
-    // Send email (don't wait for it, send response immediatelyS
-
-    res.status(200).json({
-      message: "Leave Rejected successfully",
-      data: updatedLeave,
-      emailSent: true
+    console.log('👤 Student found:', {
+      id: student._id,
+      name: student.FullName,
+      email: student.email,
+      hasEmail: !!student.email
     });
 
+    if (!student.email) {
+      console.log('⚠️ Warning: Student has no email address');
+      return res.status(200).json({
+        message: "Leave rejected successfully but no email sent (student has no email)",
+        data: updatedLeave,
+        emailSent: false
+      });
+    }
+
+    console.log('📝 Creating rejection email HTML...');
+    const leavehtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #dc2626;">Leave Application Rejected ✗</h2>
+        <p>Dear ${student.FullName || 'Student'},</p>
+        
+        <p>Your leave application has been <strong style="color: #dc2626;">Rejected</strong> by ${facultyName}.</p>
+        
+        <div style="background-color: #fee2e2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+          <h3 style="margin-top: 0; color: #991b1b;">Leave Details:</h3>
+          <p><strong>Leave Type:</strong> ${leave.leaveType}</p>
+          <p><strong>From:</strong> ${new Date(leave.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+          <p><strong>To:</strong> ${new Date(leave.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+          <p><strong>Your Reason:</strong> ${leave.reason}</p>
+          <p><strong>Rejected By:</strong> ${facultyName}</p>
+          <p><strong>Rejected On:</strong> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+        </div>
+        
+        <div style="background-color: #fef2f2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f87171;">
+          <h3 style="margin-top: 0; color: #dc2626;">Reason for Rejection:</h3>
+          <p style="font-style: italic; color: #4b5563;">${rejectionReason || 'No reason provided'}</p>
+        </div>
+        
+        <p>If you have any questions or wish to submit a new application, please contact the administration.</p>
+        
+        <p>Best regards,<br>College Administration</p>
+      </div>
+    `;
+
+    let emailSent = false;
+    
+    try {
+      console.log('📧 About to call sendLeaveMail for rejection...');
+      console.log('Email will be sent to:', student.email);
+      
+      await sendLeaveMail({
+        to: student.email,
+        subject: 'Leave Application Rejected ✗',
+        html: leavehtml
+      });
+      
+      console.log('✅ Rejection email sent successfully');
+      emailSent = true;
+      
+    } catch (emailError) {
+      console.error('❌ Rejection email sending failed:', emailError);
+      console.error('Error name:', emailError.name);
+      console.error('Error message:', emailError.message);
+      console.error('Error stack:', emailError.stack);
+    }
+
+    console.log('📤 Sending response to client...');
+    res.status(200).json({
+      message: "Leave rejected successfully",
+      data: updatedLeave,
+      emailSent: emailSent
+    });
+    console.log('✅ Response sent');
+
   } catch (error) {
-    console.error('Approve leave error:', error);
-    res.status(500).json({ message: "Failed to approve leave", error: error.message });
+    console.error('❌ Reject leave error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: "Failed to reject leave", 
+      error: error.message 
+    });
   }
 };
 
+module.exports = exports;
