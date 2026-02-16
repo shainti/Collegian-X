@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Calendar, BookOpen, ArrowLeft, GraduationCap, History } from 'lucide-react';
+import { API_URL } from '../../api';
 
 // Shared styles for animations
 const ANIMATIONS = `
@@ -206,7 +207,7 @@ teacherSubjects = ['Multimedia And Tech','Software Enginering', ' Computer Netwo
     const fetchStudents = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`https://collegian-x-1.onrender.com/api/faculty/GetStudent?year=${selectedYear}`, {
+        const res = await fetch(`${API_URL}/api/faculty/GetStudent?year=${selectedYear}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -239,7 +240,7 @@ teacherSubjects = ['Multimedia And Tech','Software Enginering', ' Computer Netwo
     try {
       const facultyId = JSON.parse(localStorage.getItem("Faculty"))?.id;
       const res = await fetch(
-        `https://collegian-x-1.onrender.com/api/faculty/GetPreviousAttendance?year=${selectedYear}&subject=${selectedSubject}&month=${selectedMonth}&facultyId=${facultyId}`,
+        `${API_URL}/api/faculty/GetPreviousAttendance?year=${selectedYear}&subject=${selectedSubject}&month=${selectedMonth}&facultyId=${facultyId}`,
         { method: "GET", headers: { "Content-Type": "application/json" }, credentials: "include" }
       );
 
@@ -283,7 +284,7 @@ teacherSubjects = ['Multimedia And Tech','Software Enginering', ' Computer Netwo
     for (let i = 0; i < studentsWithAttendance.length; i++) {
       const student = studentsWithAttendance[i];
       try {
-        const res = await fetch('https://collegian-x-1.onrender.com/api/faculty/SubmitAttendance', {
+        const res = await fetch(`${API_URL}/api/faculty/SubmitAttendance`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',

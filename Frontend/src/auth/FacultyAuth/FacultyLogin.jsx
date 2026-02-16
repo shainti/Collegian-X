@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { School, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { API_URL } from "../../api";
 
 const FacultyLogin = () => {
   const [errors, setErrors] = useState("");
@@ -22,7 +22,7 @@ const FacultyLogin = () => {
     setErrors("");
     try {
       const response = await fetch(
-        "https://collegian-x-1.onrender.com/api/auth/Faculty/login",
+        `${API_URL}/api/auth/Faculty/login`,
         {
           method: "POST",
           headers: {

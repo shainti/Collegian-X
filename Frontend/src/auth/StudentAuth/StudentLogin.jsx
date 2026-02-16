@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { UserCircle2, ChevronDown } from "lucide-react";
+import { API_URL } from "../../api";
 
 const StudentLogin = () => {
   const [errors, setErrors] = useState("");
@@ -22,7 +23,7 @@ const StudentLogin = () => {
     setLoading(true);
     setErrors("");
     try {
-      const response = await fetch("https://collegian-x-1.onrender.com/api/auth/Student/login", {
+      const response = await fetch(`${API_URL}/api/auth/Student/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

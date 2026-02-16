@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_URL } from "../../api";
 import {
   Plus,
   Edit,
@@ -104,7 +105,7 @@ export default function FacultyAssignmentManager() {
 
   const handleDownloadFile = (filePath, fileName) => {
     // Download file from server
-    window.open(`https://collegian-x-1.onrender.com/uploads/${filePath}`, '_blank');
+    window.open(`${API_URL}/uploads/${filePath}`, '_blank');
   };
 
   const handleAddNew = () => {
@@ -127,7 +128,7 @@ export default function FacultyAssignmentManager() {
   const handleEdit = async (id) => {
     try {
       const response = await fetch(
-        `https://collegian-x-1.onrender.com/api/Faculty/editassignment/${id}`,
+        `${API_URL}/api/Faculty/editassignment/${id}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -167,7 +168,7 @@ export default function FacultyAssignmentManager() {
     }
     
     try {
-      const response = await fetch(`https://collegian-x-1.onrender.com/api/Faculty/Deleteassignment/${id}`, {
+      const response = await fetch(`${API_URL}/api/Faculty/Deleteassignment/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -208,8 +209,8 @@ export default function FacultyAssignmentManager() {
 
       const response = await fetch(
         editingId
-          ? `https://collegian-x-1.onrender.com/api/Faculty/assignment/${editingId}`
-          : "https://collegian-x-1.onrender.com/api/Faculty/assignment",
+          ? `${API_URL}/api/Faculty/assignment/${editingId}`
+          : `${API_URL}/api/Faculty/assignment`,
         {
           method: editingId ? "PUT" : "POST",
           credentials: "include",
@@ -239,7 +240,7 @@ export default function FacultyAssignmentManager() {
       setLoading(true);
 
       const getresponse = await fetch(
-        "https://collegian-x-1.onrender.com/api/Faculty/assignment",
+        `${API_URL}/api/Faculty/assignment`,
         {
           method: "GET",
           headers: {

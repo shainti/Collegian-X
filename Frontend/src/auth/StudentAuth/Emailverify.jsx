@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { API_URL } from '../../api';
 
 const EmailVerification = () => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -102,7 +103,7 @@ const EmailVerification = () => {
     setError('');
 
     try {
-      const response = await fetch('https://collegian-x-1.onrender.com/api/auth/Student/verify-email', {
+      const response = await fetch(`${API_URL}/api/auth/Student/verify-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,7 +145,7 @@ const EmailVerification = () => {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('https://collegian-x-1.onrender.com/api/resend-verification', {
+      const response = await fetch(`${API_URL}/api/resend-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../../api';
 
 const SubjectCard = ({ subject, index }) => {
   const [isActive, setIsActive] = useState(false);
@@ -129,7 +130,7 @@ export default function StudentAttendance() {
           return;
         }
 
-        const response = await fetch(`https://collegian-x-1.onrender.com/api/Student/Attendance/${id}`, {
+        const response = await fetch(`${API_URL}/api/Student/Attendance/${id}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

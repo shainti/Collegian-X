@@ -3,6 +3,7 @@ import { UserPlus, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../api";
 
 const StudentRegister = () => {
   const Navigate = useNavigate();
@@ -36,7 +37,7 @@ const StudentRegister = () => {
 
     try {
       await axios.post(
-        "https://collegian-x-1.onrender.com/api/auth/Student/register",
+        `${API_URL}/api/auth/Student/register`,
         {
           FullName: formData.FullName,
           email: formData.email,

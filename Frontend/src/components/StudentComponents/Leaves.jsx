@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, memo, useEffect } from "react";
+import { API_URL } from "../../api";
 import {
   Upload,
   Calendar,
@@ -268,7 +269,7 @@ const LeaveApplication = () => {
       }
 
       const response = await fetch(
-        `https://collegian-x-1.onrender.com/api/Student/leave/history?studentId=${studentData.id}`,
+        `${API_URL}/api/Student/leave/history?studentId=${studentData.id}`,
         {
           credentials: "include",
         }
@@ -350,7 +351,7 @@ const LeaveApplication = () => {
         });
 
         const response = await fetch(
-          "https://collegian-x-1.onrender.com/api/Student/leave/submit",
+          `${API_URL}/api/Student/leave/submit`,
           {
             method: "POST",
             body: formDataToSend,
