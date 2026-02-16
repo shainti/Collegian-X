@@ -22,13 +22,14 @@ const PortalCard = ({
 
   return (
     <div
-      className={`group relative ${bgColor} rounded-3xl p-5 flex flex-col items-center justify-between min-h-[240px] cursor-pointer border border-white/10 transition-all duration-500 ease-out ${
+      className={`group relative ${bgColor} rounded-3xl p-5 flex flex-col items-center justify-between min-h-[240px] cursor-pointer border border-white/10 transition-transform duration-300 ease-out ${
         isActive
-          ? "scale-105 -translate-y-2 border-white/20"
-          : "hover:scale-105 hover:-translate-y-2 hover:border-white/20"
+          ? "scale-105 -translate-y-2"
+          : "hover:scale-105 hover:-translate-y-2"
       }`}
       style={{
         animation: `fadeInUp 0.6s ease-out ${index * 0.1}s backwards`,
+        willChange: "transform",
       }}
       onMouseEnter={() => setIsActive(true)}
       onMouseLeave={() => setIsActive(false)}
@@ -38,15 +39,8 @@ const PortalCard = ({
     >
       {/* Background gradient overlay */}
       <div
-        className={`absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-3xl transition-opacity duration-500 ${
-          isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-        }`}
-      />
-
-      {/* Animated glow */}
-      <div
-        className={`absolute -inset-1 bg-gradient-to-r ${bgColor} rounded-3xl blur-xl transition-opacity duration-500 ${
-          isActive ? "opacity-30" : "opacity-0 group-hover:opacity-30"
+        className={`absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-3xl transition-opacity duration-300 ${
+          isActive ? "opacity-100" : "opacity-0"
         }`}
       />
 
@@ -54,23 +48,23 @@ const PortalCard = ({
       <div className="relative z-10 flex flex-col items-center w-full">
         {/* PNG ICON */}
         <div
-          className={`relative mb-4 ${iconColor} w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
-            isActive
-              ? "shadow-xl scale-110 -translate-y-1"
-              : "group-hover:shadow-xl group-hover:scale-110 group-hover:-translate-y-1"
+          className={`relative mb-4 ${iconColor} w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-300 ${
+            isActive ? "scale-110 -translate-y-1" : ""
           }`}
+          style={{ willChange: "transform" }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl" />
           <img
             src={image}
             alt={title}
             className="w-10 h-10 object-contain relative z-10"
+            loading="lazy"
           />
         </div>
 
         <h3
           className={`text-white text-lg font-bold mb-6 text-center transition-transform duration-300 ${
-            isActive ? "scale-105" : "group-hover:scale-105"
+            isActive ? "scale-105" : ""
           }`}
         >
           {title}
@@ -78,15 +72,13 @@ const PortalCard = ({
 
         <button
           className={`mt-auto bg-white/10 backdrop-blur-md text-white px-6 py-2 rounded-full font-semibold text-sm flex items-center gap-2 border border-white/20 transition-all duration-300 shadow-lg ${
-            isActive
-              ? "bg-white/20 border-white/40 scale-110 shadow-xl"
-              : "hover:bg-white/20 hover:border-white/40 group-hover:scale-110 hover:shadow-xl"
+            isActive ? "bg-white/20 scale-110" : ""
           }`}
         >
           <span>{buttonText}</span>
           <span
             className={`transition-transform duration-300 ${
-              isActive ? "translate-x-1" : "group-hover:translate-x-1"
+              isActive ? "translate-x-1" : ""
             }`}
           >
             →
@@ -183,7 +175,7 @@ export default function StudentPortal() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* FLOATING EMOJIS */}
+      {/* FLOATING EMOJIS - Reduced count */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute top-32 left-10 text-5xl animate-float">📚</div>
         <div className="absolute top-52 right-20 text-6xl animate-float-delayed">
@@ -198,18 +190,11 @@ export default function StudentPortal() {
         <div className="absolute bottom-20 right-1/3 text-5xl animate-float-delayed">
           🌟
         </div>
-        <div className="absolute top-1/3 left-1/4 text-4xl animate-spin-slow">
-          ⚡
-        </div>
-        <div className="absolute bottom-1/3 right-1/4 text-4xl animate-pulse">
-          💡
-        </div>
       </div>
 
-      {/* GRADIENT ORBS */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse-delayed" />
-      <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse-delayed-2" />
+      {/* GRADIENT ORBS - Reduced blur */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-2xl animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-2xl animate-pulse-delayed" />
 
       <div className="max-w-6xl mx-auto relative z-10 w-full">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
@@ -251,18 +236,14 @@ export default function StudentPortal() {
         .animate-pulse-delayed {
           animation: pulse 3s infinite 1s;
         }
-        .animate-pulse-delayed-2 {
-          animation: pulse 3s infinite 2s;
-        }
-        .animate-spin-slow {
-          animation: spin 10s linear infinite;
-        }
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
+        
+        @media (prefers-reduced-motion: reduce) {
+          .animate-float,
+          .animate-float-delayed,
+          .animate-float-delayed-2,
+          .animate-pulse,
+          .animate-pulse-delayed {
+            animation: none;
           }
         }
       `}</style>
