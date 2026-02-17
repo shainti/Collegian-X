@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       {/* ══ 1. HERO ══ */}
-      <div className="relative w-full min-h-screen bg-[#050B16] flex pt-24 md:pt-34 justify-center overflow-hidden px-4">
+      <div className="relative w-full min-h-fit md:min-h-screen bg-[#050B16] flex pt-24 md:pt-34 pb-16 md:pb-0 justify-center overflow-hidden px-4">
 
         {/* Background Glow */}
         <div className="absolute inset-0 flex items-center justify-center">
