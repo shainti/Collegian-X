@@ -18,9 +18,9 @@ exports.registerstudents = async (req, res, next) => {
       });
     }
 
-    if (!CollegeRollNo || CollegeRollNo.length !== 4) {
+    if (!CollegeRollNo || CollegeRollNo.length !== 8) {
       return res.status(400).json({
-        errors: ["Enter 4 digit valid Roll No"],
+        errors: ["Enter 8 digit valid Roll No"],
       });
     }
 

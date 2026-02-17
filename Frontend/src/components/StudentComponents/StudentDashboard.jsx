@@ -157,7 +157,7 @@ export default function StudentPortal() {
       title: "Notices",
       buttonText: "View All",
       bgColor:
-        "bg-gradient-to-br from-indigo-600/20 via-indigo-700/20 to-indigo-800/20",
+      "bg-gradient-to-br from-indigo-600/20 via-indigo-700/20 to-indigo-800/20",
       iconColor: "bg-gradient-to-br from-indigo-500 to-indigo-600",
       onClick: () => console.log("Notices clicked"),
     },
@@ -167,9 +167,9 @@ export default function StudentPortal() {
       title: "Complaints",
       buttonText: "View All",
       bgColor:
-        "bg-gradient-to-br from-purple-600/20 via-purple-700/20 to-purple-800/20",
+      "bg-gradient-to-br from-purple-600/20 via-purple-700/20 to-purple-800/20",
       iconColor: "bg-gradient-to-br from-purple-500 to-purple-600",
-      onClick: () => console.log("Complaints clicked"),
+      onClick: () => (window.location.href = "/Student/complaints"),
     },
   ];
 

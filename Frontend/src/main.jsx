@@ -21,6 +21,7 @@ import FloatingAIButton from './components/StudentComponents/FloatingAIButton.js
 import Emailverify from './auth/StudentAuth/Emailverify.jsx'
 import Leaves from './components/StudentComponents/Leaves.jsx'
 import UpdateLeaves from './components/FacultyComponents/UpdateLeaves.jsx'
+import Complaints from './components/StudentComponents/Complaints.jsx'
 
 const router = createBrowserRouter([
   {
@@ -45,7 +46,8 @@ const router = createBrowserRouter([
        { path: "/Student/FloatingAIButton", element: <FloatingAIButton />},
        { path: "/Student/Emailverify", element: <Emailverify />},
        { path: "/Student/Leaves", element: <Leaves />},
-        { path: "/Faculty/UpdateLeaves", element: <UpdateLeaves />}
+      { path: "/Faculty/UpdateLeaves", element: <UpdateLeaves />},
+      { path: "/Student/complaints", element: <Complaints />}
       
      
     ],
