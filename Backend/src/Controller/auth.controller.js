@@ -20,7 +20,7 @@ exports.registerstudents = async (req, res, next) => {
 
     if (!CollegeRollNo || CollegeRollNo.length > 6){
       return res.status(400).json({
-        errors: ["Enter 8 digit valid Roll No"],
+        errors: ["Enter 6 digit valid Roll No"],
       });
     }
 

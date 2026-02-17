@@ -223,7 +223,7 @@ ${assignment.questions.map((q, i) => `${i + 1}. ${q}`).join("\n\n")}`;
           )
         ) : (
           /* DETAILS VIEW */
-          <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 rounded-3xl p-8 border border-white/10">
+          <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 rounded-3xl p-4 sm:p-8 border border-white/10">
             <button
               onClick={() => setSelectedAssignment(null)}
               className="mb-6 flex items-center gap-2 text-blue-200 hover:text-white"
@@ -242,15 +242,16 @@ ${assignment.questions.map((q, i) => `${i + 1}. ${q}`).join("\n\n")}`;
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                
-                {/* Download as Text */}
+              {/* ── DOWNLOAD BUTTON: mobile-optimised ── */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => handleDownload(selectedAssignment)}
-                  className="flex items-center gap-2 bg-white/10 text-white px-6 py-3 rounded-full border border-white/20 hover:bg-white/20 transition"
+                  className="flex items-center justify-center gap-2 bg-white/10 text-white
+                             w-full sm:w-auto px-6 py-3 rounded-full border border-white/20
+                             hover:bg-white/20 active:scale-95 transition text-sm sm:text-base"
                 >
                   <Download size={18} />
-                  Download as Text
+                  <span>Download as Text</span>
                 </button>
               </div>
             </div>
@@ -258,14 +259,14 @@ ${assignment.questions.map((q, i) => `${i + 1}. ${q}`).join("\n\n")}`;
             {/* File Attachment Card (if exists) */}
             {selectedAssignment.filePath && (
               <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 rounded-2xl p-6 border border-green-400/30 mb-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="bg-green-600 w-14 h-14 rounded-xl flex items-center justify-center">
+                    <div className="bg-green-600 w-14 h-14 shrink-0 rounded-xl flex items-center justify-center">
                       <File className="w-7 h-7 text-white" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs text-green-300 mb-1">Attached File</p>
-                      <p className="font-semibold text-white text-lg">
+                      <p className="font-semibold text-white text-lg truncate">
                         {selectedAssignment.fileName}
                       </p>
                       <p className="text-xs text-green-200 mt-1">
@@ -277,7 +278,9 @@ ${assignment.questions.map((q, i) => `${i + 1}. ${q}`).join("\n\n")}`;
                   </div>
                   <button
                     onClick={() => handleDownloadFile(selectedAssignment.filePath, selectedAssignment.fileName)}
-                    className="flex items-center gap-2 bg-green-500/20 text-green-300 px-5 py-2.5 rounded-full border border-green-400/30 hover:bg-green-500/30 transition"
+                    className="flex items-center justify-center gap-2 bg-green-500/20 text-green-300
+                               w-full sm:w-auto px-5 py-2.5 rounded-full border border-green-400/30
+                               hover:bg-green-500/30 active:scale-95 transition text-sm"
                   >
                     <Download size={16} />
                     Download
