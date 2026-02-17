@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser')
 const authRoutes = require('./routes/auth.route');
 const facultyRoutes = require('./routes/faculty.route');
 const studentRoutes = require('./routes/student.route');
+const screenroutes = require('./routes/screen.route');
 const cors = require('cors');
 const path = require('path')
 require("dotenv").config();
@@ -27,5 +28,6 @@ app.get("/", (req, res, next) => {
 app.use('/api/Student',studentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/Faculty',facultyRoutes);
+app.use('/api',screenroutes);
 
 module.exports = app;
