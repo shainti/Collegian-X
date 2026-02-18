@@ -52,9 +52,9 @@ const ProfileDashboard = () => {
           <div className="flex flex-col items-center mb-8">
             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1 shadow-xl">
               <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
-                {formData.Url ? (
+                {formData.url ? (
                   <img
-                    src={formData.Url}
+                    src={formData.url}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />

@@ -206,7 +206,7 @@ if(!rollExists){
       CollegeRollNo: Student.CollegeRollNo,
       Department: Student.Department,
       Semester: Student.Semester,
-      Url: rollExists.url,
+      url: rollExists.url,
     },
   });
 };

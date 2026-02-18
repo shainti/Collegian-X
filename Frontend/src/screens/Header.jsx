@@ -19,7 +19,6 @@ export default function Header() {
     setOpen(false);
   };
 
-  // close profile dropdown on outside click (desktop)
   useEffect(() => {
     const close = () => setProfileOpen(false);
     window.addEventListener("click", close);
@@ -82,7 +81,6 @@ export default function Header() {
               </Link>
             </>
           ) : (
-            /* PROFILE DROPDOWN DESKTOP */
             <div className="relative">
               <button
                 onClick={(e) => {
@@ -91,9 +89,9 @@ export default function Header() {
                 }}
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg hover:scale-110 transition overflow-hidden"
               >
-                {student?.Url ? (
+                {student?.url ? (
                   <img
-                    src={student.Url}
+                    src={student.url}
                     alt="Profile"
                     className="h-full w-full object-cover"
                   />
@@ -127,27 +125,41 @@ export default function Header() {
           )}
         </nav>
 
-        {/* MOBILE MENU BUTTON */}
-        <button
-          className="md:hidden relative w-8 h-8 sm:w-10 sm:h-10 flex flex-col justify-center items-center"
-          onClick={() => setOpen(!open)}
-        >
-          <span
-            className={`absolute h-px w-6 bg-white transition ${
-              open ? "rotate-45" : "-translate-y-2"
-            }`}
-          />
-          <span
-            className={`absolute h-px w-6 bg-white transition ${
-              open ? "opacity-0" : "opacity-100"
-            }`}
-          />
-          <span
-            className={`absolute h-px w-6 bg-white transition ${
-              open ? "-rotate-45" : "translate-y-2"
-            }`}
-          />
-        </button>
+        {/* MOBILE IMAGE + MENU BUTTON */}
+        <div className="md:hidden flex items-center gap-3">
+          <div className="h-9 w-9 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg overflow-hidden">
+            {student?.url ? (
+              <img
+                src={student.url}
+                alt="Profile"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <User className="h-5 w-5 text-white mx-auto mt-2" />
+            )}
+          </div>
+
+          <button
+            className="relative w-8 h-8 sm:w-10 sm:h-10 flex flex-col justify-center items-center"
+            onClick={() => setOpen(!open)}
+          >
+            <span
+              className={`absolute h-px w-6 bg-white transition ${
+                open ? "rotate-45" : "-translate-y-2"
+              }`}
+            />
+            <span
+              className={`absolute h-px w-6 bg-white transition ${
+                open ? "opacity-0" : "opacity-100"
+              }`}
+            />
+            <span
+              className={`absolute h-px w-6 bg-white transition ${
+                open ? "-rotate-45" : "translate-y-2"
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* MOBILE MENU */}
@@ -205,19 +217,6 @@ export default function Header() {
             </>
           ) : (
             <div className="flex flex-col items-center gap-3.5 mb-2">
-              {/* Profile Image for Mobile */}
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg overflow-hidden">
-                {student?.Url ? (
-                  <img
-                    src={student.Url}
-                    alt="Profile"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <User className="h-8 w-8 text-white" />
-                )}
-              </div>
-
               <Link
                 to="/MyProfile"
                 onClick={() => setOpen(false)}
