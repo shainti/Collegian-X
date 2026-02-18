@@ -135,7 +135,7 @@ const LeaveCard = memo(({ leave, onApprove, onReject, loadingId }) => {
           {leave.attachments.map((file, idx) => (
             <a
               key={idx}
-              href={`${API_URL}/${file}`}
+              href={file}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg text-xs text-blue-300 transition-all duration-200"

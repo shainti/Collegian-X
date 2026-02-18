@@ -18,6 +18,7 @@
     "bcrypt": "^6.0.0",
     "bytez": "^0.7.0",
     "bytez.js": "^3.0.0",
+    "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
@@ -30,6 +31,7 @@
     "multer": "^2.0.2",
     "nodemailer": "^8.0.1",
     "nodemon": "^3.1.11",
-    "resend": "^6.9.2"
+    "resend": "^6.9.2",
+    "streamifier": "^0.1.1"
   }
 }

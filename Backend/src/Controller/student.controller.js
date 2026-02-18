@@ -275,24 +275,25 @@ exports.submitleaves = async (req, res) => {
       startDate: req.body.startDate,
       endDate: req.body.endDate,
       reason: req.body.reason,
-      approvedBy:"",
+      approvedBy: "",
       rejectedBy: "",
-      rejectionReason:"",
-      certificates: req.files ? req.files.map(file => file.path) : [],
+      rejectionReason: "",
+      certificates: req.cloudinaryUrls || [], // ✅ CHANGED: use Cloudinary URLs instead of local file paths
       status: 'pending',
       appliedDate: new Date()
     };
-     await Leavemodel.create(leaveData)
 
-    res.status(200).json({ 
+    await Leavemodel.create(leaveData);
+
+    res.status(200).json({
       message: "Leave application submitted successfully",
-      data: leaveData 
+      data: leaveData
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      message: "Server error",
+      error: error.message
     });
   }
 };

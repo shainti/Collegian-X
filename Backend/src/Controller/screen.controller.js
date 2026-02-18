@@ -20,14 +20,22 @@ exports.getReviews = async (req, res) => {
 
 exports.postReviews = async (req, res) => {
   try {
-    const { name, role, rating, tag, message } = req.body;
+    const { name, userId, role, rating, tag, message } = req.body; // ✅ added userId
 
-    // .create() already saves — no need for .save()
-    const review = await ReviewModel.create({ name, role, rating, tag, message });
+      if (userId) {
+      const existing = await ReviewModel.findOne({ userId });
+      if (existing) {
+        return res.status(400).json({
+          success: false,
+          message: "You have already posted a review!",
+        });
+      }
+    }
+    const review = await ReviewModel.create({ name, userId, role, rating, tag, message }); // ✅ removed useless find()
 
     res.status(201).json({
       success: true,
-      data:    review,
+      data: review,
     });
   } catch (error) {
     res.status(500).json({

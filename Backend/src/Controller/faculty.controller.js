@@ -5,6 +5,7 @@ const StudentAttendance = require('../models/StudentAttendance.model')
 const fs = require("fs");
 const { sendMail, sendLeaveMail } = require('../middleware/Email.confiq')
 const Leavemodel = require('../models/Leave.model')
+const cloudinary = require("cloudinary").v2; // ✅ ADDED
 
 exports.Assignment = async (req, res) => {
   try {
@@ -37,7 +38,8 @@ exports.Assignment = async (req, res) => {
 
     if (req.file) {
       assignmentData.fileName = req.file.originalname;
-      assignmentData.filePath = req.file.filename;
+      assignmentData.filePath = req.file.cloudinaryUrl;       // ✅ CHANGED: store Cloudinary URL
+      assignmentData.cloudinaryPublicId = req.file.cloudinaryPublicId; // ✅ ADDED: store public_id for deletion
       assignmentData.fileSize = req.file.size;
       assignmentData.mimeType = req.file.mimetype;
     }
@@ -90,10 +92,11 @@ exports.Assignment = async (req, res) => {
   } catch (error) {
     console.error('Assignment creation error:', error); 
     
-    if (req.file && req.file.path) {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.log('Error deleting file:', err);
-      });
+    // ✅ CHANGED: Delete from Cloudinary instead of local disk
+    if (req.file && req.file.cloudinaryPublicId) {
+      await cloudinary.uploader.destroy(req.file.cloudinaryPublicId).catch(err => 
+        console.log('Error deleting file from Cloudinary:', err)
+      );
     }
 
     return res.status(500).json({
@@ -144,20 +147,20 @@ exports.putassignment = async (req, res) => {
 
     // If new file uploaded, update file info
     if (req.file) {
-      // Get old assignment to delete old file
+      // Get old assignment to delete old file from Cloudinary
       const oldAssignment = await AssignmentModel.findById(Id);
       
-      // Delete old file if exists
-      if (oldAssignment && oldAssignment.filePath) {
-        const oldFilePath = `uploads/${oldAssignment.filePath}`;
-        fs.unlink(oldFilePath, (err) => {
-          if (err) console.log('Error deleting old file:', err);
-        });
+      // ✅ CHANGED: Delete old file from Cloudinary instead of local disk
+      if (oldAssignment && oldAssignment.cloudinaryPublicId) {
+        await cloudinary.uploader.destroy(oldAssignment.cloudinaryPublicId).catch(err => 
+          console.log('Error deleting old file from Cloudinary:', err)
+        );
       }
 
-      // Add new file info
+      // ✅ CHANGED: Add new Cloudinary file info
       updateData.fileName = req.file.originalname;
-      updateData.filePath = req.file.filename;
+      updateData.filePath = req.file.cloudinaryUrl;             // ✅ CHANGED: Cloudinary URL
+      updateData.cloudinaryPublicId = req.file.cloudinaryPublicId; // ✅ ADDED
       updateData.fileSize = req.file.size;
       updateData.mimeType = req.file.mimetype;
     }
@@ -177,9 +180,11 @@ exports.putassignment = async (req, res) => {
       message: "Assignment updated successfully",
     });
   } catch (error) {
-    // Remove uploaded file if update fails
-    if (req.file && req.file.path) {
-      fs.unlink(req.file.path, () => {});
+    // ✅ CHANGED: Delete from Cloudinary instead of local disk
+    if (req.file && req.file.cloudinaryPublicId) {
+      await cloudinary.uploader.destroy(req.file.cloudinaryPublicId).catch(err => 
+        console.log('Error deleting file from Cloudinary:', err)
+      );
     }
     
     console.error("Update error:", error);
@@ -222,12 +227,23 @@ exports.Deleteassignment = async (req, res) => {
       return res.status(404).json({ message: "Assignment not found" });
     }
 
+    console.log('cloudinaryPublicId:', Deleteassignment.cloudinaryPublicId); // ✅ check value
+
+    if (Deleteassignment.cloudinaryPublicId) {
+      const cloudinaryResult = await cloudinary.uploader.destroy(
+        Deleteassignment.cloudinaryPublicId,
+        { resource_type: "raw" } // ✅ must match what you uploaded with
+      ).catch(err => console.log('Cloudinary delete error:', err));
+      
+      console.log('Cloudinary delete result:', cloudinaryResult);
+    }
+
     res.status(200).json({
       assignment: Deleteassignment,
       message: "Assignment Delete successfully",
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update assignment" });
+    res.status(500).json({ message: "Failed to delete assignment" });
   }
 };
 

@@ -536,7 +536,7 @@ const LeaveApplication = () => {
             {/* File Upload */}
             <div>
               <label className="block text-sm font-semibold text-slate-300 mb-2">
-                Attach Certificate (Optional - PDF, JPG, PNG - Max 5MB)
+                Attach Certificate (Optional - JPG, PNG, JPEG ONLY - Max 5MB)
               </label>
 
               <div
@@ -570,7 +570,7 @@ const LeaveApplication = () => {
               <input
                 type="file"
                 id="fileInput"
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept=".jpg,.jpeg,.png"
                 multiple
                 disabled={isSubmitting}
                 onChange={(e) => handleFiles(e.target.files)}

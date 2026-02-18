@@ -103,10 +103,29 @@ export default function FacultyAssignmentManager() {
     }
   };
 
-  const handleDownloadFile = (filePath, fileName) => {
-    // Download file from server
-    window.open(`${API_URL}/uploads/${filePath}`, '_blank');
-  };
+const handleDownloadFile = async (filePath, fileName) => {
+  if (!filePath) return;
+
+  try {
+    // Fetch the file as a blob
+    const response = await fetch(filePath);
+    const blob = await response.blob();
+
+    // Create blob URL and force download with correct filename
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = fileName; // ✅ exact original filename with extension e.g. "resume.pdf"
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl); // cleanup
+  } catch (error) {
+    console.error('Download failed:', error);
+    // Fallback - open in new tab
+    window.open(filePath, '_blank');
+  }
+};
 
   const handleAddNew = () => {
     setEditingId(null);

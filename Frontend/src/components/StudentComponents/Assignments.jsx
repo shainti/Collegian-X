@@ -52,15 +52,29 @@ export default function AssignmentViewer() {
     }
   };
 
-  // Download assignment file (PDF/DOCX) uploaded by faculty
-  const handleDownloadFile = (filePath, fileName) => {
-    if (!filePath || !fileName) {
-      alert('No file attached to this assignment');
-      return;
-    }
-    // Open file in new tab or download
-    window.open(`${API_URL}/uploads/${filePath}`, '_blank');
-  };
+const handleDownloadFile = async (filePath, fileName) => {
+  if (!filePath || !fileName) {
+    alert('No file attached to this assignment');
+    return;
+  }
+
+  try {
+    const response = await fetch(filePath);
+    const blob = await response.blob();
+
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = fileName; // ✅ correct filename with extension
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error('Download failed:', error);
+    window.open(filePath, '_blank'); // fallback
+  }
+};
 
   // Download assignment details as text
   const handleDownload = (assignment) => {

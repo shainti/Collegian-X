@@ -9,7 +9,6 @@ export default function Home() {
 
   return (
     <>
-      {/* ══ 1. HERO ══ */}
       <div className="relative w-full min-h-fit md:min-h-screen bg-[#050B16] flex pt-24 md:pt-34 pb-16 md:pb-0 justify-center overflow-hidden px-4">
 
         {/* Background Glow */}
@@ -17,7 +16,6 @@ export default function Home() {
           <div className="w-[400px] h-[400px] md:w-[600px] md:h-[600px] bg-blue-600/30 blur-[180px] rounded-full" />
         </div>
 
-        {/* Dark fade — bottom of hero into Footer */}
         <div
           className="pointer-events-none absolute bottom-0 left-0 right-0 h-48 z-20"
           style={{ background: "linear-gradient(to top, #020810 0%, transparent 100%)" }}
@@ -62,11 +60,8 @@ export default function Home() {
 
         {student && <FloatingAIButton />}
       </div>
-
-      {/* ══ 2. FOOTER ══ */}
       <Footer />
 
-      {/* ══ 3. REVIEWS ══ */}
       <CollegianXReviews />
     </>
   );

@@ -22,7 +22,9 @@ app.use(cors({
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
+app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => {
+  res.status(204).end(); // No content, no error
+});
 app.get("/", (req, res, next) => {
 });
 app.use('/api/Student',studentRoutes);

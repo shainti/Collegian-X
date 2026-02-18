@@ -1,18 +1,11 @@
 const brevo = require('@getbrevo/brevo');
 
-console.log('\n=== BREVO API CONFIGURATION ===');
-console.log('API Key exists:', !!process.env.BREVO_API_KEY);
-console.log('API Key preview:', process.env.BREVO_API_KEY ? `${process.env.BREVO_API_KEY.substring(0, 15)}...` : 'MISSING');
-console.log('From Email:', process.env.SMTP_FROM_EMAIL);
-console.log('===================================\n');
-
 // Configure Brevo API
 const apiInstance = new brevo.TransactionalEmailsApi();
 apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 const sendverificationcode = async (email, verificationCode) => {
   try {
-    console.log('📧 Sending verification email to:', email);
     
     const sendSmtpEmail = new brevo.SendSmtpEmail();
     sendSmtpEmail.subject = 'Verify Your Email Address';
@@ -124,10 +117,6 @@ const sendMail = async ({ to, subject, html }) => {
 
 const sendLeaveMail = async ({ to, subject, html }) => {
   try {
-    console.log('\n🔵 sendLeaveMail called (using Brevo API)');
-    console.log('To:', to);
-    console.log('Subject:', subject);
-    
     const sendSmtpEmail = new brevo.SendSmtpEmail();
     sendSmtpEmail.subject = subject;
     sendSmtpEmail.sender = { 
