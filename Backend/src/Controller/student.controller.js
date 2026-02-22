@@ -1,11 +1,9 @@
 const mongoose = require("mongoose");
 const AssignmentModel = require("../models/Assignment.model");
 const AttendanceModel = require("../models/StudentAttendance.model");
-const Bytez = require("bytez.js");
 const Leavemodel = require("../models/Leave.model");
+const axios = require('axios');
 
-
-const sdk = new Bytez(process.env.API_KEY);
 
 exports.GetStudentAssignment = async (req, res) => {
   try {
@@ -137,6 +135,45 @@ function createFallbackStudyPlan(subjects, studyHours, hardestSubject, daysUntil
   };
 }
 
+
+const MODELS = [
+  "openrouter/free",                                    // ✅ auto-picks any working free model
+  "meta-llama/llama-3.3-70b-instruct:free",            // ✅ confirmed working Feb 2025
+  "google/gemma-3-12b-it:free",                        // ✅ confirmed working
+  "google/gemma-3-27b-it:free",                        // ✅ confirmed working
+  "moonshotai/kimi-k2:free",                           // ✅ confirmed working
+  "qwen/qwen3-coder:free",                             // ✅ confirmed working
+  "mistralai/devstral-2512:free"                       // ✅ confirmed working
+];
+async function callOpenRouter(messages) {
+  for (const model of MODELS) {
+    try {
+      console.log(`Trying model: ${model}`);
+     const response = await axios.post(
+  "https://openrouter.ai/api/v1/chat/completions",
+  { 
+    model, 
+    messages,
+    max_tokens: 4000  // ✅ add this line
+  },
+  {
+    headers: {
+      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+      "X-Title": "AI Study Planner"
+    },
+    timeout: 60000  // increase timeout to 60s since response is larger
+  }
+);
+      console.log(`✅ Model worked: ${model}`);
+      return response.data.choices[0].message.content;
+    } catch (err) {
+      console.log(`❌ Model ${model} failed:`, err.response?.data?.error?.message || err.message);
+    }
+  }
+  throw new Error("All OpenRouter models failed");
+}
+
 exports.generateplan = async (req, res) => {
   try {
     console.log("BODY:", req.body);
@@ -147,126 +184,47 @@ exports.generateplan = async (req, res) => {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
-    // Extract parameters from prompt for fallback
-    const subjectsMatch = prompt.match(/Subjects:\s*([^\n]+)/i);
-    const hoursMatch = prompt.match(/study time:\s*(\d+)\s*hours?/i);
-    const hardestMatch = prompt.match(/difficult subject:\s*([^\n]+)/i);
-    const daysMatch = prompt.match(/Days until exam:\s*(\d+)/i);
-    const styleMatch = prompt.match(/Learning style:\s*(\w+)/i);
-
-    const subjects = subjectsMatch ? subjectsMatch[1].trim() : "Math, Science";
-    const studyHours = hoursMatch ? hoursMatch[1] : "2";
-    const hardestSubject = hardestMatch ? hardestMatch[1].trim() : subjects.split(',')[0].trim();
-    const daysUntilExam = daysMatch ? parseInt(daysMatch[1]) : 30;
-    const learningStyle = styleMatch ? styleMatch[1].toLowerCase() : "visual";
-
-    // Add a delay to avoid rate limiting
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const model = sdk.model("openai/gpt-oss-20b");
-
-    console.log("Running Bytez model...");
-
-    // Simplified prompt focused on JSON only
-    const jsonPrompt = `Generate ONLY a valid JSON object (no explanations). Create a study plan with this structure:
-{"motivation":"motivational message","weeklySchedule":[{"day":"Monday","sessions":[{"subject":"${subjects.split(',')[0].trim()}","time":"4:00 PM - 6:00 PM","duration":"2 hours","focus":"practice","tip":"study tip"}]}],"subjectPriorities":[{"subject":"${subjects.split(',')[0].trim()}","hoursPerWeek":10,"priority":"High","techniques":["tip1","tip2"]}],"milestones":[{"week":1,"goal":"complete theory","deadline":"date"}],"studyTips":["tip1","tip2"],"breakSchedule":"25min study, 5min break"}
-
-Subjects: ${subjects}
-Study hours: ${studyHours}
-Days: ${daysUntilExam}
-Hardest: ${hardestSubject}
-Style: ${learningStyle}
-
-Return ONLY the JSON:`;
-
-    const { error, output } = await model.run([
-      { role: "user", content: jsonPrompt }
+    let contentText = await callOpenRouter([
+      {
+        role: "system",
+        content: "You are an expert study planner. You ONLY respond with valid JSON. Never add markdown, code blocks, or any explanation before or after the JSON."
+      },
+      {
+        role: "user",
+        content: prompt
+      }
     ]);
 
-    if (error) {
-      console.error("Bytez model error:", error);
-      
-      // Use fallback instead of returning error
-      console.log("⚠️ AI failed, using smart fallback");
-      const fallbackPlan = createFallbackStudyPlan(subjects, studyHours, hardestSubject, daysUntilExam, learningStyle);
-      
-      return res.json({ 
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(fallbackPlan)
-          }
-        ]
-      });
+    console.log("Raw AI output:", contentText.substring(0, 300));
+
+    // Clean markdown if present
+    contentText = contentText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+    // Extract JSON object
+    const firstBrace = contentText.indexOf('{');
+    const lastBrace = contentText.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      contentText = contentText.substring(firstBrace, lastBrace + 1);
     }
 
-    // Extract content
-    let contentText = '';
-    if (typeof output === 'string') {
-      contentText = output;
-    } else if (typeof output === 'object' && output !== null) {
-      contentText = output.content || output.text || output.message || JSON.stringify(output);
+    // Validate JSON
+    try {
+      JSON.parse(contentText);
+      console.log("✅ Valid JSON received from AI");
+    } catch (e) {
+      console.error("❌ Invalid JSON from AI:", contentText.substring(0, 300));
+      return res.status(500).json({ error: "AI returned invalid JSON. Please try again." });
     }
 
-    console.log("Raw output:", contentText.substring(0, 200));
-
-    // Try to extract JSON
-    const jsonMatch = contentText.match(/\{[\s\S]*\}/);
-    
-    if (jsonMatch) {
-      contentText = jsonMatch[0];
-      
-      // Validate JSON
-      try {
-        JSON.parse(contentText);
-        console.log("✅ Valid JSON extracted from AI");
-        
-        return res.json({ 
-          content: [
-            {
-              type: "text",
-              text: contentText
-            }
-          ]
-        });
-      } catch (e) {
-        console.log("❌ Invalid JSON, using fallback");
-      }
-    }
-
-    // If we reach here, AI didn't return valid JSON - use fallback
-    console.log("⚠️ No valid JSON found, using smart fallback");
-    const fallbackPlan = createFallbackStudyPlan(subjects, studyHours, hardestSubject, daysUntilExam, learningStyle);
-    
-    res.json({ 
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(fallbackPlan)
-        }
-      ]
+    return res.json({
+      content: [{ type: "text", text: contentText }]
     });
 
   } catch (err) {
-    console.error("SERVER CRASH:", err);
-    
-    // Even on crash, try to return a fallback
-    try {
-      const fallbackPlan = createFallbackStudyPlan("Math, Science", "2", "Math", 30, "visual");
-      res.json({ 
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(fallbackPlan)
-          }
-        ]
-      });
-    } catch (fallbackErr) {
-      res.status(500).json({ error: err.message });
-    }
+    console.error("SERVER CRASH:", err.message);
+    return res.status(500).json({ error: err.message });
   }
 };
-
 exports.submitleaves = async (req, res) => {
   try {
     const leaveData = {
