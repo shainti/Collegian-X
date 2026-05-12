@@ -17,7 +17,7 @@ exports.registerstudents = async (req, res, next) => {
     const Email = await StudentModel.findOne({ email });
     if (Email) {
       return res.status(400).json({
-        errors: ["Student Already Exist"],
+        errors: ["Student Already Exist in database"],
       });
     }
 
