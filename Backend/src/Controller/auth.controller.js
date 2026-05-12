@@ -8,7 +8,7 @@ const { sendverificationcode } = require('../middleware/Email.confiq');
 const { GetInboundEmailEvents } = require("@getbrevo/brevo");
 
 
-//add new commit 
+//add new commit new value 
 exports.registerstudents = async (req, res, next) => {
   try {
     const { FullName, email, Department, Semester, CollegeRollNo, password } =
