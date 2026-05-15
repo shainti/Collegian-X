@@ -2,7 +2,7 @@ import { API_URL } from '../../api';
 import React, { useState } from 'react';
 
 export default function AIStudyPlanner() {
-  // State management where state are managed
+  // State management where state are managed all the states 
   const [subjects, setSubjects] = useState('');
   const [studyHours, setStudyHours] = useState('2');
   const [hardestSubject, setHardestSubject] = useState('');
